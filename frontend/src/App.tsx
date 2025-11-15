@@ -5,7 +5,7 @@ import './App.css'
 
 import DashboardPage from './pages/DashboardPage'
 import QuestionsHealth from './pages/QuestionsHealth'
-import DailyQuestionnaire from './pages/DailyQuestionnaire'
+// import DailyQuestionnaire from './pages/DailyQuestionnaire'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 
@@ -20,7 +20,7 @@ function App() {
           element={user ? <DashboardPage user={user} /> : <Navigate to="/login" replace />}
         />
         <Route path="/health-check" element={<QuestionsHealth />} />
-        <Route path="/challange" element={<DailyQuestionnaire />} />
+        {/* <Route path="/challenge" element={<DailyQuestionnaire />} /> */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/login" element={<LoginPage setUser={(u: User) => setUser(u)} />} />
         <Route path="/register" element={<RegisterPage setUser={(u: User) => setUser(u)} />} />

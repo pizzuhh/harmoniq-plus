@@ -67,30 +67,57 @@ export default function QuestionsHealth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     try {
-      const response = await fetch('/api/questionnaire/submit', {
+      // Simple scoring: for each question, find the selected option index and add (index+1)*9 points
+      // (this maps to quest required_points scale used in the backend seed data)
+      let totalPoints = 0
+      for (const q of questions) {
+        const ans = responses[q.id]
+        if (!ans) continue
+        const idx = q.options.findIndex((o) => o === ans)
+        if (idx >= 0) totalPoints += (idx + 1) * 9
+      }
+
+      // Update user points on backend
+      const apiBase = import.meta.env.VITE_API_URL || ''
+      const userId = localStorage.getItem('authToken') || ''
+
+      const res = await fetch(`${apiBase}/api/send_form_points`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          user_id: `${localStorage.getItem('authToken')}`,
+          user_id: userId,
         },
-        body: JSON.stringify({
-          responses,
-          screenTimeHours: screenTime,
-        }),
+        body: JSON.stringify(totalPoints),
       })
 
-      if (response.ok) {
-        console.log('Questionnaire submitted successfully')
+      if (!res.ok) {
+        console.error('Failed to send points to backend')
+        return
+      }
+
+      // Immediately request a challenge for the user
+      const chall = await fetch(`${apiBase}/challange/receive`, {
+        method: 'GET',
+        headers: { user_id: userId },
+      })
+
+      if (chall.ok) {
+        // We don't need to use the returned challenge here because DashboardPage will fetch it on mount
+        // but we can log it for debugging.
+        const quest = await chall.json()
+        console.log('Assigned quest:', quest)
+
         setSubmitted(true)
         setTimeout(() => {
           setResponses({})
           setScreenTime(0)
           setSubmitted(false)
-        }, 2000)
+          // navigate user to dashboard to see their challenge
+          window.location.href = '/dashboard'
+        }, 800)
       } else {
-        console.error('Failed to submit questionnaire')
+        console.error('Failed to retrieve challenge')
       }
     } catch (error) {
       console.error('Error submitting questionnaire:', error)

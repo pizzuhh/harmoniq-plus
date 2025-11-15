@@ -28,10 +28,24 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
     setLoading(true)
 
     try {
-      const data = await api.register(username, email, password)
-      localStorage.setItem('authToken', data.token)
-      setUser(data.user)
-      navigate('/dashboard')
+        const data = await api.register(username, email, password)
+        localStorage.setItem('authToken', data.token)
+
+        // Fetch real user from backend /api/me using the stored token (user id)
+        let realUser = data.user
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/me`, {
+            headers: { user_id: data.token },
+          })
+          if (res.ok) {
+            realUser = await res.json()
+          }
+        } catch (e) {
+          // ignore and fallback to synthetic user
+        }
+
+        setUser(realUser)
+        navigate('/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed')
     } finally {
