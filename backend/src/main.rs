@@ -31,6 +31,7 @@ async fn main() {
                     .route("/challange/send/{id}",post(handlers::send_challange))
                     .route("/api/register", post(handlers::register))
                     .route("/api/login", post(handlers::login))
+                    .route("/admin/api/get_pending", post(handlers::get_pending_quest))
                     .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:7564").await.unwrap();

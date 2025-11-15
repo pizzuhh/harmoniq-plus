@@ -32,12 +32,10 @@ pub enum Progress {
 #[derive(serde::Serialize, serde::Deserialize, sqlx::FromRow, Debug)]
 pub struct Quest {
     id: Uuid,
-    progress: Option<Progress>,
     name: String,
     description: String,
     required_points: i32,
     points_received: i32,
-    user_id: Option<Uuid>
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -45,4 +43,18 @@ pub struct RegisterUser {
     pub name: String,
     pub email: String,
     pub password: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, sqlx::FromRow)]
+pub struct PendingRequest {
+    pub proof_path: Option<String>,
+    pub id: Uuid
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, sqlx::FromRow)]
+pub struct UserQuests {
+    pub id: Uuid,
+    pub quest_id: Uuid,
+    pub user_ud: Uuid,
+    pub proof_path: Option<String>,
 }
