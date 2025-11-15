@@ -5,6 +5,7 @@ import './App.css'
 
 import DashboardPage from './pages/DashboardPage'
 import QuestionsHealth from './pages/QuestionsHealth'
+import DailyQuestionnaire from './pages/DailyQuestionnaire'
 
 function App() {
   const [user] = useState<User>({
@@ -22,6 +23,7 @@ function App() {
       <Routes>
         <Route path="/dashboard" element={<DashboardPage user={user} />} />
         <Route path="/health-check" element={<QuestionsHealth />} />
+        <Route path="/challange" element={<DailyQuestionnaire />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
