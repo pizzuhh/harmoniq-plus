@@ -42,7 +42,7 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1>🌿 Mindful City</h1>
+        <h1> Mindful City</h1>
         <h2>Join Us</h2>
 
         {error && <div style={styles.error}>{error}</div>}
@@ -130,7 +130,7 @@ const styles = {
   button: {
     width: '100%',
     padding: '10px',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#18961dff',
     color: 'white',
     border: 'none',
     borderRadius: '5px',
@@ -141,11 +141,11 @@ const styles = {
     color: 'red',
     marginBottom: '15px',
     padding: '10px',
-    backgroundColor: '#ffebee',
+    backgroundColor: '#a5d0baff',
     borderRadius: '5px',
   } as React.CSSProperties,
   link: {
-    color: '#4CAF50',
+    color: '#1e5c20ff',
     cursor: 'pointer',
     textDecoration: 'underline',
   } as React.CSSProperties,

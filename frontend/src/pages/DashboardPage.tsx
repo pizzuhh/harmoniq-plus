@@ -16,13 +16,38 @@ export default function DashboardPage({ user }: DashboardPageProps) {
     const loadChallenges = async () => {
       try {
         const token = localStorage.getItem('authToken')
-        const response = await fetch('/api/challenges/today', {
-          headers: { Authorization: `Bearer ${token}` },
+        // Backend endpoint (note spelling is "challange")
+        const response = await fetch('/challange/receive', {
+          method: 'GET',
+          headers: { user_id: token || '' },
         })
 
         if (response.ok) {
-          const data = await response.json()
-          setChallenges(data)
+          const quest = await response.json()
+
+          // Map backend Quest shape to frontend GeneratedChallenges/UserChallenge shape
+          const mapped: GeneratedChallenges = {
+            date: new Date().toISOString(),
+            challenges: [
+              {
+                id: quest.id,
+                userId: user?.id || '',
+                challengeId: quest.id,
+                challenge: {
+                  id: quest.id,
+                  title: quest.name || quest.title || 'Challenge',
+                  description: quest.description || '',
+                  category: 'mindfulness',
+                  duration: 10,
+                  xpReward: quest.points_received || 0,
+                  difficulty: 'easy',
+                },
+                status: 'pending',
+              },
+            ],
+          }
+
+          setChallenges(mapped)
         }
       } catch (error) {
         console.error('Failed to load challenges:', error)
@@ -89,6 +114,9 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           <button onClick={() => handleNavigation('/admin')} style={styles.navLink}>
             🛡️ Admin Panel
           </button>
+          <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>
+            🩺 Questioneer
+          </button>
         </nav>
       )}
 
@@ -110,6 +138,9 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         </button>
         <button onClick={() => handleNavigation('/admin')} style={styles.navLinkDesktop}>
           🛡️ Admin Panel
+        </button>
+        <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>
+          🩺 Questioneer
         </button>
       </div>
 
