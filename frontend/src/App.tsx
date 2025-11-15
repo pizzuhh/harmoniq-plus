@@ -5,24 +5,23 @@ import './App.css'
 
 import DashboardPage from './pages/DashboardPage'
 import QuestionsHealth from './pages/QuestionsHealth'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 
 function App() {
-  const [user] = useState<User>({
-    id: '1',
-    username: 'TestUser',
-    email: 'test@example.com',
-    level: 5,
-    totalXp: 2500,
-    currentXp: 1200,
-    createdAt: new Date().toISOString(),
-  })
+  const [user, setUser] = useState<User | null>(null)
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/dashboard" element={<DashboardPage user={user} />} />
+        <Route
+          path="/dashboard"
+          element={user ? <DashboardPage user={user} /> : <Navigate to="/login" replace />}
+        />
         <Route path="/health-check" element={<QuestionsHealth />} />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/login" element={<LoginPage setUser={(u: User) => setUser(u)} />} />
+        <Route path="/register" element={<RegisterPage setUser={(u: User) => setUser(u)} />} />
+        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   )
