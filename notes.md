@@ -74,4 +74,56 @@ If `node` or `npm` don’t work, add this to PATH:
 ``` 
 C:\Program Files\nodejs\
 ```
+## **1. Install Rust (rustup)**
+
+Go to the official installer:  
+**[https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install)**
+
+Download **rustup-init.exe** and run it.
+When asked:
+- Choose **1) Proceed with installation (default)**.
+This installs:
+- **rustup** (Rust toolchain manager)
+- **cargo** (Rust package manager/build tool)
+- **rustc** (Rust compiler)
+---
+## **2. Restart Your Terminal**
+Close and reopen PowerShell or Command Prompt so PATH updates.
+
+---
+## **3. Verify Installation**
+Run:
+``` sh
+rustc --version
+cargo --version
+rustup --version
+```
+If all 3 print versions, you’re set.
+
+---
+## **4. Install the Recommended Toolchain (Stable)**
+Should already be installed, but confirm:
+``` sh
+rustup default stable
+```
+## **5. Add the Build Tools for Windows**
+Rust needs the Windows C++ build tools for compiling native crates.
+**Option A — Install MSVC Build Tools (recommended)**  
+Go here:  
+[https://visualstudio.microsoft.com/visual-cpp-build-tools/](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+Install:
+- **Desktop development with C++**
+- Keep defaults
+**Option B — Install full Visual Studio (not needed unless you're doing C++)**
+
+## **6. Create Your First Rust Project**
+``` sh
+cargo new my_app
+cd my_app
+cargo run
+```
+## **7. Optional (but useful) Tools**
+### VS Code Extensions:
+- **rust-analyzer** (this is the main one)
+- **Even Better TOML**
 
