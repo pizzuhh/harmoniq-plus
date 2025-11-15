@@ -89,6 +89,9 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           <button onClick={() => handleNavigation('/admin')} style={styles.navLink}>
             🛡️ Admin Panel
           </button>
+          <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>
+            🩺 Questioneer
+          </button>
         </nav>
       )}
 
@@ -110,6 +113,9 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         </button>
         <button onClick={() => handleNavigation('/admin')} style={styles.navLinkDesktop}>
           🛡️ Admin Panel
+        </button>
+        <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>
+          🩺 Questioneer
         </button>
       </div>
 
