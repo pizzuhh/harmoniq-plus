@@ -18,8 +18,7 @@ async fn main() {
     let db_connection = PgPool::connect(url.as_str()).await.unwrap();
 
     let state = data::AppState {
-        db_connection: db_connection.clone(),
-        token: "tmp".to_string()
+        db_connection: db_connection.clone()
     };
 
 
@@ -31,7 +30,9 @@ async fn main() {
                     .route("/challange/send/{id}",post(handlers::send_challange))
                     .route("/api/register", post(handlers::register))
                     .route("/api/login", post(handlers::login))
-                    .route("/admin/api/get_pending", post(handlers::get_pending_quest))
+                    .route("/admin/api/get_pending", get(handlers::get_pending_quest))
+                    .route("/admin/api/verify_quest/{qid}", post(handlers::verify_quest))
+                    .route("/api/get_weekly_question", get(handlers::get_weekly_quest))
                     .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:7564").await.unwrap();

@@ -1,11 +1,12 @@
 use std::{fs::File, io::Write};
 
 use axum::{extract::{Multipart, Path, State}, http::{HeaderMap, StatusCode}, Json};
+use rand::Rng;
 use sha2::Digest;
 use sqlx::query_as;
 use uuid::Uuid;
 
-use crate::data::{self, PendingRequest};
+use crate::data::{self, PendingRequest, Quest};
 
 
 pub async fn request_challange(headers: HeaderMap, State(state): State<data::AppState>) -> Json<data::Quest> {
@@ -22,7 +23,6 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
         .await.unwrap();
     let challanges = challanges.pop().unwrap();
 
-    println!("{:?}", challanges);
     Json(challanges)
 }
 
@@ -99,7 +99,6 @@ pub async fn get_pending_quest(headers: HeaderMap, State(state): State<data::App
     let r = sqlx::query!("SELECT is_admin FROM users WHERE id = $1;", id)
         .fetch_one(&state.db_connection)
         .await.unwrap();
-    println!("{:?}", r);
     if r.is_admin == false {
         return (StatusCode::UNAUTHORIZED, Json(data::PendingRequest{proof_path: None, id: Uuid::nil()}));
     }
@@ -110,3 +109,44 @@ pub async fn get_pending_quest(headers: HeaderMap, State(state): State<data::App
 
     (StatusCode::OK, Json(rq))
 }
+
+#[axum::debug_handler]
+pub async fn verify_quest(State(state): State<data::AppState>, headers: HeaderMap,  Path(qid): Path<Uuid>, Json(body): Json<data::VerifyRequest>) -> StatusCode {
+
+    let token = headers.get("user_id").unwrap();
+    let id: Uuid = token.to_str().unwrap().parse().unwrap();
+    // Check permissions from db (inefficent)
+    let r = sqlx::query!("SELECT is_admin FROM users WHERE id = $1;", id)
+        .fetch_one(&state.db_connection)
+        .await.unwrap();
+    if r.is_admin == false {
+        return StatusCode::UNAUTHORIZED;
+    }
+
+    if body.completed {
+        sqlx::query!("UPDATE user_quest SET progress = 'verified' WHERE id = $1", qid)
+            .execute(&state.db_connection)
+            .await.unwrap();
+    } else {
+        sqlx::query!("UPDATE user_quest SET progress = 'denied' WHERE id = $1", qid)
+            .execute(&state.db_connection)
+            .await.unwrap();
+    }
+
+    StatusCode::OK
+}
+
+
+#[axum::debug_handler]
+pub async fn get_weekly_quest(State(state): State<data::AppState>) -> (StatusCode, Json<Quest>) {
+    let quests = sqlx::query_as!(Quest, "SELECT * FROM quests;")
+        .fetch_all(&state.db_connection)
+        .await.unwrap();
+    let mut rng = rand::rng();
+    let idx = rng.random_range(0..quests.len());
+    let the_chosen_one = quests.get(idx).unwrap();
+
+    (StatusCode::OK, Json(the_chosen_one.clone()))
+}
+
+

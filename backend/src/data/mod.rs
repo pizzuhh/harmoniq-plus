@@ -5,7 +5,6 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub struct AppState {
     pub db_connection: sqlx::PgPool,
-    pub token: String,
 }
 
 
@@ -29,13 +28,13 @@ pub enum Progress {
     Denied
 }
 
-#[derive(serde::Serialize, serde::Deserialize, sqlx::FromRow, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, sqlx::FromRow, Debug, Clone)]
 pub struct Quest {
-    id: Uuid,
-    name: String,
-    description: String,
-    required_points: i32,
-    points_received: i32,
+    pub id: Uuid,
+    pub name: String,
+    pub description: String,
+    pub required_points: i32,
+    pub points_received: i32,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -57,4 +56,10 @@ pub struct UserQuests {
     pub quest_id: Uuid,
     pub user_ud: Uuid,
     pub proof_path: Option<String>,
+}
+
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct VerifyRequest {
+    pub completed: bool,
 }
