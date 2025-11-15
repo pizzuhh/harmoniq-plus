@@ -27,8 +27,10 @@ async fn main() {
     println!("{:?}", t);
 
     let app = Router::new()
-                    .route("/challage/receive", get(handlers::request_challange))
+                    .route("/challange/receive", get(handlers::request_challange))
                     .route("/challange/send/{id}",post(handlers::send_challange))
+                    .route("/api/register", post(handlers::register))
+                    .route("/api/login", post(handlers::login))
                     .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:7564").await.unwrap();

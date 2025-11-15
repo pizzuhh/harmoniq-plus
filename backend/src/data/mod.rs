@@ -13,16 +13,16 @@ pub struct AppState {
 #[derive(serde::Serialize, serde::Deserialize, sqlx::FromRow, Debug)]
 pub struct User {
     pub id: Uuid,
-    pub name: Option<String>,
-    pub mail: Option<String>,
-    pub password_hash: Option<String>,
-    pub is_admin: Option<bool>,
-    pub points: Option<i32>
+    pub name: String,
+    pub mail: String,
+    pub password_hash: String,
+    pub is_admin: bool,
+    pub points: i32
 }
 
 #[derive(serde::Serialize, serde::Deserialize, sqlx::Type, Debug)]
 #[sqlx(type_name="quest_state")]
-#[sqlx(rename_all="PascalCase")]
+#[sqlx(rename_all="lowercase")]
 pub enum Progress {
     Verefied,
     Pending,
@@ -38,4 +38,11 @@ pub struct Quest {
     required_points: i32,
     points_received: i32,
     user_id: Option<Uuid>
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct RegisterUser {
+    pub name: String,
+    pub email: String,
+    pub password: String,
 }

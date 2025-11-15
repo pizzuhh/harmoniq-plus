@@ -102,6 +102,7 @@ dependencies = [
  "dotenv",
  "serde",
  "serde_json",
+ "sha2",
  "sqlx",
  "tokio",
  "uuid",
