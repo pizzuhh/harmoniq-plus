@@ -4,6 +4,7 @@ import type { User } from './types'
 import './App.css'
 
 import DashboardPage from './pages/DashboardPage'
+import QuestionsHealth from './pages/QuestionsHealth'
 
 function App() {
   const [user] = useState<User>({
@@ -20,6 +21,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/dashboard" element={<DashboardPage user={user} />} />
+        <Route path="/health-check" element={<QuestionsHealth />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>

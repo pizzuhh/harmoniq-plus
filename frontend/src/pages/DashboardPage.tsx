@@ -234,7 +234,7 @@ const styles = {
     textAlign: 'left',
   } as React.CSSProperties,
   main: {
-    maxWidth: '1200px',
+    
     margin: '0 auto',
     padding: '20px',
   } as React.CSSProperties,
@@ -262,12 +262,12 @@ const styles = {
   } as React.CSSProperties,
   statLabel: {
     fontSize: '12px',
-    color: '#e51b1bff',
+    color: '#000000ff',
   } as React.CSSProperties,
   statValue: {
     fontSize: '24px',
     fontWeight: 'bold',
-    color: '#172a61ff',
+    color: '#19c916ff',
   } as React.CSSProperties,
   challengesList: {
     display: 'grid',
@@ -290,7 +290,7 @@ const styles = {
   status: {
     marginTop: '10px',
     fontSize: '12px',
-    color: '#0a436cff',
+    color: '#37b324ff',
     fontWeight: 'bold',
   } as React.CSSProperties,
   loading: {
