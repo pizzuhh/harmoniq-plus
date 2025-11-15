@@ -33,6 +33,7 @@ async fn main() {
                     .route("/admin/api/get_pending", get(handlers::get_pending_quest))
                     .route("/admin/api/verify_quest/{qid}", post(handlers::verify_quest))
                     .route("/api/get_weekly_question", get(handlers::get_weekly_quest))
+                    .route("/api/send_form_points", post(handlers::send_form_points))
                     .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:7564").await.unwrap();
