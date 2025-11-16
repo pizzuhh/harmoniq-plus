@@ -62,26 +62,32 @@ export default function LoginPage({ setUser }: LoginPageProps) {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1> Mindful City</h1>
-        <h2>Login</h2>
+        <div style={styles.brand}>
+          <div>
+            <h1 style={styles.title}>Mindful City</h1>
+            <div style={styles.subtitle}>Sign in to continue</div>
+          </div>
+        </div>
 
         {error && <div style={styles.error}>{error}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label>Email</label>
+            <label style={styles.label}>Email</label>
             <input
+              style={styles.input}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              placeholder="you@example.com"
               required
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label>Password</label>
+            <label style={styles.label}>Password</label>
             <input
+              style={styles.input}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -95,12 +101,12 @@ export default function LoginPage({ setUser }: LoginPageProps) {
           </button>
         </form>
 
-        <p>
-          Don't have an account?{' '}
+        <div style={styles.footerRow}>
+          <span style={{ color: '#666' }}>Don't have an account?</span>
           <a onClick={() => navigate('/register')} style={styles.link}>
-            Sign up
+            Create one
           </a>
-        </p>
+        </div>
       </div>
     </div>
   )
@@ -111,43 +117,93 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: '150vh',
-    backgroundColor: '#f5f5f5',
+    minHeight: '100vh',
+    backgroundColor: '#f3f6f8',
   } as React.CSSProperties,
   card: {
-    backgroundColor: 'green',
-    padding: '40px',
-    borderRadius: '10px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    backgroundColor: 'white',
+    padding: '28px',
+    borderRadius: '12px',
+    boxShadow: '0 6px 24px rgba(12,40,60,0.08)',
     width: '100%',
-    maxWidth: '800px',
+    maxWidth: '420px',
+  } as React.CSSProperties,
+  brand: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  } as React.CSSProperties,
+  logo: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg,#6ee7b7,#34d399)',
+    fontSize: 24,
+  } as React.CSSProperties,
+  title: {
+    margin: 0,
+    fontSize: 20,
+    color: '#0b3340',
+  } as React.CSSProperties,
+  subtitle: {
+    fontSize: 12,
+    color: '#5b6b72',
+  } as React.CSSProperties,
+  form: {
+    marginTop: 8,
   } as React.CSSProperties,
   formGroup: {
-    marginBottom: '20px',
-
+    marginBottom: '14px',
+  } as React.CSSProperties,
+  label: {
+    display: 'block',
+    fontSize: 13,
+    color: '#334155',
+    marginBottom: 6,
+  } as React.CSSProperties,
+  input: {
+    width: '100%',
+    padding: '10px 12px',
+    borderRadius: 8,
+    border: '1px solid #e6eef2',
+    outline: 'none',
+    fontSize: 14,
+    boxSizing: 'border-box',
   } as React.CSSProperties,
   button: {
     width: '100%',
     padding: '10px',
-    display: 'flex',
-    justifyContent: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#16a34a',
     color: 'white',
     border: 'none',
-    borderRadius: '5px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '16px',
+    fontWeight: 600,
   } as React.CSSProperties,
   error: {
-    color: 'red',
-    marginBottom: '15px',
-    padding: '10px',
-    backgroundColor: '#ffebee',
-    borderRadius: '5px',
+    color: '#7f1d1d',
+    marginBottom: '12px',
+    padding: '10px 12px',
+    backgroundColor: '#fff1f2',
+    borderRadius: '8px',
+    border: '1px solid #ffccd5',
   } as React.CSSProperties,
   link: {
-    color: '#0f4271ff',
+    color: '#0b5cff',
     cursor: 'pointer',
     textDecoration: 'underline',
+    marginLeft: 8,
+  } as React.CSSProperties,
+  footerRow: {
+    marginTop: 12,
+    display: 'flex',
+    gap: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   } as React.CSSProperties,
 }

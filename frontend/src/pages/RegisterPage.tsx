@@ -69,15 +69,20 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1> Mindful City</h1>
-        <h2>Join Us</h2>
+        <div style={styles.brand}>
+          <div>
+            <h1 style={styles.title}>Mindful City</h1>
+            <div style={styles.subtitle}>Create your account</div>
+          </div>
+        </div>
 
         {error && <div style={styles.error}>{error}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label>Username</label>
+            <label style={styles.label}>Username</label>
             <input
+              style={styles.input}
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -87,36 +92,40 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
           </div>
 
           <div style={styles.formGroup}>
-            <label>Email</label>
+            <label style={styles.label}>Email</label>
             <input
+              style={styles.input}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              placeholder="you@example.com"
               required
             />
           </div>
 
-          <div style={styles.formGroup}>
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
+          <div style={styles.twoCols}>
+            <div style={{ flex: 1, marginRight: 8 }}>
+              <label style={styles.label}>Password</label>
+              <input
+                style={styles.input}
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={styles.label}>Confirm</label>
+              <input
+                style={styles.input}
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+            </div>
           </div>
 
           <button type="submit" disabled={loading} style={styles.button}>
@@ -124,12 +133,12 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
           </button>
         </form>
 
-        <p>
-          Already have an account?{' '}
+        <div style={styles.footerRow}>
+          <span style={{ color: '#666' }}>Already have an account?</span>
           <a onClick={() => navigate('/login')} style={styles.link}>
             Login
           </a>
-        </p>
+        </div>
       </div>
     </div>
   )
@@ -144,12 +153,59 @@ const styles = {
     backgroundColor: '#ffffffff',
   } as React.CSSProperties,
   card: {
-    backgroundColor: 'green',
-    padding: '40px',
+    backgroundColor: '#ffffff',
+    padding: '32px',
     borderRadius: '10px',
     boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
     width: '100%',
     maxWidth: '800px',
+  } as React.CSSProperties,
+  brand: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    marginBottom: '18px',
+  } as React.CSSProperties,
+  logo: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg,#2f9e44,#60a5fa)',
+    color: 'white',
+    fontSize: 24,
+  } as React.CSSProperties,
+  title: {
+    margin: 0,
+    fontSize: '20px',
+    color: '#183a1b',
+  } as React.CSSProperties,
+  subtitle: {
+    fontSize: '13px',
+    color: '#546e5a',
+  } as React.CSSProperties,
+  form: {
+    marginTop: '6px',
+  } as React.CSSProperties,
+  label: {
+    display: 'block',
+    marginBottom: '6px',
+    color: '#234522',
+    fontSize: '13px',
+  } as React.CSSProperties,
+  input: {
+    width: '100%',
+    padding: '10px',
+    borderRadius: '6px',
+    border: '1px solid #e6eee6',
+    boxSizing: 'border-box',
+  } as React.CSSProperties,
+  twoCols: {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '16px',
   } as React.CSSProperties,
   formGroup: {
     marginBottom: '20px',
@@ -177,5 +233,11 @@ const styles = {
     color: '#1e5c20ff',
     cursor: 'pointer',
     textDecoration: 'underline',
+  } as React.CSSProperties,
+  footerRow: {
+    marginTop: '16px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   } as React.CSSProperties,
 }
