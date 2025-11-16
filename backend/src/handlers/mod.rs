@@ -17,13 +17,16 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
         .await.unwrap();
     let points = user.points;
 
-    let mut challanges: Vec<data::Quest> = query_as::<_, data::Quest>("SELECT * FROM quests WHERE required_points <= $1")
-        .bind(points)
-        .fetch_all(&state.db_connection)
-        .await.unwrap();
-    let challanges = challanges.pop().unwrap();
+    // Select the best matching quest: the one with the highest required_points that is <= user's points
+    let quest: data::Quest = query_as::<_, data::Quest>(
+        "SELECT * FROM quests WHERE required_points <= $1 ORDER BY required_points DESC LIMIT 1",
+    )
+    .bind(points)
+    .fetch_one(&state.db_connection)
+    .await
+    .unwrap();
 
-    Json(challanges)
+    Json(quest)
 }
 
 pub async fn send_challange(headers: HeaderMap, State(state): State<data::AppState>, Path(quest_id): Path<Uuid>, mut multipart: Multipart) {
@@ -112,6 +115,32 @@ pub async fn get_pending_quest(headers: HeaderMap, State(state): State<data::App
 
     (StatusCode::OK, Json(rq))
 }
+
+pub async fn me(headers: HeaderMap, State(state): State<data::AppState>) -> (StatusCode, Json<Option<data::User>>) {
+    let token = match headers.get("user_id") {
+        Some(t) => t,
+        None => return (StatusCode::UNAUTHORIZED, Json(None)),
+    };
+
+    let id: Uuid = match token.to_str() {
+        Ok(s) => match s.parse() {
+            Ok(u) => u,
+            Err(_) => return (StatusCode::UNAUTHORIZED, Json(None)),
+        },
+        Err(_) => return (StatusCode::UNAUTHORIZED, Json(None)),
+    };
+
+    let user = sqlx::query_as!(data::User, "SELECT * FROM users WHERE id = $1", id)
+        .fetch_one(&state.db_connection)
+        .await;
+
+    match user {
+        Ok(u) => (StatusCode::OK, Json(Some(u))),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json(None)),
+    }
+}
+
+
 
 pub async fn verify_quest(State(state): State<data::AppState>, headers: HeaderMap,  Path(qid): Path<Uuid>, Json(body): Json<data::VerifyRequest>) -> StatusCode {
 

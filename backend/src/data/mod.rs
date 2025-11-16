@@ -23,7 +23,7 @@ pub struct User {
 #[sqlx(type_name="quest_state")]
 #[sqlx(rename_all="lowercase")]
 pub enum Progress {
-    Verefied,
+    Verified,
     Pending,
     Denied
 }

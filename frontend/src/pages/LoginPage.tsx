@@ -20,10 +20,24 @@ export default function LoginPage({ setUser }: LoginPageProps) {
     setLoading(true)
 
     try {
-      const data = await api.login(email, password)
-      localStorage.setItem('authToken', data.token)
-      setUser(data.user)
-      navigate('/dashboard')
+            const data = await api.login(email, password)
+            localStorage.setItem('authToken', data.token)
+
+            // Fetch real user from backend /api/me using the stored token (user id)
+            let realUser = data.user
+            try {
+              const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/me`, {
+                headers: { user_id: data.token },
+              })
+              if (res.ok) {
+                realUser = await res.json()
+              }
+            } catch (e) {
+              // ignore and fallback to synthetic user
+            }
+
+            setUser(realUser)
+            navigate('/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {

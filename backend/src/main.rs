@@ -53,6 +53,7 @@ async fn main() {
                     .route("/challange/send/{id}", post(handlers::send_challange))
                     .route("/api/register", post(handlers::register))
                     .route("/api/login", post(handlers::login))
+                    .route("/api/me", get(handlers::me))
                     .route("/admin/api/get_pending", get(handlers::get_pending_quest))
                     .route("/admin/api/verify_quest/{qid}", post(handlers::verify_quest))
                     .route("/api/get_weekly_question", get(handlers::get_weekly_quest))

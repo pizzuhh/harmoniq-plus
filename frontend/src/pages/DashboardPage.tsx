@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { User, GeneratedChallenges } from '../types'
+import api from '../services/api'
 
 interface DashboardPageProps {
   user: User | null
@@ -14,24 +15,23 @@ export default function DashboardPage({ user }: DashboardPageProps) {
 
   useEffect(() => {
     const loadChallenges = async () => {
+      if (!user) {
+        // wait until we have a user to request a personalized challenge
+        setLoading(false)
+        return
+      }
+
       try {
-        const token = localStorage.getItem('authToken')
-        // Backend endpoint (note spelling is "challange")
-        const response = await fetch('/challange/receive', {
-          method: 'GET',
-          headers: { user_id: token || '' },
-        })
+        // Use the project's API helper so VITE_API_URL and headers are applied
+        const quest: any = await api.request('/challange/receive')
 
-        if (response.ok) {
-          const quest = await response.json()
-
-          // Map backend Quest shape to frontend GeneratedChallenges/UserChallenge shape
+        if (quest) {
           const mapped: GeneratedChallenges = {
             date: new Date().toISOString(),
             challenges: [
               {
                 id: quest.id,
-                userId: user?.id || '',
+                userId: user.id,
                 challengeId: quest.id,
                 challenge: {
                   id: quest.id,
@@ -57,7 +57,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
     }
 
     loadChallenges()
-  }, [])
+  }, [user])
 
   const handleLogout = () => {
     localStorage.removeItem('authToken')
