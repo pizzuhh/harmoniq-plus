@@ -152,7 +152,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
             </div>
             <div style={styles.statBox}>
               <span style={styles.statLabel}>Progress to Next Level</span>
-              <span style={styles.statValue}>{user?.currentXp || 0} XP</span>
+              <span style={styles.statValue}>{100 - user?.currentXp || 0} XP</span>
             </div>
           </div>
         </section>
