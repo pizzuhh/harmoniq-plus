@@ -35,22 +35,30 @@ async fn main() {
         if req.method() == Method::OPTIONS {
             let mut headers = HeaderMap::new();
             headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
-            headers.insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET,POST,OPTIONS"));
-            headers.insert("Access-Control-Allow-Headers", HeaderValue::from_static("*"));
+            headers.insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET,POST,OPTIONS,PUT,DELETE"));
+            // Explicitly allow the custom header `user_id` and common headers
+            headers.insert(
+                "Access-Control-Allow-Headers",
+                HeaderValue::from_static("Content-Type, Authorization, user_id"),
+            );
             return (StatusCode::OK, headers, "").into_response();
         }
 
         let mut res: Response = next.run(req).await;
         let headers = res.headers_mut();
         headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
-        headers.insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET,POST,OPTIONS"));
-        headers.insert("Access-Control-Allow-Headers", HeaderValue::from_static("*"));
+        headers.insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET,POST,OPTIONS,PUT,DELETE"));
+        headers.insert(
+            "Access-Control-Allow-Headers",
+            HeaderValue::from_static("Content-Type, Authorization, user_id"),
+        );
         res
     }
 
     let app = Router::new()
                     .route("/challange/receive", get(handlers::request_challange))
                     .route("/challange/send/{id}", post(handlers::send_challange))
+                    .route("/api/complete_challenge/{id}", post(handlers::complete_challenge))
                     .route("/api/register", post(handlers::register))
                     .route("/api/login", post(handlers::login))
                     .route("/api/me", get(handlers::me))

@@ -18,10 +18,12 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
     let points = user.points;
 
     // Select the best matching quest: the one with the highest required_points that is <= user's points
+    // Exclude quests the user already has in user_quest (so completed/pending quests are not re-assigned)
     let quest = query_as::<_, data::Quest>(
-        "SELECT * FROM quests WHERE required_points <= $1 ORDER BY required_points DESC LIMIT 1",
+        "SELECT * FROM quests WHERE required_points <= $1 AND id NOT IN (SELECT quest_id FROM user_quest WHERE user_id = $2) ORDER BY required_points DESC LIMIT 1",
     )
     .bind(points)
+    .bind(id)
     .fetch_one(&state.db_connection)
     .await;
     match quest {
@@ -178,6 +180,47 @@ pub async fn verify_quest(State(state): State<data::AppState>, headers: HeaderMa
     }
 
     StatusCode::OK
+}
+
+// Allows a user to complete a quest and get it auto-verified (no admin required).
+// This creates a user_quest with progress = 'verified' and awards the quest's points to the user.
+pub async fn complete_challenge(State(state): State<data::AppState>, headers: HeaderMap, Path(qid): Path<Uuid>) -> StatusCode {
+    let token = match headers.get("user_id") {
+        Some(t) => t,
+        None => return StatusCode::UNAUTHORIZED,
+    };
+    let uid: Uuid = match token.to_str() {
+        Ok(s) => match s.parse() { Ok(u) => u, Err(_) => return StatusCode::UNAUTHORIZED },
+        Err(_) => return StatusCode::UNAUTHORIZED,
+    };
+
+    // Insert a verified user_quest row for this user and quest
+    let inserted = sqlx::query("INSERT INTO user_quest (user_id, quest_id, progress, proof_path) VALUES ($1, $2, $3, $4) RETURNING id;")
+        .bind(uid)
+        .bind(qid)
+        .bind(data::Progress::Verified)
+        .bind("")
+        .fetch_one(&state.db_connection)
+        .await;
+
+    if inserted.is_err() {
+        return StatusCode::INTERNAL_SERVER_ERROR;
+    }
+
+    // Fetch quest points and add to user's total
+    let quest_row = sqlx::query!("SELECT points_received FROM quests WHERE id = $1", qid)
+        .fetch_one(&state.db_connection)
+        .await;
+
+    match quest_row {
+        Ok(q) => {
+            let _ = sqlx::query!("UPDATE users SET points = points + $1 WHERE id = $2", q.points_received, uid)
+                .execute(&state.db_connection)
+                .await;
+            StatusCode::OK
+        }
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    }
 }
 
 pub async fn get_weekly_quest(State(state): State<data::AppState>) -> (StatusCode, Json<Quest>) {

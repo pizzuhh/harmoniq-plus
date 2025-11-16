@@ -5,9 +5,10 @@ import api from '../services/api'
 
 interface DashboardPageProps {
   user: User | null
+  setUser?: (user: User) => void
 }
 
-export default function DashboardPage({ user }: DashboardPageProps) {
+export default function DashboardPage({ user, setUser }: DashboardPageProps) {
   const [challenges, setChallenges] = useState<GeneratedChallenges | null>(null)
   const [loading, setLoading] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -176,6 +177,46 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                     <span>⭐ +{challenge.challenge.xpReward} XP</span>
                   </div>
                   <p style={styles.status}>Status: {challenge.status}</p>
+                  <div style={{ marginTop: 10, gap: 8 }}>
+                    <button
+                      style={styles.completeBtn}
+                      onClick={async () => {
+                        try {
+                          // Call backend to complete (auto-verify) the quest
+                          await api.request(`/api/complete_challenge/${challenge.challenge.id}`, { method: 'POST' })
+                          // Remove completed challenge from UI
+                          setChallenges((prev) => {
+                            if (!prev) return prev
+                            return { ...prev, challenges: prev.challenges.filter((c) => c.id !== challenge.id) }
+                          })
+
+                          // Refresh user data from /api/me to update XP and app state
+                          try {
+                            const me = await api.request('/api/me')
+                            if (me) {
+                              const backendUser: any = me
+                              const mapped: User = {
+                                id: backendUser.id,
+                                username: backendUser.name || user?.username || '',
+                                email: backendUser.mail || user?.email || '',
+                                totalXp: backendUser.points || 0,
+                                currentXp: (backendUser.points || 0) % 100,
+                                level: Math.floor((backendUser.points || 0) / 100) + 1,
+                                createdAt: backendUser.created_at || new Date().toISOString(),
+                              }
+                              if (setUser) setUser(mapped)
+                            }
+                          } catch (e) {
+                            // ignore
+                          }
+                        } catch (e) {
+                          console.error('Failed to complete challenge', e)
+                        }
+                      }}
+                    >
+                      Complete
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -311,7 +352,6 @@ const styles = {
     border: '1px solid #ddd',
   } as React.CSSProperties,
   challengeMeta: {
-    display: 'flex',
     gap: '15px',
     margin: '10px 0',
     fontSize: '14px',
@@ -322,6 +362,14 @@ const styles = {
     fontSize: '12px',
     color: '#37b324ff',
     fontWeight: 'bold',
+  } as React.CSSProperties,
+  completeBtn: {
+    padding: '8px 12px',
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
   } as React.CSSProperties,
   loading: {
     display: 'flex',
