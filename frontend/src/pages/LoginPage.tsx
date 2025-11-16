@@ -30,7 +30,21 @@ export default function LoginPage({ setUser }: LoginPageProps) {
                 headers: { user_id: data.token },
               })
               if (res.ok) {
-                realUser = await res.json()
+                const backendUser = await res.json()
+
+                // Map backend user shape to frontend `User` shape
+                const mapped: User = {
+                  id: backendUser.id,
+                  username: backendUser.name || data.user.username,
+                  email: backendUser.mail || data.user.email,
+                  // Derive level from points (simple rule: 100 XP per level)
+                  totalXp: backendUser.points || 0,
+                  currentXp: (backendUser.points || 0) % 100,
+                  level: Math.floor((backendUser.points || 0) / 100) + 1,
+                  createdAt: backendUser.created_at || new Date().toISOString(),
+                }
+
+                realUser = mapped
               }
             } catch (e) {
               // ignore and fallback to synthetic user

@@ -192,10 +192,9 @@ const styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: '#f5f5f5',
-    width: '100%',
   } as React.CSSProperties,
   header: {
-    backgroundColor: '#4c6dafff',
+    backgroundColor: '#32b879ff',
     color: 'white',
     padding: '20px',
     display: 'flex',
@@ -224,14 +223,14 @@ const styles = {
   } as React.CSSProperties,
   logoutBtn: {
     backgroundColor: 'white',
-    color: '#2a4597ff',
+    color: '#14b9acff',
     border: 'none',
     padding: '8px 16px',
     borderRadius: '5px',
     cursor: 'pointer',
   } as React.CSSProperties,
   desktopNav: {
-    backgroundColor: '#5f86e1ff',
+    backgroundColor: '#20c96cff',
     display: 'flex',
     flexWrap: 'wrap',
     padding: '10px',
