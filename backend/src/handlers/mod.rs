@@ -18,21 +18,28 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
     let points = user.points;
 
     // Select the best matching quest: the one with the highest required_points that is <= user's points
-    let quest: data::Quest = query_as::<_, data::Quest>(
+    let quest = query_as::<_, data::Quest>(
         "SELECT * FROM quests WHERE required_points <= $1 ORDER BY required_points DESC LIMIT 1",
     )
     .bind(points)
     .fetch_one(&state.db_connection)
-    .await
-    .unwrap();
-
-    Json(quest)
+    .await;
+    match quest {
+        Ok(quest) => {
+            Json(quest)
+        }
+        Err(_) => {
+            println!("No points");
+            Json(Quest { id: Uuid::nil(), name: "".to_string(), description: "".to_string(), required_points: 0, points_received:  0})
+        }
+    }
 }
 
 pub async fn send_challange(headers: HeaderMap, State(state): State<data::AppState>, Path(quest_id): Path<Uuid>, mut multipart: Multipart) {
     let token = headers.get("user_id").unwrap();
     let id: Uuid = token.to_str().unwrap().parse().unwrap();
 
+    /*
     let filed = multipart.next_field().await.unwrap().unwrap();
 
     let name = filed.name().unwrap().to_string();
@@ -43,12 +50,12 @@ pub async fn send_challange(headers: HeaderMap, State(state): State<data::AppSta
     println!("{} {}", name, data.len());
     let mut file = File::create(&file_path).unwrap();
     file.write_all(&data).unwrap();
-
+    */
     sqlx::query("INSERT INTO user_quest (user_id, quest_id, progress, proof_path) VALUES($1, $2, $3, $4)")
         .bind(id)
         .bind(quest_id)
         .bind(data::Progress::Pending)
-        .bind(file_path)
+        .bind("")
         .execute(&state.db_connection)
         .await.unwrap();
 
@@ -155,7 +162,10 @@ pub async fn verify_quest(State(state): State<data::AppState>, headers: HeaderMa
     }
 
     if body.completed {
-        sqlx::query!("UPDATE user_quest SET progress = 'verified' WHERE id = $1", qid)
+        let uid = sqlx::query!("UPDATE user_quest SET progress = 'verified' WHERE id = $1 RETURNING user_id;", qid)
+            .fetch_one(&state.db_connection)
+            .await.unwrap();
+        sqlx::query!("UPDATE users SET points = points + 9 WHERE id = $1;", uid.user_id)
             .execute(&state.db_connection)
             .await.unwrap();
     } else {
