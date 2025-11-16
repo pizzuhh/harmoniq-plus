@@ -165,10 +165,10 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             <p>No challenges available for today.</p>
           )}
         </section>
-        <div style={styles.community}>
+        <footer style={styles.community}>
           <h3>Присъединете се към нашата Mundful City общност</h3>
           <a href="https://discord.gg/qMssPdrr" target="_blank" rel="noopener noreferrer">Присъединете се в Discord</a>
-        </div>
+        </footer>
       </main>
     </div>
   )
@@ -228,7 +228,7 @@ const styles = {
     border: 'none',
     padding: '10px 15px',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '1.1em',
     borderRadius: '4px',
     transition: 'background-color 0.3s',
   } as React.CSSProperties,
