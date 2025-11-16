@@ -100,7 +100,10 @@ pub async fn login(State(state): State<data::AppState>, Json(register): Json<dat
             }
         }
         Err(e) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, format!("{:?}", e))
+            match e {
+                sqlx::Error::RowNotFound => (StatusCode::NOT_FOUND, "User does not exist".into()),
+                _ => (StatusCode::INTERNAL_SERVER_ERROR, format!("{:?}", e))
+            }
         }
     }
 }
