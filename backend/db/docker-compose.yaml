@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: datbase
+    environment:
+      POSTGRES_PASSWORD: '3db71d01898df2f82059cb9cebd434b45b49b00d613a415ad711cebfc64158fc'
+      POSTGRES_USER: 'admin'
+      POSTGRES_DB: 'pesho'
+    volumes:
+      - ./db-data:/var/lib/postgresql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"

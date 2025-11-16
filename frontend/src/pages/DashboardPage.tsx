@@ -103,17 +103,8 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>
              Challenges
           </button>
-          <button onClick={() => handleNavigation('/profile')} style={styles.navLink}>
-             Profile
-          </button>
           <button onClick={() => handleNavigation('/map')} style={styles.navLink}>
              Mindful Map
-          </button>
-          <button onClick={() => handleNavigation('/community')} style={styles.navLink}>
-             Community
-          </button>
-          <button onClick={() => handleNavigation('/admin')} style={styles.navLink}>
-             Admin Panel
           </button>
           <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>
              Questioneer
@@ -128,17 +119,8 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>
            Challenges
         </button>
-        <button onClick={() => handleNavigation('/profile')} style={styles.navLinkDesktop}>
-           Profile
-        </button>
         <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>
            Mindful Map
-        </button>
-        <button onClick={() => handleNavigation('/community')} style={styles.navLinkDesktop}>
-           Community
-        </button>
-        <button onClick={() => handleNavigation('/admin')} style={styles.navLinkDesktop}>
-           Admin Panel
         </button>
         <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>
            Questioneer
@@ -224,6 +206,10 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
             <p>No challenges available for today.</p>
           )}
         </section>
+        <footer style={styles.community}>
+          <h3>Присъединете се към нашата Mundful City общност</h3>
+          <a href="https://discord.gg/qMssPdrr" target="_blank" rel="noopener noreferrer">Присъединете се в Discord</a>
+        </footer>
       </main>
     </div>
   )
@@ -283,7 +269,7 @@ const styles = {
     border: 'none',
     padding: '10px 15px',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '1.1em',
     borderRadius: '4px',
     transition: 'background-color 0.3s',
   } as React.CSSProperties,
@@ -377,5 +363,9 @@ const styles = {
     alignItems: 'center',
     minHeight: '100vh',
     fontSize: '18px',
+  } as React.CSSProperties,
+  community: {
+    color: 'black',
+    textAlign: 'center',
   } as React.CSSProperties,
 }
