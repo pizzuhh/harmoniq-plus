@@ -11,6 +11,7 @@ interface DashboardPageProps {
 export default function DashboardPage({ user, setUser }: DashboardPageProps) {
   const [challenges, setChallenges] = useState<GeneratedChallenges | null>(null)
   const [loading, setLoading] = useState(true)
+  const [noMore, setNoMore] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -25,6 +26,15 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
       try {
         // Use the project's API helper so VITE_API_URL and headers are applied
         const quest: any = await api.request('/challange/receive')
+
+        // The backend returns an empty Quest (id == all-zero UUID) when there's no match
+        const emptyId = '00000000-0000-0000-0000-000000000000'
+        if (!quest || !quest.id || quest.id === emptyId || !quest.name) {
+          setChallenges(null)
+          setNoMore(true)
+          setLoading(false)
+          return
+        }
 
         if (quest) {
           const mapped: GeneratedChallenges = {
@@ -49,6 +59,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           }
 
           setChallenges(mapped)
+          setNoMore(false)
         }
       } catch (error) {
         console.error('Failed to load challenges:', error)
@@ -203,7 +214,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
               ))}
             </div>
           ) : (
-            <p>No challenges available for today.</p>
+            <p>{noMore ? 'No more challenges for today.' : 'No challenges available for today.'}</p>
           )}
         </section>
         <footer style={styles.community}>
