@@ -97,50 +97,50 @@ export default function DashboardPage({ user }: DashboardPageProps) {
       {menuOpen && (
         <nav style={styles.mobileMenu}>
           <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>
-            📊 Dashboard
+             Dashboard
           </button>
           <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>
-            🎯 Challenges
+             Challenges
           </button>
           <button onClick={() => handleNavigation('/profile')} style={styles.navLink}>
-            👤 Profile
+             Profile
           </button>
           <button onClick={() => handleNavigation('/map')} style={styles.navLink}>
-            🗺️ Mindful Map
+             Mindful Map
           </button>
           <button onClick={() => handleNavigation('/community')} style={styles.navLink}>
-            👥 Community
+             Community
           </button>
           <button onClick={() => handleNavigation('/admin')} style={styles.navLink}>
-            🛡️ Admin Panel
+             Admin Panel
           </button>
           <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>
-            🩺 Questioneer
+             Questioneer
           </button>
         </nav>
       )}
 
       <div style={styles.desktopNav}>
         <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>
-          📊 Dashboard
+           Dashboard
         </button>
         <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>
-          🎯 Challenges
+           Challenges
         </button>
         <button onClick={() => handleNavigation('/profile')} style={styles.navLinkDesktop}>
-          👤 Profile
+           Profile
         </button>
         <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>
-          🗺️ Mindful Map
+           Mindful Map
         </button>
         <button onClick={() => handleNavigation('/community')} style={styles.navLinkDesktop}>
-          👥 Community
+           Community
         </button>
         <button onClick={() => handleNavigation('/admin')} style={styles.navLinkDesktop}>
-          🛡️ Admin Panel
+           Admin Panel
         </button>
         <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>
-          🩺 Questioneer
+           Questioneer
         </button>
       </div>
 
