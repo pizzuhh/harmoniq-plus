@@ -142,7 +142,10 @@ pub async fn me(headers: HeaderMap, State(state): State<data::AppState>) -> (Sta
         .await;
 
     match user {
-        Ok(u) => (StatusCode::OK, Json(Some(u))),
+        Ok(mut u) => {
+            u.password_hash = "".into(); // Do not return the hash to the front end
+            (StatusCode::OK, Json(Some(u)))
+        }
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json(None)),
     }
 }
