@@ -50,15 +50,6 @@ pub struct PendingRequest {
     pub id: Uuid
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, sqlx::FromRow)]
-pub struct UserQuests {
-    pub id: Uuid,
-    pub quest_id: Uuid,
-    pub user_ud: Uuid,
-    pub proof_path: Option<String>,
-}
-
-
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct VerifyRequest {
     pub completed: bool,

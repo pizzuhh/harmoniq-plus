@@ -1,6 +1,4 @@
-use std::{fs::File, io::Write};
-
-use axum::{extract::{Multipart, Path, State}, http::{HeaderMap, StatusCode}, Json};
+use axum::{extract::{Path, State}, http::{HeaderMap, StatusCode}, Json};
 use rand::Rng;
 use sha2::Digest;
 use sqlx::query_as;
