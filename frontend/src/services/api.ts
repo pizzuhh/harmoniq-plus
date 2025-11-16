@@ -1,7 +1,7 @@
 import type { AuthResponse, User } from '../types'
 
 // Base URL can be set with VITE_API_URL, otherwise requests go to the same origin.
-const API_BASE = import.meta.env.VITE_API_URL || ''
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:7564'
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('authToken')

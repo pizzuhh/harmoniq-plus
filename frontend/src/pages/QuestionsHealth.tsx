@@ -75,7 +75,7 @@ export default function QuestionsHealth() {
         const ans = responses[q.id]
         if (!ans) continue
         const idx = q.options.findIndex((o) => o === ans)
-        if (idx >= 0) totalPoints += (idx + 1) * 9
+        if (idx >= 0) totalPoints += (idx + 1)
       }
 
       // Update user points on backend
