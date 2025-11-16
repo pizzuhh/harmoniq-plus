@@ -56,7 +56,7 @@ async fn main() {
                     .route("/api/me", get(handlers::me))
                     .route("/admin/api/get_pending", get(handlers::get_pending_quest))
                     .route("/admin/api/verify_quest/{qid}", post(handlers::verify_quest))
-                    .route("/api/get_weekly_question", get(handlers::get_weekly_quest))
+                    .route("/api/get_weekly_question", get(handlers::get_weekly_quest)) // ??
                     .route("/api/send_form_points", post(handlers::send_form_points))
                     .route_layer(middleware::from_fn(cors))
                     .with_state(state);
