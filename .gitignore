@@ -18,6 +18,6 @@
 .DS_Store
 Thumbs.db
 backend/target
-backend/db
+backend/db/db-data
 
 private
