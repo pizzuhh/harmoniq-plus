@@ -4,7 +4,7 @@ use sha2::Digest;
 use sqlx::query_as;
 use uuid::Uuid;
 
-use crate::data::{self, Quest};
+use crate::data::{self, AppState, Quest};
 
 
 pub async fn request_challange(headers: HeaderMap, State(state): State<data::AppState>) -> Json<data::Quest> {
@@ -224,15 +224,27 @@ pub async fn complete_challenge(State(state): State<data::AppState>, headers: He
     }
 }
 
-pub async fn get_weekly_quest(State(state): State<data::AppState>) -> (StatusCode, Json<Quest>) {
-    let quests = sqlx::query_as!(Quest, "SELECT * FROM quests;")
-        .fetch_all(&state.db_connection)
-        .await.unwrap();
+async fn get_random_quest(target_pts: Option<i32>, state: &AppState) -> Quest {
+    let mut quests = Vec::<Quest>::new();
+    if let Some(pts) = target_pts {
+        quests = sqlx::query_as!(Quest, "SELECT * FROM quests WHERE points_received = $1;", pts)
+            .fetch_all(&state.db_connection)
+            .await.unwrap();
+    } else {
+        quests = sqlx::query_as!(Quest, "SELECT * FROM quests;")
+            .fetch_all(&state.db_connection)
+            .await.unwrap();
+    }
     let mut rng = rand::rng();
     let idx = rng.random_range(0..quests.len());
     let the_chosen_one = quests.get(idx).unwrap();
+    
+    the_chosen_one.clone()
+}
 
-    (StatusCode::OK, Json(the_chosen_one.clone()))
+pub async fn get_weekly_quest(State(state): State<data::AppState>) -> (StatusCode, Json<Quest>) {
+    let the_chosen_one = get_random_quest(None, &state).await;
+    (StatusCode::OK, Json(the_chosen_one))
 }
 
 // Accepts number only
@@ -245,4 +257,13 @@ pub async fn send_form_points(State(state): State<data::AppState>, headers: Head
         .await.unwrap();
 
     StatusCode::OK
+}
+
+pub async fn get_weekly(State(state): State<data::AppState>) -> (StatusCode, Json<[Quest; 3]>) {
+    // TODO: Optimize this to use 1 query not 3..
+    let easy = get_random_quest(Some(5), &state);
+    let medium = get_random_quest(Some(15), &state);
+    let hard = get_random_quest(Some(30), &state);
+    
+    (StatusCode::OK, Json([easy.await, medium.await, hard.await]))
 }

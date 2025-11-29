@@ -1,4 +1,4 @@
-use std::env;
+use std::{alloc::handle_alloc_error, env};
 
 use axum::{routing::{get, post}, Router, middleware};
 use dotenv::dotenv;
@@ -56,12 +56,13 @@ async fn main() {
     }
 
     let api = Router::new()
-        .route("/api/complete_challenge/{id}", post(handlers::complete_challenge))
-        .route("/api/register", post(handlers::register))
-        .route("/api/login", post(handlers::login))
-        .route("/api/me", get(handlers::me))
-        .route("/api/get_random_question", get(handlers::get_weekly_quest))
-        .route("/api/send_form_points", post(handlers::send_form_points));
+        .route("/complete_challenge/{id}", post(handlers::complete_challenge))
+        .route("/register", post(handlers::register))
+        .route("/login", post(handlers::login))
+        .route("/me", get(handlers::me))
+        .route("/get_random_question", get(handlers::get_weekly_quest))
+        .route("/send_form_points", post(handlers::send_form_points))
+        .route("/get_weekly", get(handlers::get_weekly));
 
 
     let app = Router::new()
