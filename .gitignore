@@ -1,7 +1,7 @@
 # Rust
 /backend/target
 **/*.rs.bk
-/backend/db
+# /backend/db
 
 # Node
 /frontend/node_modules
