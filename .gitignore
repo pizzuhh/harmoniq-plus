@@ -1,0 +1,23 @@
+# Rust
+/backend/target
+**/*.rs.bk
+/backend/db
+
+# Node
+/frontend/node_modules
+/frontend/dist
+
+# Env
+*.env
+
+# Editor
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+backend/target
+backend/db
+
+private
