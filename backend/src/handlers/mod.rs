@@ -1,35 +1,33 @@
-use axum::{extract::{Path, State}, http::{HeaderMap, StatusCode}, Json};
+use axum::{Json, extract::{Path, Request, State}, http::{HeaderMap, StatusCode}, middleware::Next, response::Response};
 use rand::Rng;
 use sha2::Digest;
-use sqlx::query_as;
+use sqlx::{query_as, query_scalar};
 use uuid::Uuid;
 
 use crate::data::{self, AppState, Quest};
 
 
 pub async fn request_challange(headers: HeaderMap, State(state): State<data::AppState>) -> Json<data::Quest> {
+
     let token = headers.get("user_id").unwrap();
     let id: Uuid = token.to_str().unwrap().parse().unwrap();
-    let user: data::User = query_as!(data::User, "SELECT * FROM users WHERE id = $1;", id)
+    let points: i32 = query_scalar!("SELECT points FROM users WHERE id = $1;", id)
         .fetch_one(&state.db_connection)
         .await.unwrap();
-    let points = user.points;
 
     // Select the best matching quest: the one with the highest required_points that is <= user's points
     // Exclude quests the user already has in user_quest (so completed/pending quests are not re-assigned)
-    let quest = query_as::<_, data::Quest>(
-        "SELECT * FROM quests WHERE required_points <= $1 AND id NOT IN (SELECT quest_id FROM user_quest WHERE user_id = $2) ORDER BY required_points DESC LIMIT 1",
-    )
-    .bind(points)
-    .bind(id)
-    .fetch_one(&state.db_connection)
-    .await;
+    let quest = query_as::<_, data::Quest>("SELECT * FROM quests WHERE required_points <= $1 AND id NOT IN (SELECT quest_id FROM user_quest WHERE user_id = $2) ORDER BY required_points DESC LIMIT 1")
+        .bind(points)
+        .bind(id)
+        .fetch_one(&state.db_connection)
+        .await;
+
     match quest {
         Ok(quest) => {
             Json(quest)
         }
         Err(_) => {
-            println!("No points");
             Json(Quest { id: Uuid::nil(), name: "".to_string(), description: "".to_string(), required_points: 0, points_received:  0})
         }
     }
@@ -108,22 +106,16 @@ pub async fn login(State(state): State<data::AppState>, Json(register): Json<dat
     }
 }
 
-pub async fn get_pending_quest(headers: HeaderMap, State(state): State<data::AppState>) -> (StatusCode, Json<data::PendingRequest>) {
-    let token = headers.get("user_id").unwrap();
-    let id: Uuid = token.to_str().unwrap().parse().unwrap();
-    // Check permissions from db (inefficent)
-    let r = sqlx::query!("SELECT is_admin FROM users WHERE id = $1;", id)
-        .fetch_one(&state.db_connection)
-        .await.unwrap();
-    if r.is_admin == false {
-        return (StatusCode::UNAUTHORIZED, Json(data::PendingRequest{proof_path: None, id: Uuid::nil()}));
-    }
+pub async fn get_pending_quest(headers: HeaderMap, State(state): State<data::AppState>) -> Result<Json<data::PendingRequest>, StatusCode> {
 
     let rq = sqlx::query_as!(data::PendingRequest, "SELECT proof_path, id FROM user_quest WHERE progress = 'pending';")
         .fetch_one(&state.db_connection)
-        .await.unwrap();
-
-    (StatusCode::OK, Json(rq))
+        .await;
+    if let Ok(rq) = rq {
+        Ok(Json(rq))
+    } else {
+        Err(StatusCode::NOT_FOUND)
+    }
 }
 
 pub async fn me(headers: HeaderMap, State(state): State<data::AppState>) -> (StatusCode, Json<Option<data::User>>) {
@@ -152,8 +144,6 @@ pub async fn me(headers: HeaderMap, State(state): State<data::AppState>) -> (Sta
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json(None)),
     }
 }
-
-
 
 pub async fn verify_quest(State(state): State<data::AppState>, headers: HeaderMap,  Path(qid): Path<Uuid>, Json(body): Json<data::VerifyRequest>) -> StatusCode {
 
@@ -257,6 +247,20 @@ pub async fn send_form_points(State(state): State<data::AppState>, headers: Head
         .await.unwrap();
 
     StatusCode::OK
+}
+
+pub async fn admin_check(headers: HeaderMap, State(state): State<AppState>, req: Request, next: Next, ) -> Result<Response, StatusCode> {
+    let token = headers.get("user_id").unwrap();
+    let id: Uuid = token.to_str().unwrap().parse().unwrap();
+    // Check permissions from db (inefficent)
+    let r = sqlx::query!("SELECT is_admin FROM users WHERE id = $1;", id)
+        .fetch_one(&state.db_connection)
+        .await.unwrap();
+    if !r.is_admin {
+        Err(StatusCode::UNAUTHORIZED)
+    } else {
+        Ok(next.run(req).await)
+    }
 }
 
 pub async fn get_weekly(State(state): State<data::AppState>) -> (StatusCode, Json<[Quest; 3]>) {

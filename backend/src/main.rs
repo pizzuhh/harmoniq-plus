@@ -30,31 +30,6 @@ async fn main() {
 
     println!("{:?}", t);
 
-    async fn cors(req: Request<Body>, next: Next) -> impl IntoResponse {
-        // Handle preflight
-        if req.method() == Method::OPTIONS {
-            let mut headers = HeaderMap::new();
-            headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
-            headers.insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET,POST,OPTIONS,PUT,DELETE"));
-            // Explicitly allow the custom header `user_id` and common headers
-            headers.insert(
-                "Access-Control-Allow-Headers",
-                HeaderValue::from_static("Content-Type, Authorization, user_id"),
-            );
-            return (StatusCode::OK, headers, "").into_response();
-        }
-
-        let mut res: Response = next.run(req).await;
-        let headers = res.headers_mut();
-        headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
-        headers.insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET,POST,OPTIONS,PUT,DELETE"));
-        headers.insert(
-            "Access-Control-Allow-Headers",
-            HeaderValue::from_static("Content-Type, Authorization, user_id"),
-        );
-        res
-    }
-
     let api = Router::new()
         .route("/complete_challenge/{id}", post(handlers::complete_challenge))
         .route("/register", post(handlers::register))
@@ -63,18 +38,51 @@ async fn main() {
         .route("/get_random_question", get(handlers::get_weekly_quest))
         .route("/send_form_points", post(handlers::send_form_points))
         .route("/get_weekly", get(handlers::get_weekly));
+    
+    let admin = Router::new()
+        .route("/api/get_pending", get(handlers::get_pending_quest))
+        .route("/api/verify_quest/{qid}", post(handlers::verify_quest))
+        .route_layer(middleware::from_fn_with_state(state.clone(), handlers::admin_check));
 
 
     let app = Router::new()
+        .route("/", get(|| async {StatusCode::IM_A_TEAPOT}))
         .nest("/api", api)
+        .nest("/admin", admin)
         .route("/challange/receive", get(handlers::request_challange))
         .route("/challange/send/{id}", post(handlers::send_challange))
-        .route("/admin/api/get_pending", get(handlers::get_pending_quest))
-        .route("/admin/api/verify_quest/{qid}", post(handlers::verify_quest))
         .route_layer(middleware::from_fn(cors))
         .with_state(state);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:7564").await.unwrap();
+    let bind_str = "0.0.0.0:7564";
+    let listener = tokio::net::TcpListener::bind(bind_str).await.unwrap();
 
+    println!("Backed on: http://{}", bind_str);
     axum::serve(listener, app).await.unwrap();
+
+}
+
+async fn cors(req: Request<Body>, next: Next) -> impl IntoResponse {
+    // Handle preflight
+    if req.method() == Method::OPTIONS {
+        let mut headers = HeaderMap::new();
+        headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
+        headers.insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET,POST,OPTIONS,PUT,DELETE"));
+        // Explicitly allow the custom header `user_id` and common headers
+        headers.insert(
+            "Access-Control-Allow-Headers",
+            HeaderValue::from_static("Content-Type, Authorization, user_id"),
+        );
+        return (StatusCode::OK, headers, "").into_response();
+    }
+
+    let mut res: Response = next.run(req).await;
+    let headers = res.headers_mut();
+    headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
+    headers.insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET,POST,OPTIONS,PUT,DELETE"));
+    headers.insert(
+        "Access-Control-Allow-Headers",
+        HeaderValue::from_static("Content-Type, Authorization, user_id"),
+    );
+    res
 }
