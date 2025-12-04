@@ -29,19 +29,6 @@ CREATE TABLE user_quest (
     FOREIGN KEY (quest_id) REFERENCES quests(id)
 );
 
-CREATE TABLE questions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    question VARCHAR(50),
-    point_receive integer
-);
-
-
-CREATE TABLE quesiton_answers (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    question_id UUID NOT NULL,
-    answer VARCHAR(50),
-    FOREIGN KEY (question_id) REFERENCES questions(id)
-);
 
 INSERT INTO users (id, name, mail, password_hash, is_admin, points) VALUES(gen_random_uuid(), 'admin', 'admin@example.com', '0', true, 10);
 
@@ -74,3 +61,10 @@ INSERT INTO quests (name, description, required_points, points_received) VALUES
 
 INSERT INTO quests (name, description, required_points, points_received) VALUES
 ('„Капка доброта“', 'Извърши малък акт на добрина: съобщение за благодарност, извинение, подкрепящо послание или комплимент. Емоционално най-изискващо — изисква смелост и емпатия.', 90, 9);
+
+INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-5-2', 'test', 0, 5);
+INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-5-1', 'test', 0, 5);
+INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-15-1', 'test', 0, 15);
+INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-15-2', 'test', 0, 15);
+INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-30-1', 'test', 0, 30);
+INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-30-2', 'test', 0, 30);
