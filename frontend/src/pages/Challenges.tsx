@@ -1,0 +1,732 @@
+import React, { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const API_BASE = "http://localhost:5174";
+
+type Challenge = {
+  title: string;
+  description?: string;
+  tags?: string[];
+};
+
+type Prize = Challenge | null;
+
+type HistoryItem = {
+  time: string;
+  challenge: Challenge;
+};
+
+const styles = {
+  wheelFrame: {
+    width: "420px",
+    height: "420px",
+    borderRadius: "50%",
+    background: "#fff",
+    boxShadow: "0 0 20px rgba(0,0,0,0.1)",
+  } as React.CSSProperties,
+  appRoot: {
+    fontFamily: "Inter, system-ui, sans-serif",
+    color: "#06301a",
+    background: "#fafbfa",
+    minHeight: "100vh",
+  } as React.CSSProperties,
+  container: {
+    maxWidth: "1400px",
+    margin: "0 auto",
+    padding: "20px",
+  } as React.CSSProperties,
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px",
+  } as React.CSSProperties,
+  title: {
+    margin: 0,
+    fontSize: "24px",
+    fontWeight: 700,
+  } as React.CSSProperties,
+  subtitle: {
+    margin: "4px 0 0",
+    color: "#4d6b56",
+    fontSize: "14px",
+  } as React.CSSProperties,
+  headerControls: {
+    display: "flex",
+    gap: "8px",
+  } as React.CSSProperties,
+  ghostBtn: {
+    background: "transparent",
+    border: "1px solid rgba(6,48,24,0.06)",
+    padding: "8px 12px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    color: "inherit",
+    fontSize: "14px",
+  } as React.CSSProperties,
+  mainGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 340px",
+    gap: "20px",
+  } as React.CSSProperties,
+  wheelCard: {
+    background: "#fff",
+    padding: "20px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+  } as React.CSSProperties,
+  wheelStage: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    marginBottom: "20px",
+  } as React.CSSProperties,
+  pointer: {
+    position: "absolute",
+    left: "50%",
+    top: "8px",
+    transform: "translateX(-50%)",
+    pointerEvents: "none",
+  } as React.CSSProperties,
+  wheelActions: {
+    display: "flex",
+    gap: "20px",
+    alignItems: "center",
+    justifyContent: "center",
+  } as React.CSSProperties,
+  primaryBtn: {
+    padding: "12px 18px",
+    borderRadius: "8px",
+    border: "none",
+    background: "linear-gradient(180deg, #0b5f30, #2a8a52)",
+    color: "#fff",
+    fontWeight: 700,
+    cursor: "pointer",
+    fontFamily: "inherit",
+  } as React.CSSProperties,
+  legend: {
+    display: "flex",
+    gap: "16px",
+    alignItems: "center",
+  } as React.CSSProperties,
+  legendItem: {
+    display: "flex",
+    gap: "6px",
+    alignItems: "center",
+    fontSize: "13px",
+  } as React.CSSProperties,
+  dot: {
+    width: "12px",
+    height: "12px",
+    borderRadius: "50%",
+    background: "linear-gradient(180deg, #dff2e2, #bfe8cc)",
+  } as React.CSSProperties,
+  panel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  } as React.CSSProperties,
+  panelBlock: {
+    background: "#fff",
+    padding: "12px",
+    borderRadius: "8px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+  } as React.CSSProperties,
+  card: {
+    padding: "10px",
+    borderRadius: "8px",
+    background: "linear-gradient(180deg, #fbfff8, #f0fff1)",
+    marginTop: "8px",
+  } as React.CSSProperties,
+  cardActions: {
+    display: "flex",
+    gap: "8px",
+    marginTop: "8px",
+  } as React.CSSProperties,
+  tertiary: {
+    padding: "8px 10px",
+    borderRadius: "8px",
+    border: "none",
+    background: "#3b82f6",
+    color: "#fff",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    fontSize: "13px",
+  } as React.CSSProperties,
+  footer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "20px",
+    padding: "16px 0",
+    borderTop: "1px solid rgba(6,48,24,0.06)",
+    color: "#6b7b6b",
+    fontSize: "13px",
+  } as React.CSSProperties,
+};
+
+export default function Challenges() {
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [prize, setPrize] = useState<Prize>(null);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [angle, setAngle] = useState(0);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [completed, setCompleted] = useState<string[]>([]);
+  const wheelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/challenges`)
+      .then((r) => r.json())
+      .then((data: Challenge[]) => setChallenges(data))
+      .catch(() => setChallenges(localFallback));
+  }, []);
+
+  const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
+
+  const spin = async () => {
+    if (isSpinning || challenges.length === 0) return;
+    setIsSpinning(true);
+
+    let index = Math.floor(Math.random() * challenges.length);
+
+    try {
+      const resp = await fetch(`${API_BASE}/spin`, { method: "POST" });
+      const data = (await resp.json()) as { index?: number };
+      if (typeof data?.index === "number") index = data.index % challenges.length;
+    } catch {
+      // offline fallback
+    }
+
+    const sector = 360 / challenges.length;
+    const chosenSectorCenter = index * sector + sector / 2;
+    const rounds = 4 + Math.floor(Math.random() * 3);
+    const target =
+      rounds * 360 +
+      (360 - chosenSectorCenter) +
+      (Math.random() * (sector / 4) - sector / 8);
+
+    const start = performance.now();
+    const startAngle = angle;
+    const delta = target - startAngle;
+    const duration = 5200 + Math.random() * 1800;
+
+    const frame = (t: number) => {
+      const elapsed = t - start;
+      const progress = Math.min(1, elapsed / duration);
+      const eased = easeOutCubic(progress);
+      setAngle(startAngle + delta * eased);
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        setIsSpinning(false);
+        setPrize(challenges[index]);
+        setHistory((h) => [
+          {
+            time: new Date().toISOString(),
+            challenge: challenges[index],
+          },
+          ...h,
+        ]);
+      }
+    };
+
+    requestAnimationFrame(frame);
+  };
+
+  const markDone = async (c: Challenge) => {
+    setCompleted((prev) =>
+      prev.includes(c.title) ? prev : [...prev, c.title]
+    );
+    try {
+      await fetch(`${API_BASE}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: c.title }),
+      });
+    } catch {
+      // ignore
+    }
+  };
+
+  const resetCompleted = () => setCompleted([]);
+
+  const renderSegments = (items: Challenge[]) => {
+    const n = items.length;
+    if (n === 0) return null;
+    const sector = (2 * Math.PI) / n;
+    const radius = 180;
+    return items.map((item, i) => {
+      const startAngle = i * sector;
+      const endAngle = startAngle + sector;
+      const large = sector > Math.PI ? 1 : 0;
+      const x1 = 100 + radius * Math.cos(startAngle);
+      const y1 = 100 + radius * Math.sin(startAngle);
+      const x2 = 100 + radius * Math.cos(endAngle);
+      const y2 = 100 + radius * Math.sin(endAngle);
+      const color = segmentColor(i, n);
+      const d = `M100 100 L ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2} Z`;
+      const midAngle = startAngle + sector / 2;
+      const labelX = 100 + (radius - 55) * Math.cos(midAngle);
+      const labelY = 100 + (radius - 55) * Math.sin(midAngle);
+      const rotate = (midAngle * 180) / Math.PI;
+      const textRotate =
+        rotate > 90 && rotate < 270 ? rotate + 180 : rotate;
+      const textAnchor = rotate > 90 && rotate < 270 ? "end" : "start";
+
+      return (
+        <g key={i}>
+          <path
+            d={d}
+            fill={color}
+            stroke="rgba(255,255,255,0.06)"
+            strokeWidth="1"
+          />
+          <g transform={`translate(${labelX},${labelY}) rotate(${textRotate})`}>
+            <text
+              x="0"
+              y="0"
+              fontSize="9"
+              fill="#083218"
+              textAnchor={textAnchor as "start" | "middle" | "end"}
+              style={{ fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}
+            >
+              {shorten(item.title, 30)}
+            </text>
+          </g>
+        </g>
+      );
+    });
+  };
+
+  const renderedSegments = renderSegments(
+    challenges.length ? challenges : localFallback
+  );
+
+  return (
+    <div style={styles.appRoot}>
+      <div style={styles.container}>
+        <header style={styles.header}>
+          <div>
+            <h1 style={styles.title}>Eco Wheel — Challenges</h1>
+            <p style={styles.subtitle}>
+              Nature-minded, slightly daring — try one and share the impact.
+            </p>
+          </div>
+          <div style={styles.headerControls}>
+            <button
+              style={styles.ghostBtn}
+              onClick={() => {
+                setHistory([]);
+                setPrize(null);
+              }}
+            >
+              Reset Session
+            </button>
+            <button style={styles.ghostBtn} onClick={resetCompleted}>
+              Reset Completed
+            </button>
+          </div>
+        </header>
+
+        <main style={styles.mainGrid}>
+          <section style={styles.wheelCard}>
+            <div style={styles.wheelStage}>
+              <div style={{ ...styles.wheelFrame, position: "relative" }} ref={wheelRef}>
+                <motion.svg
+                  viewBox="0 0 200 200"
+                  width="420"
+                  height="420"
+                  style={{ originX: "50%", originY: "50%" }}
+                  animate={{ rotate: angle }}
+                  transition={{ ease: "linear", duration: 0 }}
+                >
+                  <defs>
+                    <radialGradient id="rim" cx="50%" cy="50%" r="80%">
+                      <stop offset="0%" stopColor="#f7fff8" stopOpacity="0.2" />
+                      <stop offset="100%" stopColor="#cfe9d7" stopOpacity="0.06" />
+                    </radialGradient>
+
+                    <filter
+                      id="soft"
+                      x="-20%"
+                      y="-20%"
+                      width="140%"
+                      height="140%"
+                    >
+                      <feDropShadow
+                        dx="0"
+                        dy="6"
+                        stdDeviation="12"
+                        floodColor="#04260f"
+                        floodOpacity="0.06"
+                      />
+                    </filter>
+
+                    <pattern
+                      id="leafPattern"
+                      width="40"
+                      height="40"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <rect width="40" height="40" fill="transparent" />
+                      <path
+                        d="M8 24c6-6 16-6 22 0"
+                        stroke="rgba(0,0,0,0.04)"
+                        strokeWidth="1"
+                        fill="none"
+                      />
+                      <path
+                        d="M24 8c-6 6-6 16 0 22"
+                        stroke="rgba(0,0,0,0.04)"
+                        strokeWidth="1"
+                        fill="none"
+                        transform="rotate(180 20 20)"
+                      />
+                    </pattern>
+                  </defs>
+
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="98"
+                    fill="url(#rim)"
+                    stroke="#0f3b22"
+                    strokeWidth="2"
+                  />
+
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="85"
+                    fill="url(#leafPattern)"
+                    opacity="0.14"
+                  />
+
+                  <g transform="translate(0,0)">
+                    {renderedSegments}
+                  </g>
+
+                  <g>
+                    <circle
+                      cx="100"
+                      cy="100"
+                      r="40"
+                      fill="#f7fff8"
+                      stroke="#08200f"
+                      strokeWidth="1.5"
+                      filter="url(#soft)"
+                    />
+                    <text
+                      x="100"
+                      y="102"
+                      fontSize="12"
+                      textAnchor="middle"
+                      fill="#083218"
+                      style={{ fontWeight: 700 }}
+                    >
+                      SPIN
+                    </text>
+                    <text
+                      x="100"
+                      y="118"
+                      fontSize="9"
+                      textAnchor="middle"
+                      fill="#0a3b21"
+                    >
+                      Eco
+                    </text>
+                  </g>
+                </motion.svg>
+
+                <div style={styles.pointer} aria-hidden="true">
+                  <svg width="44" height="44" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="ptr" x1="0" x2="1">
+                        <stop offset="0%" stopColor="#d9f7e0" />
+                        <stop offset="100%" stopColor="#0b5f30" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M12 2 L18 14 L12 11 L6 14 Z"
+                      fill="url(#ptr)"
+                      stroke="#063214"
+                      strokeWidth="0.6"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <div style={styles.wheelActions}>
+                <button
+                  style={styles.primaryBtn}
+                  onClick={spin}
+                  disabled={isSpinning || challenges.length === 0}
+                >
+                  {isSpinning ? "Spinning…" : "Spin the Wheel"}
+                </button>
+
+                <div style={styles.legend}>
+                  <div style={styles.legendItem}>
+                    <div style={styles.dot} /> <span>Ecology</span>
+                  </div>
+                  <div style={styles.legendItem}>
+                    <div style={{ ...styles.dot, background: "linear-gradient(180deg, #efe6dd, #d9cbb7)" }} /> <span>Detox</span>
+                  </div>
+                  <div style={styles.legendItem}>
+                    <div style={{ ...styles.dot, background: "linear-gradient(180deg, #dff7f0, #bfeee1)" }} /> <span>Social</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside style={styles.panel}>
+            <div style={styles.panelBlock}>
+              <h3 style={{ margin: 0, marginBottom: 8 }}>Last Challenge</h3>
+              <AnimatePresence>
+                {prize ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    style={styles.card}
+                  >
+                    <h4 style={{ margin: 0, marginBottom: 4 }}>{prize.title}</h4>
+                    <p style={{ margin: 0, marginBottom: 8, color: "#4d6b56", fontSize: 13 }}>{prize.description}</p>
+                    <div style={styles.cardActions}>
+                      <button
+                        style={styles.tertiary}
+                        onClick={() => markDone(prize)}
+                      >
+                        Mark Done
+                      </button>
+                      <button
+                        style={{ ...styles.tertiary, background: "transparent", border: "1px solid rgba(6,48,24,0.06)", color: "inherit" }}
+                        onClick={() => setPrize(null)}
+                      >
+                        Hide
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <div style={{ marginTop: 8, color: "#6b7b6b" }}>
+                    No spin yet — try the wheel!
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div style={styles.panelBlock}>
+              <h3 style={{ margin: 0, marginBottom: 8 }}>Completed ({completed.length})</h3>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {completed.length === 0 ? (
+                  <div style={{ color: "#6b7b6b" }}>No completed challenges yet.</div>
+                ) : (
+                  completed.map((t, i) => (
+                    <div key={i} style={{ background: "#e6f6ea", padding: "6px 10px", borderRadius: 999, fontSize: 12 }}>
+                      {t}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div style={styles.panelBlock}>
+              <h3 style={{ margin: 0, marginBottom: 8 }}>History</h3>
+              <div>
+                {history.length === 0 ? (
+                  <div style={{ color: "#6b7b6b" }}>No history — spin to start.</div>
+                ) : (
+                  history.map((h, i) => (
+                    <div key={i} style={{ padding: 8, borderBottom: i === history.length - 1 ? "none" : "1px solid rgba(6,48,24,0.04)" }}>
+                      <strong style={{ fontSize: 13 }}>{h.challenge.title}</strong>
+                      <div style={{ color: "#6b7b6b", fontSize: 11, marginTop: 2 }}>
+                        {new Date(h.time).toLocaleString()}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div style={{ fontSize: 12, color: "#6b7b6b" }}>
+              Tip: adapt each challenge to your comfort & local rules.
+            </div>
+          </aside>
+        </main>
+
+        <footer style={styles.footer}>
+          <div>Made with ♻️ · Eco Wheel</div>
+          <div>
+            <button
+              style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", textDecoration: "underline" }}
+              onClick={() => window.open("https://example.org", "_blank")}
+            >
+              About
+            </button>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+function shorten(text: string, n = 28): string {
+  return text.length > n ? text.slice(0, n - 1) + "…" : text;
+}
+
+function segmentColor(i: number, n: number): string {
+  const palette = [
+    "#E6F6EA",
+    "#DFF2E2",
+    "#CFE9D7",
+    "#BDE1C9",
+    "#9FCFAD",
+    "#7FB892",
+    "#6BA474",
+    "#5B8B5E",
+    "#4A6E48",
+    "#3B5838",
+  ];
+  return palette[i % palette.length];
+}
+
+const localFallback: Challenge[] = [
+  {
+    title: "24-hour Digital Sunset",
+    description: "No screens from sunset to sunrise; write a short reflection.",
+  },
+  {
+    title: "Trash Audit + Swap",
+    description:
+      "Categorize household waste for 48h and replace one single-use item.",
+  },
+  {
+    title: "Walk & Listen",
+    description:
+      "90-min walk without phone navigation; note 10 plants/animals.",
+  },
+  {
+    title: "No-Complaint Day",
+    description: "Reframe complaints into constructive action for one day.",
+  },
+  {
+    title: "Repair Project",
+    description: "Repair a broken item or responsibly recycle it.",
+  },
+  {
+    title: "Give 1 Hour to a Green Group",
+    description: "Volunteer an hour with a local environmental group.",
+  },
+  {
+    title: "Social Media Fast",
+    description:
+      "Take 72h off one social platform and write by hand to a friend.",
+  },
+  {
+    title: "Teach a Skill",
+    description: "Teach someone a practical green skill (composting, repair).",
+  },
+  {
+    title: "One-Ingredient Cooking",
+    description: "Cook a meal with local seasonal ingredients only.",
+  },
+  {
+    title: "Deep Conversation",
+    description: "A 30-min distraction-free call with someone you care about.",
+  },
+  {
+    title: "24-Hour Plastic-Free",
+    description: "Avoid single-use plastics for one full day.",
+  },
+  {
+    title: "Mindful Mornings",
+    description: "10 minutes of mindfulness each morning for 7 days.",
+  },
+  {
+    title: "Sleep Hygiene Reset",
+    description: "Set a sleep routine for 7 nights; no screens 1h before bed.",
+  },
+  {
+    title: "Community Swap",
+    description: "Organize or join a swap for clothes/tools/books.",
+  },
+  {
+    title: "Zero-Waste Lunch x3",
+    description: "Pack waste-free lunches for three days.",
+  },
+  {
+    title: "Conversation with a Stranger",
+    description: "Have a respectful 10–15 minute chat with someone new.",
+  },
+  {
+    title: "30-Day Gratitude Thread",
+    description: "Write one gratitude note each day for 30 days.",
+  },
+  {
+    title: "Plant a Small Habitat",
+    description: "Create a pollinator planter and observe it for a week.",
+  },
+  {
+    title: "Energy Audit",
+    description: "Estimate big energy uses and implement 3 reductions.",
+  },
+  {
+    title: "Leftover Reinvention",
+    description: "Turn leftovers into a new creative dish.",
+  },
+  {
+    title: "Difficult Conversation",
+    description: "Plan and have a calm talk you've been avoiding.",
+  },
+  {
+    title: "Public Transport Pledge",
+    description: "Use transit/bike/walk for two consecutive days.",
+  },
+  {
+    title: "Local Economy Day",
+    description: "Buy only locally-sourced goods for one day.",
+  },
+  {
+    title: "Nature Micro-Project",
+    description: "Plant native seeds or make a bee hotel.",
+  },
+  {
+    title: "One Week Blocked App",
+    description: "Block an addictive app for one week.",
+  },
+  {
+    title: "Short Story From the Park",
+    description: "90 min outside, then write a 500-word flash story.",
+  },
+  {
+    title: "Upcycle Challenge",
+    description: "Turn an old item into something new to gift.",
+  },
+  {
+    title: "Mindful Listening Night",
+    description: "Host a 1-hour listening session with a friend.",
+  },
+  {
+    title: "Repair Café",
+    description: "Attend or organize a repair event.",
+  },
+  {
+    title: "One-Day Minimalist",
+    description: "Live with only 20 items for a day.",
+  },
+  {
+    title: "Screen-Free Creative Sprint",
+    description: "2 hours creating with zero screens.",
+  },
+  {
+    title: "Eco-Advocacy Letter",
+    description: "Send a short evidence-based letter to a local official.",
+  },
+  {
+    title: "Friendship Audit",
+    description: "Pick one friendship to invest in this month.",
+  },
+];
+

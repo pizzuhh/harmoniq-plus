@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { User, GeneratedChallenges } from '../types'
 import api from '../services/api'
+import React from 'react'
+
+type LeaderboardEntry = {
+  id: string
+  username: string
+  totalXp: number
+  level: number
+}
 
 interface DashboardPageProps {
   user: User | null
@@ -13,21 +21,19 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
   const [loading, setLoading] = useState(true)
   const [noMore, setNoMore] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
     const loadChallenges = async () => {
       if (!user) {
-        // wait until we have a user to request a personalized challenge
         setLoading(false)
         return
       }
 
       try {
-        // Use the project's API helper so VITE_API_URL and headers are applied
         const quest: any = await api.request('/challange/receive')
-
-        // The backend returns an empty Quest (id == all-zero UUID) when there's no match
         const emptyId = '00000000-0000-0000-0000-000000000000'
         if (!quest || !quest.id || quest.id === emptyId || !quest.name) {
           setChallenges(null)
@@ -71,6 +77,33 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     loadChallenges()
   }, [user])
 
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await api.request('/api/leaderboard')
+        if (response && Array.isArray(response)) {
+          const sorted = response.sort((a: any, b: any) => (b.points || 0) - (a.points || 0))
+          const mapped: LeaderboardEntry[] = sorted.map((entry: any) => ({
+            id: entry.id,
+            username: entry.name || 'Unknown',
+            totalXp: entry.points || 0,
+            level: Math.floor((entry.points || 0) / 100) + 1,
+          }))
+          setLeaderboard(mapped)
+        }
+      } catch (e) {
+        console.warn('Failed to fetch leaderboard', e)
+        setLeaderboard([])
+      } finally {
+        setLoadingLeaderboard(false)
+      }
+    }
+
+    fetchLeaderboard()
+  }, [])
+
+  const userRank = leaderboard.findIndex((entry) => entry.id === user?.id) + 1
+
   const handleLogout = () => {
     localStorage.removeItem('authToken')
     navigate('/login')
@@ -89,7 +122,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     <div style={styles.container}>
       <header style={styles.header}>
         <div style={styles.headerLeft}>
-          <h1>Mindful City</h1>
+          <h1>Harmony+</h1>
           <button
             style={styles.menuToggle}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -152,8 +185,55 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
             </div>
             <div style={styles.statBox}>
               <span style={styles.statLabel}>Progress to Next Level</span>
-              <span style={styles.statValue}>{100 - user?.currentXp || 0} XP</span>
+              <span style={styles.statValue}>{100 - (user?.currentXp || 0)} XP</span>
             </div>
+          </div>
+
+          {/* Leaderboard */}
+          <div style={styles.leaderboardContainer}>
+            <h3 style={styles.leaderboardTitle}>Top Players Leaderboard</h3>
+            {loadingLeaderboard ? (
+              <div style={{ color: '#666', fontSize: '13px' }}>Loading leaderboard...</div>
+            ) : leaderboard.length === 0 ? (
+              <div style={{ color: '#666', fontSize: '13px' }}>No leaderboard data available</div>
+            ) : (
+              <div style={styles.leaderboardList}>
+                {leaderboard.slice(0, 10).map((entry, index) => (
+                  <div
+                    key={entry.id}
+                    style={{
+                      ...styles.leaderboardItem,
+                      background: entry.id === user?.id ? '#e8f5e9' : 'transparent',
+                      borderLeft: entry.id === user?.id ? '4px solid #19c916ff' : '4px solid transparent',
+                    }}
+                  >
+                    <div style={styles.leaderboardRank}>
+                      <span style={{
+                        ...styles.leaderboardRankBadge,
+                        background: index === 0 ? '#fbbf24' : index === 1 ? '#c0cfe2' : index === 2 ? '#d97706' : '#9ca3af',
+                      }}>
+                        {index + 1}
+                      </span>
+                    </div>
+                    <div style={styles.leaderboardInfo}>
+                      <div style={styles.leaderboardName}>
+                        {entry.username}
+                        {entry.id === user?.id && ' (You)'}
+                      </div>
+                      <div style={styles.leaderboardLevel}>Lvl {entry.level}</div>
+                    </div>
+                    <div style={styles.leaderboardXp}>
+                      {entry.totalXp} XP
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {userRank > 10 && (
+              <div style={styles.yourRank}>
+                Your Rank: #{userRank}
+              </div>
+            )}
           </div>
         </section>
 
@@ -175,15 +255,12 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                       style={styles.completeBtn}
                       onClick={async () => {
                         try {
-                          // Call backend to complete (auto-verify) the quest
                           await api.request(`/api/complete_challenge/${challenge.challenge.id}`, { method: 'POST' })
-                          // Remove completed challenge from UI
                           setChallenges((prev) => {
                             if (!prev) return prev
                             return { ...prev, challenges: prev.challenges.filter((c) => c.id !== challenge.id) }
                           })
 
-                          // Refresh user data from /api/me to update XP and app state
                           try {
                             const me = await api.request('/api/me')
                             if (me) {
@@ -302,7 +379,6 @@ const styles = {
     textAlign: 'left',
   } as React.CSSProperties,
   main: {
-    
     margin: '0 auto',
     padding: '20px',
   } as React.CSSProperties,
@@ -318,6 +394,7 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
     gap: '20px',
+    marginBottom: '30px',
   } as React.CSSProperties,
   statBox: {
     backgroundColor: '#f9f9f9',
@@ -336,6 +413,75 @@ const styles = {
     fontSize: '24px',
     fontWeight: 'bold',
     color: '#19c916ff',
+  } as React.CSSProperties,
+  leaderboardContainer: {
+    backgroundColor: '#f9f9f9',
+    padding: '20px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+  } as React.CSSProperties,
+  leaderboardTitle: {
+    margin: '0 0 15px 0',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: '#333',
+  } as React.CSSProperties,
+  leaderboardList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  } as React.CSSProperties,
+  leaderboardItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px',
+    padding: '12px',
+    borderRadius: '6px',
+    backgroundColor: '#ffffff',
+    borderLeft: '4px solid transparent',
+  } as React.CSSProperties,
+  leaderboardRank: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as React.CSSProperties,
+  leaderboardRankBadge: {
+    width: '30px',
+    height: '30px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '12px',
+    fontWeight: 'bold',
+  } as React.CSSProperties,
+  leaderboardInfo: {
+    flex: 1,
+  } as React.CSSProperties,
+  leaderboardName: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#333',
+  } as React.CSSProperties,
+  leaderboardLevel: {
+    fontSize: '12px',
+    color: '#666',
+  } as React.CSSProperties,
+  leaderboardXp: {
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: '#19c916ff',
+    minWidth: '80px',
+    textAlign: 'right',
+  } as React.CSSProperties,
+  yourRank: {
+    marginTop: '12px',
+    padding: '10px',
+    textAlign: 'center',
+    fontSize: '12px',
+    color: '#666',
+    borderTop: '1px solid #ddd',
   } as React.CSSProperties,
   challengesList: {
     display: 'grid',

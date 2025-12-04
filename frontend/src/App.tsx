@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'  
 import type { User } from './types'
 import './App.css'
 import api from './services/api'
 
 import DashboardPage from './pages/DashboardPage'
+import Challenges from './pages/Challenges'
 import QuestionsHealth from './pages/QuestionsHealth'
 // import DailyQuestionnaire from './pages/DailyQuestionnaire'
 import LoginPage from './pages/LoginPage'
@@ -67,6 +68,7 @@ function App() {
         <Route path="/register" element={<RegisterPage setUser={(u: User) => setUser(u)} />} />
         <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
          <Route path="/map" element={<Map src={"https://maps.google.com/maps?q=Pazardzhik,Bulgaria&z=12&output=embed"} />} />
+         <Route path="/challenges" element={<Challenges />} />
       </Routes>
     </BrowserRouter>
   )

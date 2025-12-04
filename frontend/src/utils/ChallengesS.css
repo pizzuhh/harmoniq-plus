@@ -1,0 +1,125 @@
+/* src/index.css (or import into your main stylesheet)
+   Add these styles to get the 'Eco Green' polished UI.
+*/
+
+:root{
+  --bg:#f5fbf6;
+  --card:#ffffff;
+  --muted:#6b7b6b;
+  --accent:#0b5f30; /* deep green */
+  --accent-2:#2a8a52; /* mid green */
+  --soft:#e6f6ea;
+  --glass: rgba(255,255,255,0.6);
+  --shadow: 0 8px 24px rgba(4,30,12,0.08);
+  --card-radius:14px;
+  --max-w:1100px;
+}
+
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  background:linear-gradient(180deg,var(--bg),#eef9ef);
+  color:#062b19;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  padding:28px 18px;
+}
+
+.app-root{display:flex;justify-content:center}
+.container{width:100%;max-width:var(--max-w)}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+.title{font-size:20px;margin:0;font-weight:700}
+.subtitle{margin:2px 0 0;color:var(--muted);font-size:13px}
+
+.header-controls{display:flex;gap:8px}
+.ghost-btn{
+  background:transparent;border:1px solid rgba(8,50,26,0.08);padding:8px 10px;border-radius:10px;font-size:13px;color:var(--accent-2);cursor:pointer;
+}
+.ghost-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+
+.main-grid{
+  display:grid;
+  grid-template-columns: 1fr 360px;
+  gap:22px;
+  align-items:start;
+}
+
+/* wheel card */
+.wheel-card{
+  background:linear-gradient(180deg, rgba(255,255,255,0.72), rgba(246,255,248,0.76));
+  border-radius:var(--card-radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(8,50,26,0.04);
+}
+
+.wheel-stage{display:flex;flex-direction:column;align-items:center;gap:12px}
+.wheel-frame{position:relative;display:flex;align-items:center;justify-content:center}
+.wheel-frame svg{border-radius:50%}
+.pointer{position:absolute;top:12px;left:50%;transform:translateX(-50%);pointer-events:none;}
+
+/* ring around wheel and small frame */
+.wheel-actions{
+  display:flex;
+  width:100%;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:8px;
+}
+.primary-btn{
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));
+  color:white;padding:12px 18px;border-radius:12px;border:none;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(10,70,35,0.18)
+}
+.primary-btn:disabled{opacity:0.6;cursor:default}
+
+.legend{display:flex;gap:10px;align-items:center}
+.legend-item{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+.dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(180deg,#dff2e2,#bfe8cc);box-shadow:inset 0 -2px 4px rgba(0,0,0,0.04)}
+.dot.brown{background:linear-gradient(180deg,#efe6dd,#d9cbb7)}
+.dot.teal{background:linear-gradient(180deg,#dff7f0,#bfeee1)}
+
+/* right panel */
+.panel{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.panel-block{background:var(--card);border-radius:12px;padding:12px;border:1px solid rgba(8,50,26,0.04);box-shadow: 0 6px 18px rgba(6,27,14,0.03)}
+.card{background:linear-gradient(180deg,#fbfff8,#f0fff1);padding:12px;border-radius:10px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.card-actions{display:flex;gap:8px;margin-top:8px}
+.tertiary{background:transparent;border:1px solid rgba(11,95,48,0.08);padding:8px 10px;border-radius:10px;cursor:pointer;color:var(--accent)}
+.ghost{background:transparent;border:none;color:var(--muted);cursor:pointer}
+.placeholder{color:var(--muted);padding:12px}
+
+/* completed chips */
+.flow-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pill{background:var(--soft);padding:8px 10px;border-radius:999px;font-size:13px;border:1px solid rgba(11,95,48,0.06);color:var(--accent-2)}
+
+/* history */
+.history{display:flex;flex-direction:column;gap:8px}
+.history-item{display:flex;gap:10px;align-items:center;padding:6px;border-radius:8px}
+
+/* footer */
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:16px;color:var(--muted);font-size:13px}
+.footer-right{display:flex;gap:8px;align-items:center}
+.linkish{background:transparent;border:none;color:var(--accent-2);cursor:pointer}
+
+/* responsive */
+@media (max-width: 940px){
+  .main-grid{grid-template-columns: 1fr; }
+  .panel{order:2}
+  .wheel-card{order:1}
+  .container{padding:0 8px}
+}
