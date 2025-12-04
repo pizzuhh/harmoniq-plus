@@ -1,10 +1,11 @@
 use axum::{Json, extract::{Path, Request, State}, http::{HeaderMap, StatusCode}, middleware::Next, response::Response};
 use rand::Rng;
+use serde::Serialize;
 use sha2::Digest;
 use sqlx::{query_as, query_scalar};
 use uuid::Uuid;
 
-use crate::data::{self, AppState, Quest};
+use crate::data::{self, AppState, Quest, User};
 
 
 pub async fn request_challange(headers: HeaderMap, State(state): State<data::AppState>) -> Json<data::Quest> {
@@ -270,4 +271,177 @@ pub async fn get_weekly(State(state): State<data::AppState>) -> (StatusCode, Jso
     let hard = get_random_quest(Some(30), &state);
     
     (StatusCode::OK, Json([easy.await, medium.await, hard.await]))
+}
+
+pub async fn leaderboard(State(state): State<AppState>) -> Result<Json<Vec<(String, i32, i64)>>, StatusCode> {
+    // Change the limit or some shit.
+    let users = sqlx::query!("SELECT name,points, RANK() OVER (ORDER BY points DESC) AS rank FROM users LIMIT 5;")
+        .fetch_all(&state.db_connection)
+        .await;
+    match users {
+        Ok(users) => {
+            let users: Vec<(String, i32, i64)> = users.iter().into_iter()
+                .map(|u| (u.name.clone(), u.points, u.rank.unwrap_or(0))).collect();
+            Ok(Json(users))
+        }
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}
+
+
+// Wheel
+#[derive(Clone, Serialize)]
+pub struct Challenge {
+    title: &'static str,
+    description: &'static str,
+}
+
+static CHALLENGES: [Challenge; 33] = [
+        Challenge {
+            title: "24-hour Digital Sunset",
+            description: "No screens from sunset to sunrise; write a short reflection.",
+        },
+        Challenge {
+            title: "Trash Audit + Swap",
+            description: "Categorize household waste for 48h and replace one single-use item.",
+        },
+        Challenge {
+            title: "Walk & Listen",
+            description: "90-min walk without phone navigation; note 10 plants/animals.",
+        },
+        Challenge {
+            title: "No-Complaint Day",
+            description: "Reframe complaints into constructive action for one day.",
+        },
+        Challenge {
+            title: "Repair Project",
+            description: "Repair a broken item or responsibly recycle it.",
+        },
+        Challenge {
+            title: "Give 1 Hour to a Green Group",
+            description: "Volunteer an hour with a local environmental group.",
+        },
+        Challenge {
+            title: "Social Media Fast",
+            description: "Take 72h off one social platform and write by hand to a friend.",
+        },
+        Challenge {
+            title: "Teach a Skill",
+            description: "Teach someone a practical green skill (composting, repair).",
+        },
+        Challenge {
+            title: "One-Ingredient Cooking",
+            description: "Cook a meal with local seasonal ingredients only.",
+        },
+        Challenge {
+            title: "Deep Conversation",
+            description: "A 30-min distraction-free call with someone you care about.",
+        },
+        Challenge {
+            title: "24-Hour Plastic-Free",
+            description: "Avoid single-use plastics for one full day.",
+        },
+        Challenge {
+            title: "Mindful Mornings",
+            description: "10 minutes of mindfulness each morning for 7 days.",
+        },
+        Challenge {
+            title: "Sleep Hygiene Reset",
+            description: "Set a sleep routine for 7 nights; no screens 1h before bed.",
+        },
+        Challenge {
+            title: "Community Swap",
+            description: "Organize or join a swap for clothes/tools/books.",
+        },
+        Challenge {
+            title: "Zero-Waste Lunch x3",
+            description: "Pack waste-free lunches for three days.",
+        },
+        Challenge {
+            title: "Conversation with a Stranger",
+            description: "Have a respectful 10–15 minute chat with someone new.",
+        },
+        Challenge {
+            title: "30-Day Gratitude Thread",
+            description: "Write one gratitude note each day for 30 days.",
+        },
+        Challenge {
+            title: "Plant a Small Habitat",
+            description: "Create a pollinator planter and observe it for a week.",
+        },
+        Challenge {
+            title: "Energy Audit",
+            description: "Estimate big energy uses and implement 3 reductions.",
+        },
+        Challenge {
+            title: "Leftover Reinvention",
+            description: "Turn leftovers into a new creative dish.",
+        },
+        Challenge {
+            title: "Difficult Conversation",
+            description: "Plan and have a calm talk you've been avoiding.",
+        },
+        Challenge {
+            title: "Public Transport Pledge",
+            description: "Use transit/bike/walk for two consecutive days.",
+        },
+        Challenge {
+            title: "Local Economy Day",
+            description: "Buy only locally-sourced goods for one day.",
+        },
+        Challenge {
+            title: "Nature Micro-Project",
+            description: "Plant native seeds or make a bee hotel.",
+        },
+        Challenge {
+            title: "One Week Blocked App",
+            description: "Block an addictive app for one week.",
+        },
+        Challenge {
+            title: "Short Story From the Park",
+            description: "90 min outside, then write a 500-word flash story.",
+        },
+        Challenge {
+            title: "Upcycle Challenge",
+            description: "Turn an old item into something new to gift.",
+        },
+        Challenge {
+            title: "Mindful Listening Night",
+            description: "Host a 1-hour listening session with a friend.",
+        },
+        Challenge {
+            title: "Repair Café",
+            description: "Attend or organize a repair event.",
+        },
+        Challenge {
+            title: "One-Day Minimalist",
+            description: "Live with only 20 items for a day.",
+        },
+        Challenge {
+            title: "Screen-Free Creative Sprint",
+            description: "2 hours creating with zero screens.",
+        },
+        Challenge {
+            title: "Eco-Advocacy Letter",
+            description: "Send a short evidence-based letter to a local official.",
+        },
+        Challenge {
+            title: "Friendship Audit",
+            description: "Pick one friendship to invest in this month.",
+        },
+];
+
+
+pub async fn wheel_spin() -> (StatusCode, Json<i32>) {
+    let n = CHALLENGES.len();
+    if n == 0 {
+        return (StatusCode::INTERNAL_SERVER_ERROR, Json(0i32))
+    }
+    let mut rng = rand::rng();
+    let idx = rng.random_range(0..n) as i32;
+    (StatusCode::OK, Json(idx))
+}
+
+pub async fn get_wheel_challanges()  -> (StatusCode, Json<Vec<Challenge>>) {
+    (StatusCode::OK, Json(CHALLENGES.to_vec()))
 }
