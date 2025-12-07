@@ -1,6 +1,6 @@
 use std::{alloc::handle_alloc_error, env};
 
-use axum::{routing::{get, post}, Router, middleware};
+use axum::{Router, middleware, routing::{get, options, post}};
 use dotenv::dotenv;
 use axum::http::{Request, HeaderValue, Method, StatusCode, HeaderMap};
 use axum::response::{Response, IntoResponse};
@@ -38,7 +38,7 @@ async fn main() {
         .route("/get_random_question", get(handlers::get_weekly_quest))
         .route("/send_form_points", post(handlers::send_form_points))
         .route("/get_weekly", get(handlers::get_weekly))
-        .route("/wheel/challanges", get(handlers::get_wheel_challanges))
+        .route("/wheel/challenges", get(handlers::get_wheel_challanges))
         .route("/wheel/spin", get(handlers::wheel_spin))
         .route("/leaderboard", get(handlers::leaderboard));
     
@@ -54,7 +54,8 @@ async fn main() {
         .nest("/admin", admin)
         .route("/challange/receive", get(handlers::request_challange))
         .route("/challange/send/{id}", post(handlers::send_challange))
-        .route_layer(middleware::from_fn(cors))
+        .route("/{*wildcard}", options(|| async { StatusCode::NO_CONTENT }))
+        .layer(middleware::from_fn(cors))
         .with_state(state);
 
     let bind_str = "0.0.0.0:7564";
