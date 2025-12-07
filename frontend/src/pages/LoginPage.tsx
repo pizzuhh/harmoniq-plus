@@ -64,8 +64,8 @@ export default function LoginPage({ setUser }: LoginPageProps) {
       <div style={styles.card}>
         <div style={styles.brand}>
           <div>
-            <h1 style={styles.title}>Mindful City</h1>
-            <div style={styles.subtitle}>Sign in to continue</div>
+            <h1 style={styles.title}>Хармония+</h1>
+            <div style={styles.subtitle}>Влез, за да продължиш</div>
           </div>
         </div>
 
@@ -73,7 +73,7 @@ export default function LoginPage({ setUser }: LoginPageProps) {
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Email</label>
+            <label style={styles.label}>Имейл</label>
             <input
               style={styles.input}
               type="email"
@@ -85,7 +85,7 @@ export default function LoginPage({ setUser }: LoginPageProps) {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Password</label>
+            <label style={styles.label}>Парола</label>
             <input
               style={styles.input}
               type="password"
@@ -102,9 +102,9 @@ export default function LoginPage({ setUser }: LoginPageProps) {
         </form>
 
         <div style={styles.footerRow}>
-          <span style={{ color: '#666' }}>Don't have an account?</span>
+          <span style={{ color: '#666' }}>Нямаш акаунт?</span>
           <a onClick={() => navigate('/register')} style={styles.link}>
-            Create one
+            Създай тук
           </a>
         </div>
       </div>

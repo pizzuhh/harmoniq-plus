@@ -71,8 +71,8 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
       <div style={styles.card}>
         <div style={styles.brand}>
           <div>
-            <h1 style={styles.title}>Mindful City</h1>
-            <div style={styles.subtitle}>Create your account</div>
+            <h1 style={styles.title}>Хармония+</h1>
+            <div style={styles.subtitle}>Създай своя акаунт</div>
           </div>
         </div>
 
@@ -80,7 +80,7 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Username</label>
+            <label style={styles.label}>Потребителско име</label>
             <input
               style={styles.input}
               type="text"
@@ -92,7 +92,7 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Email</label>
+            <label style={styles.label}>Потребителско име</label>
             <input
               style={styles.input}
               type="email"
@@ -105,7 +105,7 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
 
           <div style={styles.twoCols}>
             <div style={{ flex: 1, marginRight: 8 }}>
-              <label style={styles.label}>Password</label>
+              <label style={styles.label}>Парола</label>
               <input
                 style={styles.input}
                 type="password"
@@ -116,7 +116,7 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={styles.label}>Confirm</label>
+              <label style={styles.label}>Потвърди</label>
               <input
                 style={styles.input}
                 type="password"
@@ -134,9 +134,9 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
         </form>
 
         <div style={styles.footerRow}>
-          <span style={{ color: '#666' }}>Already have an account?</span>
+          <span style={{ color: '#666' }}>Вече имаш акаунт?</span>
           <a onClick={() => navigate('/login')} style={styles.link}>
-            Login
+            Влез тук
           </a>
         </div>
       </div>

@@ -122,7 +122,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     <div style={styles.container}>
       <header style={styles.header}>
         <div style={styles.headerLeft}>
-          <h1>Harmony+</h1>
+          <h1>Хармония+</h1>
           <button
             style={styles.menuToggle}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -131,10 +131,10 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           </button>
         </div>
         <div style={styles.userInfo}>
-          <span>Welcome, {user?.username}!</span>
-          <span>Level {user?.level}</span>
+          <span>Добре дошъл/а, {user?.username}!</span>
+          <span>Ниво {user?.level}</span>
           <button onClick={handleLogout} style={styles.logoutBtn}>
-            Logout
+            Излез от профила си
           </button>
         </div>
       </header>
@@ -142,56 +142,56 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
       {menuOpen && (
         <nav style={styles.mobileMenu}>
           <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>
-             Dashboard
+             Начална страница
           </button>
           <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>
-             Challenges
+             Колело на предизвикателствата
           </button>
           <button onClick={() => handleNavigation('/map')} style={styles.navLink}>
              Mindful Map
           </button>
           <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>
-             Questioneer
+             Въпросници
           </button>
         </nav>
       )}
 
       <div style={styles.desktopNav}>
         <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>
-           Dashboard
+           Начална страница
         </button>
         <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>
-           Challenges
+            Колело на предизвикателствата
         </button>
         <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>
            Mindful Map
         </button>
         <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>
-           Questioneer
+            Въпросници
         </button>
       </div>
 
       <main style={styles.main}>
         <section style={styles.section}>
-          <h2>Your Stats</h2>
+          <h2>Статус</h2>
           <div style={styles.statsGrid}>
             <div style={styles.statBox}>
               <span style={styles.statLabel}>Total XP</span>
               <span style={styles.statValue}>{user?.totalXp || 0}</span>
             </div>
             <div style={styles.statBox}>
-              <span style={styles.statLabel}>Current Level</span>
+              <span style={styles.statLabel}>Ниво</span>
               <span style={styles.statValue}>{user?.level || 1}</span>
             </div>
             <div style={styles.statBox}>
-              <span style={styles.statLabel}>Progress to Next Level</span>
+              <span style={styles.statLabel}>Прогрес до следващото ниво</span>
               <span style={styles.statValue}>{100 - (user?.currentXp || 0)} XP</span>
             </div>
           </div>
 
           {/* Leaderboard */}
           <div style={styles.leaderboardContainer}>
-            <h3 style={styles.leaderboardTitle}>Top Players Leaderboard</h3>
+            <h3 style={styles.leaderboardTitle}>Най-добрите ни потребители</h3>
             {loadingLeaderboard ? (
               <div style={{ color: '#666', fontSize: '13px' }}>Loading leaderboard...</div>
             ) : leaderboard.length === 0 ? (
@@ -238,7 +238,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         </section>
 
         <section style={styles.section}>
-          <h2>Today's Challenges</h2>
+          <h2>Днешното предизвикателство</h2>
           {challenges?.challenges && challenges.challenges.length > 0 ? (
             <div style={styles.challengesList}>
               {challenges.challenges.map((challenge) => (
@@ -291,11 +291,11 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
               ))}
             </div>
           ) : (
-            <p>{noMore ? 'No more challenges for today.' : 'No challenges available for today.'}</p>
+            <p>{noMore ? 'Няма повече предизвикателства за днес.' : 'Няма налични предизвикателства за днес.'}</p>
           )}
         </section>
         <footer style={styles.community}>
-          <h3>Присъединете се към нашата Mundful City общност</h3>
+          <h3>Присъединете се към нашата Хармония+ общност</h3>
           <a href="https://discord.gg/qMssPdrr" target="_blank" rel="noopener noreferrer">Присъединете се в Discord</a>
         </footer>
       </main>
