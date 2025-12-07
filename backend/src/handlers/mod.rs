@@ -15,6 +15,9 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
     let points: i32 = query_scalar!("SELECT points FROM users WHERE id = $1;", id)
         .fetch_one(&state.db_connection)
         .await.unwrap();
+    let level: f32 = points as f32 / 100f32;
+    let level = level.ceil();
+    println!("{}", level);
 
     // Select the best matching quest: the one with the highest required_points that is <= user's points
     // Exclude quests the user already has in user_quest (so completed/pending quests are not re-assigned)
