@@ -81,13 +81,13 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     const fetchLeaderboard = async () => {
       try {
         const response = await api.request('/api/leaderboard')
+        console.log(response);
         if (response && Array.isArray(response)) {
-          const sorted = response.sort((a: any, b: any) => (b.points || 0) - (a.points || 0))
-          const mapped: LeaderboardEntry[] = sorted.map((entry: any) => ({
-            id: entry.id,
-            username: entry.name || 'Unknown',
-            totalXp: entry.points || 0,
-            level: Math.floor((entry.points || 0) / 100) + 1,
+          const mapped: LeaderboardEntry[] = response.map((entry: any) => ({
+            id: entry[2],
+            username: entry[0] || 'Unknown',
+            totalXp: entry[1] || 0,
+            level: Math.floor((entry[1] || 0) / 100) + 1,
           }))
           setLeaderboard(mapped)
         }

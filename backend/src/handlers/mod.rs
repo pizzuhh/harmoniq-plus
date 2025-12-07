@@ -1,5 +1,5 @@
 use axum::{Json, extract::{Path, Request, State}, http::{HeaderMap, StatusCode}, middleware::Next, response::Response};
-use rand::Rng;
+use rand::{Rng, rand_core::le};
 use serde::Serialize;
 use sha2::Digest;
 use sqlx::{query_as, query_scalar};
@@ -12,16 +12,22 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
 
     let token = headers.get("user_id").unwrap();
     let id: Uuid = token.to_str().unwrap().parse().unwrap();
-    let points: i32 = query_scalar!("SELECT points FROM users WHERE id = $1;", id)
+    let mut points: i32 = query_scalar!("SELECT points FROM users WHERE id = $1;", id)
         .fetch_one(&state.db_connection)
         .await.unwrap();
     let level: f32 = points as f32 / 100f32;
-    let level = level.ceil();
-    println!("{}", level);
+    let level = level.ceil() as i32;
+    if level <= 5 {
+        points = 10;
+    } else if level <= 10 {
+        points = 15;
+    } else {
+        points = 30;
+    }
 
     // Select the best matching quest: the one with the highest required_points that is <= user's points
     // Exclude quests the user already has in user_quest (so completed/pending quests are not re-assigned)
-    let quest = query_as::<_, data::Quest>("SELECT * FROM quests WHERE required_points <= $1 AND id NOT IN (SELECT quest_id FROM user_quest WHERE user_id = $2) ORDER BY required_points DESC LIMIT 1")
+    let quest = query_as::<_, data::Quest>("SELECT * FROM quests WHERE points_received <= $1 AND id NOT IN (SELECT quest_id FROM user_quest WHERE user_id = $2) ORDER BY required_points DESC LIMIT 1")
         .bind(points)
         .bind(id)
         .fetch_one(&state.db_connection)
