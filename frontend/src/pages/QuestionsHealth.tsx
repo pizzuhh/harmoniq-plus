@@ -1,9 +1,77 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+type Badge = {
+  id: number
+  name: string
+  xpRequired: number
+  imagePath: string
+  unlocked: boolean
+}
 
 export default function QuestionsHealth() {
   const [responses, setResponses] = useState<Record<number, string>>({})
   const [screenTime, setScreenTime] = useState<number>(0)
   const [submitted, setSubmitted] = useState(false)
+  const [badges, setBadges] = useState<Badge[]>([])
+  const [userXp, setUserXp] = useState(0)
+
+  // Load user XP and initialize badges on mount
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const apiBase = import.meta.env.VITE_API_URL || ''
+        const userId = localStorage.getItem('authToken') || ''
+
+        const res = await fetch(`${apiBase}/api/me`, {
+          headers: { user_id: userId },
+        })
+
+        if (res.ok) {
+          const user = await res.json()
+          const currentXp = user.points || 0
+          setUserXp(currentXp)
+
+          // Badge images from assets folder
+          const badgeImages = [
+            '/src/assets/1.jpg',
+            '/src/assets/2.jpg',
+            '/src/assets/3.jpg',
+            '/src/assets/4.jpg',
+            '/src/assets/5.png',
+            '/src/assets/6.png',
+            '/src/assets/7.jpg',
+            '/src/assets/8.jpg',
+            '/src/assets/9.jpg',
+            '/src/assets/10.png',
+            '/src/assets/11.jpg',
+            '/src/assets/12.png',
+            '/src/assets/thirteen.png',
+            '/src/assets/14.png',
+            '/src/assets/15.png',
+            '/src/assets/16.png',
+            '/src/assets/17.png',
+            '/src/assets/18.png',
+          ]
+
+          // Initialize badges: one badge every 500 XP
+          const totalBadges = Math.ceil(currentXp / 500) + 3 // +3 for future badges to work towards
+          const badgeList: Badge[] = Array.from({ length: totalBadges }, (_, i) => ({
+            id: i,
+            name: `Badge ${i + 1}`,
+            xpRequired: (i + 1) * 500,
+            imagePath: badgeImages[i % badgeImages.length], // cycle through all available badge images
+            unlocked: currentXp >= (i + 1) * 500,
+          }))
+
+          setBadges(badgeList)
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error)
+      }
+    }
+
+    loadUserData()
+  }, [])
 
   const questions = [
     {
@@ -68,8 +136,6 @@ export default function QuestionsHealth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      // Simple scoring: for each question, find the selected option index and add (index+1)*9 points
-      // (this maps to quest required_points scale used in the backend seed data)
       let totalPoints = 0
       for (const q of questions) {
         const ans = responses[q.id]
@@ -78,7 +144,6 @@ export default function QuestionsHealth() {
         if (idx >= 0) totalPoints += (idx + 1)
       }
 
-      // Update user points on backend
       const apiBase = import.meta.env.VITE_API_URL || ''
       const userId = localStorage.getItem('authToken') || ''
 
@@ -96,15 +161,12 @@ export default function QuestionsHealth() {
         return
       }
 
-      // Immediately request a challenge for the user
       const chall = await fetch(`${apiBase}/challange/receive`, {
         method: 'GET',
         headers: { user_id: userId },
       })
 
       if (chall.ok) {
-        // We don't need to use the returned challenge here because DashboardPage will fetch it on mount
-        // but we can log it for debugging.
         const quest = await chall.json()
         console.log('Assigned quest:', quest)
 
@@ -113,7 +175,6 @@ export default function QuestionsHealth() {
           setResponses({})
           setScreenTime(0)
           setSubmitted(false)
-          // navigate user to dashboard to see their challenge
           window.location.href = '/dashboard'
         }, 800)
       } else {
@@ -142,6 +203,45 @@ export default function QuestionsHealth() {
         <div style={styles.header}>
           <h1 style={styles.title}>🌿 Дневен психологически въпросник</h1>
           <p style={styles.subtitle}>Попълва се ежедневно — влияе директно върху днешните предизвикателства.</p>
+        </div>
+
+        {/* Badges Section */}
+        <div style={styles.badgesSection}>
+          <h2 style={styles.badgesTitle}> Tвоите значки</h2>
+          <p style={{ color: '#666', marginBottom: '16px' }}>
+            Отключете значка всеки 500 XP! Вие имате <strong>{userXp} XP</strong>
+          </p>
+          <div style={styles.badgesContainer}>
+            {badges.map((badge) => (
+              <div
+                key={badge.id}
+                style={{
+                  ...styles.badgeItem,
+                  opacity: badge.unlocked ? 1 : 0.4,
+                  filter: badge.unlocked ? 'none' : 'grayscale(100%)',
+                }}
+                title={badge.unlocked ? 'Отключено' : `Отключете на ${badge.xpRequired} XP`}
+              >
+                <img
+                  src={badge.imagePath}
+                  alt={badge.name}
+                  style={styles.badgeImage}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = 'none'
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '12px' }}>
+                  <div style={{ fontWeight: 600, color: '#333' }}>Lvl {badge.id + 1}</div>
+                  <div style={{ color: '#666' }}>{badge.xpRequired} XP</div>
+                  {badge.unlocked ? (
+                    <div style={{ color: '#4CAF50', fontWeight: 'bold' }}>✓ Отключено</div>
+                  ) : (
+                    <div style={{ color: '#999' }}>Заключено</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -211,7 +311,7 @@ const styles = {
     padding: '40px',
     borderRadius: '16px',
     boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)',
-    maxWidth: '800px',
+    maxWidth: '900px',
     width: '100%',
   } as React.CSSProperties,
   header: {
@@ -228,6 +328,41 @@ const styles = {
     color: '#666',
     fontSize: '16px',
     margin: '0',
+  } as React.CSSProperties,
+  badgesSection: {
+    backgroundColor: '#f9f9f9',
+    padding: '24px',
+    borderRadius: '12px',
+    marginBottom: '40px',
+    border: '2px solid #e8e8e8',
+  } as React.CSSProperties,
+  badgesTitle: {
+    margin: '0 0 8px 0',
+    color: '#1a3a3a',
+    fontSize: '20px',
+    fontWeight: 'bold',
+  } as React.CSSProperties,
+  badgesContainer: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
+    gap: '16px',
+  } as React.CSSProperties,
+  badgeItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '16px',
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    border: '1px solid #ddd',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
+  } as React.CSSProperties,
+  badgeImage: {
+    width: '80px',
+    height: '80px',
+    objectFit: 'contain',
+    borderRadius: '8px',
   } as React.CSSProperties,
   form: {
     display: 'flex',
