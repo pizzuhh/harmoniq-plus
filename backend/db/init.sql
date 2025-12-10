@@ -6,7 +6,10 @@ CREATE TABLE users (
     mail VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(64) NOT NULL,
     is_admin boolean DEFAULT false NOT NULL,
-    points integer DEFAULT 0 NOT NULL
+    points integer DEFAULT 0 NOT NULL,
+    last_active date DEFAULT NOW() NOT NULL,
+    longest_streak integer DEFAULT 0 NOT NULL,
+    current_streak integer DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE quests (

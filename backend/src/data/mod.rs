@@ -1,3 +1,4 @@
+use sqlx::types::chrono;
 use uuid::Uuid;
 
 
@@ -16,7 +17,10 @@ pub struct User {
     pub mail: String,
     pub password_hash: String,
     pub is_admin: bool,
-    pub points: i32
+    pub points: i32,
+    pub longest_streak: i32,
+    pub current_streak: i32,
+    pub last_active: chrono::NaiveDate
 }
 
 #[derive(serde::Serialize, serde::Deserialize, sqlx::Type, Debug)]

@@ -40,6 +40,7 @@ async fn main() {
         .route("/get_weekly", get(handlers::get_weekly))
         .route("/wheel/challenges", get(handlers::get_wheel_challanges))
         .route("/wheel/spin", get(handlers::wheel_spin))
+        .route("/get_streak", get(handlers::get_streak))
         .route("/leaderboard", get(handlers::leaderboard));
     
     let admin = Router::new()
