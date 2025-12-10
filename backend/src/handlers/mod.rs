@@ -20,9 +20,9 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
         .await.unwrap();
     let level: f32 = points as f32 / 100f32;
     let level = level.ceil() as i32;
-    if level <= 5 {
+    if level < 5 {
         points = 10;
-    } else if level <= 10 {
+    } else if level < 10 {
         points = 15;
     } else {
         points = 30;
@@ -69,6 +69,9 @@ pub async fn send_challange(headers: HeaderMap, State(state): State<data::AppSta
         .bind("")
         .execute(&state.db_connection)
         .await.unwrap();
+
+    // Update the streak
+    let _ = update_streak(&state, &headers).await;
 
 }
 
@@ -458,7 +461,7 @@ pub async fn get_wheel_challanges()  -> (StatusCode, Json<Vec<Challenge>>) {
     (StatusCode::OK, Json(CHALLENGES.to_vec()))
 }
 
-pub async fn update_streak(State(state): State<AppState>, headers: HeaderMap) -> Result<i32, StatusCode> {
+async fn update_streak(state: &AppState, headers: &HeaderMap) -> Result<i32, StatusCode> {
     let user_id = match headers.get("user_id") {
         Some(u) => u,
         None => return Err(StatusCode::UNAUTHORIZED)
