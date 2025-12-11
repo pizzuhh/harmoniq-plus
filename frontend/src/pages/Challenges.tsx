@@ -294,7 +294,7 @@ export default function Challenges() {
     <div style={styles.container}>
     <header style={styles.header}>
     <div>
-    <h1 style={styles.title}>Eco Wheel — Challenges</h1>
+    <h1 style={styles.title}>Колелото на предизвикателствата</h1>
     <p style={styles.subtitle}>
     Nature-minded, slightly daring — try one and share the impact.
     </p>
@@ -307,7 +307,7 @@ export default function Challenges() {
       setPrize(null);
     }}
     >
-    Reset Session
+    Рестартирай историята
     </button>
     <button style={styles.ghostBtn} onClick={resetCompleted}>
     Reset Completed
@@ -374,7 +374,7 @@ export default function Challenges() {
     filter="url(#soft)"
     />
     <text x="100" y="102" fontSize="12" textAnchor="middle" fill="#083218" style={{ fontWeight: 700 }}>
-    SPIN
+    ЗАВЪРТИ 
     </text>
     <text x="100" y="118" fontSize="9" textAnchor="middle" fill="#0a3b21">
     Eco
@@ -453,7 +453,7 @@ export default function Challenges() {
       </p>
       <div style={styles.cardActions}>
       <button style={styles.tertiary} onClick={() => markDone(prize)}>
-      Mark Done
+      Маркирай като завършено
       </button>
       <button
       style={{
@@ -464,7 +464,7 @@ export default function Challenges() {
       }}
       onClick={() => setPrize(null)}
       >
-      Hide
+      Скрий
       </button>
       </div>
       </motion.div>
@@ -478,7 +478,7 @@ export default function Challenges() {
     <h3 style={{ margin: 0, marginBottom: 8 }}>Completed ({completed.length})</h3>
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
     {completed.length === 0 ? (
-      <div style={{ color: "#6b7b6b" }}>No completed challenges yet.</div>
+      <div style={{ color: "#6b7b6b" }}>Няма предишни предизвикателства - опитай колелото!</div>
     ) : (
       completed.map((t, i) => (
         <div key={i} style={{ background: "#e6f6ea", padding: "6px 10px", borderRadius: 999, fontSize: 12 }}>
@@ -490,10 +490,10 @@ export default function Challenges() {
     </div>
 
     <div style={styles.panelBlock}>
-    <h3 style={{ margin: 0, marginBottom: 8 }}>History</h3>
+    <h3 style={{ margin: 0, marginBottom: 8 }}>История</h3>
     <div>
     {history.length === 0 ? (
-      <div style={{ color: "#6b7b6b" }}>No history — spin to start.</div>
+      <div style={{ color: "#6b7b6b" }}>Няма история - завърти колелото, за да започнеш.</div>
     ) : (
       history.map((h, i) => (
         <div
@@ -521,7 +521,7 @@ export default function Challenges() {
     </main>
 
     <footer style={styles.footer}>
-    <div>Made with ♻️ · Eco Wheel</div>
+    <div>Made with Eco Wheel</div>
     <div>
     <button
     style={{
@@ -563,37 +563,38 @@ function segmentColor(i: number, n: number): string {
 }
 
 const localFallback: Challenge[] = [
-  { title: "24-hour Digital Sunset", description: "No screens from sunset to sunrise; write a short reflection." },
-{ title: "Trash Audit + Swap", description: "Categorize household waste for 48h and replace one single-use item." },
-{ title: "Walk & Listen", description: "90-min walk without phone navigation; note 10 plants/animals." },
-{ title: "No-Complaint Day", description: "Reframe complaints into constructive action for one day." },
-{ title: "Repair Project", description: "Repair a broken item or responsibly recycle it." },
-{ title: "Give 1 Hour to a Green Group", description: "Volunteer an hour with a local environmental group." },
-{ title: "Social Media Fast", description: "Take 72h off one social platform and write by hand to a friend." },
-{ title: "Teach a Skill", description: "Teach someone a practical green skill (composting, repair)." },
-{ title: "One-Ingredient Cooking", description: "Cook a meal with local seasonal ingredients only." },
-{ title: "Deep Conversation", description: "A 30-min distraction-free call with someone you care about." },
-{ title: "24-Hour Plastic-Free", description: "Avoid single-use plastics for one full day." },
-{ title: "Mindful Mornings", description: "10 minutes of mindfulness each morning for 7 days." },
-{ title: "Sleep Hygiene Reset", description: "Set a sleep routine for 7 nights; no screens 1h before bed." },
-{ title: "Community Swap", description: "Organize or join a swap for clothes/tools/books." },
-{ title: "Zero-Waste Lunch x3", description: "Pack waste-free lunches for three days." },
-{ title: "Conversation with a Stranger", description: "Have a respectful 10–15 minute chat with someone new." },
-{ title: "30-Day Gratitude Thread", description: "Write one gratitude note each day for 30 days." },
-{ title: "Plant a Small Habitat", description: "Create a pollinator planter and observe it for a week." },
-{ title: "Energy Audit", description: "Estimate big energy uses and implement 3 reductions." },
-{ title: "Leftover Reinvention", description: "Turn leftovers into a new creative dish." },
-{ title: "Difficult Conversation", description: "Plan and have a calm talk you've been avoiding." },
-{ title: "Public Transport Pledge", description: "Use transit/bike/walk for two consecutive days." },
-{ title: "Local Economy Day", description: "Buy only locally-sourced goods for one day." },
-{ title: "Nature Micro-Project", description: "Plant native seeds or make a bee hotel." },
-{ title: "One Week Blocked App", description: "Block an addictive app for one week." },
-{ title: "Short Story From the Park", description: "90 min outside, then write a 500-word flash story." },
-{ title: "Upcycle Challenge", description: "Turn an old item into something new to gift." },
-{ title: "Mindful Listening Night", description: "Host a 1-hour listening session with a friend." },
-{ title: "Repair Café", description: "Attend or organize a repair event." },
-{ title: "One-Day Minimalist", description: "Live with only 20 items for a day." },
-{ title: "Screen-Free Creative Sprint", description: "2 hours creating with zero screens." },
-{ title: "Eco-Advocacy Letter", description: "Send a short evidence-based letter to a local official." },
-{ title: "Friendship Audit", description: "Pick one friendship to invest in this month." },
+  { title: "24-часов дигитален залез", description: "Без екрани от залез до изгрев; напиши кратка рефлексия." },
+{ title: "Одит на отпадъците + замяна", description: "Категоризирай домашните отпадъци за 48 ч. и замени един еднократен предмет." },
+{ title: "Разходка и слушане", description: "90-минутна разходка без навигация от телефона; отбележи 10 растения/животни." },
+{ title: "Ден без оплаквания", description: "Преформулирай оплакванията в конструктивни действия за един ден." },
+{ title: "Проект за ремонт", description: "Поправи счупен предмет или го рециклирай отговорно." },
+{ title: "Дай 1 час на зелена група", description: "Доброволствай един час в местна екологична група." },
+{ title: "Пост от социални мрежи", description: "Направи 72 ч. пауза от една социална платформа и напиши писмо на ръка до приятел." },
+{ title: "Научи на умение", description: "Научи някого на практическо зелено умение (компостиране, ремонт)." },
+{ title: "Готвене с една съставка", description: "Сготви ястие само с местни сезонни продукти." },
+{ title: "Дълбок разговор", description: "30-минутен разговор без разсейване с човек, на който държиш." },
+{ title: "24 часа без пластмаса", description: "Избягвай еднократните пластмаси за един пълен ден." },
+{ title: "Осъзнати сутрини", description: "10 минути осъзнатост всяка сутрин за 7 дни." },
+{ title: "Режим за по-добър сън", description: "Създай си режим за сън за 7 нощи; без екрани 1 час преди лягане." },
+{ title: "Общностна размяна", description: "Организирай или се включи в размяна на дрехи/инструменти/книги." },
+{ title: "Обяд без отпадък x3", description: "Приготви обяди без отпадък за три дни." },
+{ title: "Разговор с непознат", description: "Води уважителен 10–15 минутен разговор с нов човек." },
+{ title: "30-дневна нишка на благодарност", description: "Пиши по една бележка на благодарност всеки ден за 30 дни." },
+{ title: "Засади малко местообитание", description: "Създай сандъче за опрашители и наблюдавай една седмица." },
+{ title: "Енергиен одит", description: "Оцени големите енергоразходи и приложи 3 намаления." },
+{ title: "Пресъздаване на остатъци", description: "Превърни остатъците от храна в ново креативно ястие." },
+{ title: "Труден разговор", description: "Планирай и проведи спокоен разговор, който отлагаш." },
+{ title: "Обещание за обществен транспорт", description: "Ползвай транспорт/колело/ходене два последователни дни." },
+{ title: "Ден на локалната икономика", description: "Купувай само местно произведени стоки за един ден." },
+{ title: "Микропроект за природата", description: "Засей местни семена или направи хотел за пчели." },
+{ title: "Блокирано приложение за една седмица", description: "Блокирай пристрастяващо приложение за една седмица." },
+{ title: "Кратък разказ от парка", description: "90 минути навън, после напиши 500-думов разказ." },
+{ title: "Предизвикателство за ъпсайклинг", description: "Превърни стар предмет в нещо ново за подарък." },
+{ title: "Нощ на осъзнатото слушане", description: "Проведи 1-часова сесия за осъзнато слушане с приятел." },
+{ title: "Ремонтно кафене", description: "Посети или организирай събитие за ремонт." },
+{ title: "Минималист за един ден", description: "Живей само с 20 предмета за един ден." },
+{ title: "Творчески спринт без екрани", description: "2 часа творчество без никакви екрани." },
+{ title: "Еко-адвокационно писмо", description: "Изпрати кратко писмо с аргументи до местен представител." },
+{ title: "Одит на приятелството", description: "Избери едно приятелство, в което да инвестираш този месец." },
+
 ];
