@@ -406,7 +406,7 @@ export default function Challenges() {
     onClick={spin}
     disabled={isSpinning || challenges.length === 0}
     >
-    {isSpinning ? "Spinning…" : "Spin the Wheel"}
+    {isSpinning ? "Въртене..." : "Завърти колелото"}
     </button>
 
     <div style={styles.legend}>
@@ -519,24 +519,6 @@ export default function Challenges() {
     </div>
     </aside>
     </main>
-
-    <footer style={styles.footer}>
-    <div>Made with Eco Wheel</div>
-    <div>
-    <button
-    style={{
-      background: "none",
-      border: "none",
-      color: "inherit",
-      cursor: "pointer",
-      textDecoration: "underline",
-    }}
-    onClick={() => window.open("https://example.org", "_blank")}
-    >
-    About
-    </button>
-    </div>
-    </footer>
     </div>
     </div>
   );
