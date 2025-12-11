@@ -435,7 +435,7 @@ export default function Challenges() {
 
     <aside style={styles.panel}>
     <div style={styles.panelBlock}>
-    <h3 style={{ margin: 0, marginBottom: 8 }}>Last Challenge</h3>
+    <h3 style={{ margin: 0, marginBottom: 8 }}>Твоето предизвикателство</h3>
     <AnimatePresence>
     {prize ? (
       <motion.div
@@ -466,7 +466,7 @@ export default function Challenges() {
       </div>
       </motion.div>
     ) : (
-      <div style={{ marginTop: 8, color: "#6b7b6b" }}>No spin yet — try the wheel!</div>
+      <div style={{ marginTop: 8, color: "#6b7b6b" }}>Завърти колелото!</div>
     )}
     </AnimatePresence>
     </div>
