@@ -11,6 +11,12 @@ type LeaderboardEntry = {
   level: number
 }
 
+type StreakData = {
+  currentStreak: number
+  longestStreak: number
+  lastCompletedDate: string
+}
+
 interface DashboardPageProps {
   user: User | null
   setUser?: (user: User) => void
@@ -23,6 +29,8 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(true)
+  const [streak, setStreak] = useState<StreakData>({ currentStreak: 0, longestStreak: 0, lastCompletedDate: '' })
+  const [loadingStreak, setLoadingStreak] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -102,6 +110,27 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     fetchLeaderboard()
   }, [])
 
+  useEffect(() => {
+    const fetchStreak = async () => {
+      try {
+        const response = await api.request('/api/streak')
+        if (response) {
+          setStreak({
+            currentStreak: response.current_streak || 0,
+            longestStreak: response.longest_streak || 0,
+            lastCompletedDate: response.last_completed_date || '',
+          })
+        }
+      } catch (e) {
+        console.warn('Failed to fetch streak', e)
+      } finally {
+        setLoadingStreak(false)
+      }
+    }
+
+    fetchStreak()
+  }, [])
+
   const userRank = leaderboard.findIndex((entry) => entry.id === user?.id) + 1
 
   const handleLogout = () => {
@@ -172,6 +201,89 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
       </div>
 
       <main style={styles.main}>
+        {/* Streak Section */}
+        {!loadingStreak && (
+          <section style={styles.streakSection}>
+            <div style={styles.streakCard}>
+              <div style={styles.streakHeader}>
+                <h2 style={styles.streakTitle}>🔥 Вашата серия</h2>
+              </div>
+
+              <div style={styles.streakContent}>
+                <div style={styles.streakStats}>
+                  {/* Current Streak */}
+                  <div style={{
+                    ...styles.streakStatBox,
+                    background: streak.currentStreak > 0
+                      ? 'linear-gradient(135deg, #ff6b6b, #ff8c8c)'
+                      : 'linear-gradient(135deg, #e0e0e0, #f0f0f0)',
+                  }}>
+                    <div style={styles.streakFlame}>
+                      {streak.currentStreak > 0 ? '🔥' : '❄️'}
+                    </div>
+                    <div style={styles.streakStatLabel}>Текуща серия</div>
+                    <div style={{
+                      ...styles.streakNumber,
+                      color: streak.currentStreak > 0 ? '#fff' : '#666',
+                    }}>
+                      {streak.currentStreak}
+                    </div>
+                    <div style={{
+                      ...styles.streakDays,
+                      color: streak.currentStreak > 0 ? 'rgba(255,255,255,0.9)' : '#999',
+                    }}>
+                      дни подред
+                    </div>
+                  </div>
+
+                  {/* Longest Streak */}
+                  <div style={{
+                    ...styles.streakStatBox,
+                    background: 'linear-gradient(135deg, #ffd93d, #ffed4e)',
+                  }}>
+                    <div style={styles.streakFlame}>👑</div>
+                    <div style={styles.streakStatLabel}>Най-дълга серия</div>
+                    <div style={styles.streakNumber}>
+                      {streak.longestStreak}
+                    </div>
+                    <div style={styles.streakDays}>всички времена</div>
+                  </div>
+                </div>
+
+                {/* Motivational Message */}
+                <div style={styles.motivationBox}>
+                  {streak.currentStreak === 0 ? (
+                    <p>🌟 Започнете вашата серия днес! Завършете предизвикателство сега.</p>
+                  ) : streak.currentStreak < 7 ? (
+                    <p>💪 Продължавайте! Още {7 - streak.currentStreak} дни до първа неделя!</p>
+                  ) : streak.currentStreak < 30 ? (
+                    <p>🚀 Невероятно! Вече сте на пътя към месец пълен с постижения!</p>
+                  ) : (
+                    <p>👏 Легенда! Месец или повече последователност — продължавайте така!</p>
+                  )}
+                </div>
+
+                {/* Progress Bar */}
+                <div style={styles.progressSection}>
+                  <div style={styles.progressLabel}>Прогрес до 30 дни:</div>
+                  <div style={styles.progressBarContainer}>
+                    <div style={{
+                      ...styles.progressBar,
+                      width: `${Math.min((streak.currentStreak / 30) * 100, 100)}%`,
+                      background: streak.currentStreak >= 30
+                        ? 'linear-gradient(90deg, #ffd93d, #ffed4e)'
+                        : 'linear-gradient(90deg, #ff6b6b, #ff8c8c)',
+                    }} />
+                  </div>
+                  <div style={styles.progressText}>
+                    {streak.currentStreak}/30 дни
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         <section style={styles.section}>
           <h2>Статус</h2>
           <div style={styles.statsGrid}>
@@ -279,6 +391,20 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                           } catch (e) {
                             // ignore
                           }
+
+                          // Refresh streak
+                          try {
+                            const streakRes = await api.request('/api/streak')
+                            if (streakRes) {
+                              setStreak({
+                                currentStreak: streakRes.current_streak || 0,
+                                longestStreak: streakRes.longest_streak || 0,
+                                lastCompletedDate: streakRes.last_completed_date || '',
+                              })
+                            }
+                          } catch (e) {
+                            // ignore
+                          }
                         } catch (e) {
                           console.error('Failed to complete challenge', e)
                         }
@@ -381,6 +507,98 @@ const styles = {
   main: {
     margin: '0 auto',
     padding: '20px',
+  } as React.CSSProperties,
+  streakSection: {
+    marginBottom: '20px',
+  } as React.CSSProperties,
+  streakCard: {
+    background: 'white',
+    borderRadius: '14px',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+    overflow: 'hidden',
+  } as React.CSSProperties,
+  streakHeader: {
+    background: 'linear-gradient(135deg, #ff6b6b, #ff8c8c)',
+    padding: '20px',
+    color: 'white',
+  } as React.CSSProperties,
+  streakTitle: {
+    margin: 0,
+    fontSize: '24px',
+    fontWeight: 'bold',
+  } as React.CSSProperties,
+  streakContent: {
+    padding: '24px',
+  } as React.CSSProperties,
+  streakStats: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '16px',
+    marginBottom: '20px',
+  } as React.CSSProperties,
+  streakStatBox: {
+    padding: '20px',
+    borderRadius: '12px',
+    textAlign: 'center',
+    color: '#333',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+  } as React.CSSProperties,
+  streakFlame: {
+    fontSize: '48px',
+    marginBottom: '8px',
+  } as React.CSSProperties,
+  streakStatLabel: {
+    fontSize: '12px',
+    fontWeight: 600,
+    color: 'rgba(0,0,0,0.7)',
+    marginBottom: '8px',
+  } as React.CSSProperties,
+  streakNumber: {
+    fontSize: '36px',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: '4px',
+  } as React.CSSProperties,
+  streakDays: {
+    fontSize: '13px',
+    color: '#666',
+  } as React.CSSProperties,
+  motivationBox: {
+    background: 'linear-gradient(135deg, #e3f2fd, #f3e5f5)',
+    padding: '16px',
+    borderRadius: '10px',
+    marginBottom: '20px',
+    textAlign: 'center',
+    fontSize: '14px',
+    color: '#333',
+    fontWeight: 500,
+  } as React.CSSProperties,
+  progressSection: {
+    marginTop: '16px',
+  } as React.CSSProperties,
+  progressLabel: {
+    fontSize: '13px',
+    fontWeight: 600,
+    marginBottom: '8px',
+    color: '#666',
+  } as React.CSSProperties,
+  progressBarContainer: {
+    width: '100%',
+    height: '10px',
+    backgroundColor: '#e0e0e0',
+    borderRadius: '10px',
+    overflow: 'hidden',
+    marginBottom: '8px',
+  } as React.CSSProperties,
+  progressBar: {
+    height: '100%',
+    borderRadius: '10px',
+    transition: 'width 0.4s ease',
+  } as React.CSSProperties,
+  progressText: {
+    fontSize: '12px',
+    color: '#666',
+    textAlign: 'right',
   } as React.CSSProperties,
   section: {
     backgroundColor: 'white',

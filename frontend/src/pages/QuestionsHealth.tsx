@@ -201,7 +201,7 @@ export default function QuestionsHealth() {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <h1 style={styles.title}>🌿 Дневен психологически въпросник</h1>
+          <h1 style={styles.title}> Дневен психологически въпросник</h1>
           <p style={styles.subtitle}>Попълва се ежедневно — влияе директно върху днешните предизвикателства.</p>
         </div>
 
