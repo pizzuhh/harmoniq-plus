@@ -310,7 +310,7 @@ export default function Challenges() {
     Рестартирай историята
     </button>
     <button style={styles.ghostBtn} onClick={resetCompleted}>
-    Reset Completed
+    Изтрий завършените
     </button>
     </div>
     </header>
@@ -376,9 +376,6 @@ export default function Challenges() {
     <text x="100" y="102" fontSize="12" textAnchor="middle" fill="#083218" style={{ fontWeight: 700 }}>
     ЗАВЪРТИ 
     </text>
-    <text x="100" y="118" fontSize="9" textAnchor="middle" fill="#0a3b21">
-    Eco
-    </text>
     </g>
     </motion.svg>
 
@@ -411,7 +408,7 @@ export default function Challenges() {
 
     <div style={styles.legend}>
     <div style={styles.legendItem}>
-    <div style={styles.dot} /> <span>Ecology</span>
+    <div style={styles.dot} /> <span>Екологични</span>
     </div>
     <div style={styles.legendItem}>
     <div
@@ -420,7 +417,7 @@ export default function Challenges() {
       background: "linear-gradient(180deg, #efe6dd, #d9cbb7)",
     }}
     />{" "}
-    <span>Detox</span>
+    <span>Дигитален детокс</span>
     </div>
     <div style={styles.legendItem}>
     <div
@@ -429,7 +426,7 @@ export default function Challenges() {
       background: "linear-gradient(180deg, #dff7f0, #bfeee1)",
     }}
     />{" "}
-    <span>Social</span>
+    <span>Социални</span>
     </div>
     </div>
     </div>
@@ -475,7 +472,7 @@ export default function Challenges() {
     </div>
 
     <div style={styles.panelBlock}>
-    <h3 style={{ margin: 0, marginBottom: 8 }}>Completed ({completed.length})</h3>
+    <h3 style={{ margin: 0, marginBottom: 8 }}>Изпълнени ({completed.length})</h3>
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
     {completed.length === 0 ? (
       <div style={{ color: "#6b7b6b" }}>Няма предишни предизвикателства - опитай колелото!</div>
@@ -515,7 +512,7 @@ export default function Challenges() {
     </div>
 
     <div style={{ fontSize: 12, color: "#6b7b6b" }}>
-    Tip: adapt each challenge to your comfort & local rules.
+   Съвет: адаптирайте всяко предизвикателство към вашия комфорт и местните правила.
     </div>
     </aside>
     </main>
