@@ -4,6 +4,7 @@ use axum::{Json, extract::{Path, Request, State}, http::{HeaderMap, StatusCode},
 use chrono::{Days, Duration, Utc};
 use rand::{Rng, rand_core::le};
 use serde::Serialize;
+use serde_json::json;
 use sha2::Digest;
 use sqlx::{query_as, query_scalar};
 use uuid::Uuid;
@@ -224,6 +225,7 @@ pub async fn complete_challenge(State(state): State<data::AppState>, headers: He
             let _ = sqlx::query!("UPDATE users SET points = points + $1 WHERE id = $2", q.points_received, uid)
                 .execute(&state.db_connection)
                 .await;
+            let _ = update_streak(&state, &headers).await;
             StatusCode::OK
         }
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
@@ -485,7 +487,8 @@ async fn update_streak(state: &AppState, headers: &HeaderMap) -> Result<i32, Sta
                 sqlx::query!("UPDATE users SET current_streak = 0 WHERE id = $1;", user_id)
                     .execute(&state.db_connection).await.unwrap();
             } else {
-                let updated = sqlx::query_as!(data::User, "UPDATE users SET current_streak = current_streak + 1, longest_streak = GREATEST(current_streak + 1, longest_streak) WHERE id = $1 RETURNING *;", user_id)
+                let updated = sqlx::query_as!(data::User, "UPDATE users SET current_streak = current_streak + 1, longest_streak = GREATEST(current_streak + 1, longest_streak), last_active = $2 WHERE id = $1 RETURNING *;",
+                            user_id, today)
                     .fetch_one(&state.db_connection).await.unwrap();
                 streak = updated.current_streak;
             }
@@ -497,7 +500,7 @@ async fn update_streak(state: &AppState, headers: &HeaderMap) -> Result<i32, Sta
 }
 
 #[axum::debug_handler]
-pub async fn get_streak(headers: HeaderMap, State(state): State<AppState>) -> Result<Json<i32>, StatusCode> {
+pub async fn get_streak(headers: HeaderMap, State(state): State<AppState>) -> Result<Json<serde_json::Value>, StatusCode> {
     let user_id = match headers.get("user_id") {
         Some(u) => u,
         None => return Err(StatusCode::UNAUTHORIZED)
@@ -515,14 +518,20 @@ pub async fn get_streak(headers: HeaderMap, State(state): State<AppState>) -> Re
             let today = Utc::now().date_naive();
             let yesterday = today.checked_sub_days(Days::new(1)).unwrap();
             let mut streak = 0;
+            let mut longest_streak = 0;
             if user.last_active == today {
                 streak = user.current_streak;
+                longest_streak = user.longest_streak;
             }
             else if user.last_active != yesterday {
                 sqlx::query!("UPDATE users SET current_streak = 0 WHERE id = $1;", user_id)
                     .execute(&state.db_connection).await.unwrap();
             }
-            Ok(Json(streak))
+            Ok(Json(json!({
+                "current_streak": streak,
+                "longest_streak": longest_streak,
+                "last_completed_date": today
+            })))
         },
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
     }
