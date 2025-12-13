@@ -182,6 +182,9 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>
              Въпросници
           </button>
+          <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>
+             Лични цели
+          </button>
         </nav>
       )}
 
@@ -197,6 +200,9 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         </button>
         <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>
             Въпросници
+        </button>
+         <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>
+            Лични цели
         </button>
       </div>
 
@@ -215,7 +221,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                   <div style={{
                     ...styles.streakStatBox,
                     background: streak.currentStreak > 0
-                      ? 'linear-gradient(135deg, #ff6b6b, #ff8c8c)'
+                      ? 'linear-gradient(135deg, #f45555ff, #ff8c8c)'
                       : 'linear-gradient(135deg, #e0e0e0, #f0f0f0)',
                   }}>
                     <div style={styles.streakFlame}>
@@ -253,13 +259,13 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                 {/* Motivational Message */}
                 <div style={styles.motivationBox}>
                   {streak.currentStreak === 0 ? (
-                    <p>🌟 Започнете вашата серия днес! Завършете предизвикателство сега.</p>
+                    <p> Започнете вашата серия днес! Завършете предизвикателство сега.</p>
                   ) : streak.currentStreak < 7 ? (
-                    <p>💪 Продължавайте! Още {7 - streak.currentStreak} дни до първа неделя!</p>
+                    <p> Продължавайте! Още {7 - streak.currentStreak} дни до първа неделя!</p>
                   ) : streak.currentStreak < 30 ? (
-                    <p>🚀 Невероятно! Вече сте на пътя към месец пълен с постижения!</p>
+                    <p> Невероятно! Вече сте на пътя към месец пълен с постижения!</p>
                   ) : (
-                    <p>👏 Легенда! Месец или повече последователност — продължавайте така!</p>
+                    <p> Легенда! Месец или повече последователност — продължавайте така!</p>
                   )}
                 </div>
 

@@ -7,6 +7,7 @@ import api from './services/api'
 import DashboardPage from './pages/DashboardPage'
 import Challenges from './pages/Challenges'
 import QuestionsHealth from './pages/QuestionsHealth'
+import YourGoals from './pages/YourGoals'
 // import DailyQuestionnaire from './pages/DailyQuestionnaire'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -62,6 +63,7 @@ function App() {
           }
         />
         <Route path="/health-check" element={<QuestionsHealth />} />
+        <Route path="/your-goals" element={<YourGoals />} />
         {/* <Route path="/challenge" element={<DailyQuestionnaire />} /> */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/login" element={<LoginPage setUser={(u: User) => setUser(u)} />} />

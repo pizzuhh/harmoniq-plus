@@ -289,7 +289,7 @@ export default function QuestionsHealth() {
 
           {/* Submit Button */}
           <button type="submit" style={styles.submitBtn}>
-            🚀 Получи моите предизвикателства
+             Получи моите предизвикателства
           </button>
         </form>
       </div>
