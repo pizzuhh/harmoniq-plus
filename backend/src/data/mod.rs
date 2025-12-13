@@ -58,3 +58,12 @@ pub struct PendingRequest {
 pub struct VerifyRequest {
     pub completed: bool,
 }
+
+
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, sqlx::FromRow)]
+pub struct PersonalChallange {
+    pub id: Uuid,
+    pub quest: String,
+    pub user_id: Uuid
+}

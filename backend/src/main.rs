@@ -1,6 +1,6 @@
 use std::{alloc::handle_alloc_error, env};
 
-use axum::{Router, middleware, routing::{get, options, post}};
+use axum::{Router, middleware, routing::{delete, get, options, post}};
 use dotenv::dotenv;
 use axum::http::{Request, HeaderValue, Method, StatusCode, HeaderMap};
 use axum::response::{Response, IntoResponse};
@@ -41,6 +41,9 @@ async fn main() {
         .route("/wheel/challenges", get(handlers::get_wheel_challanges))
         .route("/wheel/spin", get(handlers::wheel_spin))
         .route("/streak", get(handlers::get_streak))
+        .route("/pchallange/create", post(handlers::pchallange_create))
+        .route("/pchallange/get", get(handlers::pchallange_get))
+        .route("/pchallange/remove/{id}", delete(handlers::pchallange_delete))
         .route("/leaderboard", get(handlers::leaderboard));
     
     let admin = Router::new()

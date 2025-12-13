@@ -32,6 +32,14 @@ CREATE TABLE user_quest (
     FOREIGN KEY (quest_id) REFERENCES quests(id)
 );
 
+CREATE TABLE personal_challanges (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+    quest VARCHAR(255) NOT NULL,
+    user_id UUID NOT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 
 INSERT INTO users (id, name, mail, password_hash, is_admin, points) VALUES(gen_random_uuid(), 'admin', 'admin@example.com', '0', true, 10);
 
