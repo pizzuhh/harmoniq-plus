@@ -73,13 +73,6 @@ INSERT INTO quests (name, description, required_points, points_received) VALUES
 INSERT INTO quests (name, description, required_points, points_received) VALUES
 ('„Капка доброта“', 'Извърши малък акт на добрина: съобщение за благодарност, извинение, подкрепящо послание или комплимент. Емоционално най-изискващо — изисква смелост и емпатия.', 90, 9);
 
-INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-5-2', 'test', 0, 5);
-INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-5-1', 'test', 0, 5);
-INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-15-1', 'test', 0, 15);
-INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-15-2', 'test', 0, 15);
-INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-30-1', 'test', 0, 30);
-INSERT INTO quests (name, description, required_points, points_received) VALUES ('test-30-2', 'test', 0, 30);
-
 INSERT INTO quests (name, description, points_received, required_points) VALUES
 ('5 минути дълбоко дишане', 'Кратка пауза, която рестартира ума ти и сваля напрежението.', 10, 10),
 ('3 неща, за които си благодарен', 'Малък ритуал за промяна на гледната точка.', 10, 10),
