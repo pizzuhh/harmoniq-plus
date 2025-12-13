@@ -80,6 +80,7 @@ export default function YourGoals() {
           category: formData.category,
         }),
       })
+      window.location.reload(); // Reload the page after submitting
 
       if (newGoal) {
         const mappedGoal: PersonalGoal = {
