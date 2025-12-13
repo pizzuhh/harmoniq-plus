@@ -64,6 +64,16 @@ pub struct VerifyRequest {
 #[derive(serde::Serialize, serde::Deserialize, Debug, sqlx::FromRow)]
 pub struct PersonalChallange {
     pub id: Uuid,
-    pub quest: String,
-    pub user_id: Uuid
+    pub description: String,
+    pub user_id: Uuid,
+    pub name: String,
+    pub category: String,
+    pub priority: i32,
+}
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct PersonalChallangeInput {
+    pub description: String,
+    pub name: String,
+    pub category: String,
+    pub priority: i32,
 }

@@ -34,8 +34,11 @@ CREATE TABLE user_quest (
 
 CREATE TABLE personal_challanges (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-    quest VARCHAR(255) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL,
     user_id UUID NOT NULL,
+    priority INT NOT NULL,
+    category VARCHAR(40) NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

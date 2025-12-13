@@ -9,7 +9,7 @@ use sha2::Digest;
 use sqlx::{query_as, query_scalar};
 use uuid::Uuid;
 
-use crate::data::{self, AppState, PersonalChallange, Quest, User};
+use crate::data::{self, AppState, PersonalChallange, PersonalChallangeInput, Quest, User};
 
 
 pub async fn request_challange(headers: HeaderMap, State(state): State<data::AppState>) -> Json<data::Quest> {
@@ -538,7 +538,7 @@ pub async fn get_streak(headers: HeaderMap, State(state): State<AppState>) -> Re
 }
 
 
-pub async fn pchallange_create(headers: HeaderMap, State(state): State<AppState>, Json(quest): Json<String>) -> StatusCode {
+pub async fn pchallange_create(headers: HeaderMap, State(state): State<AppState>, Json(quest): Json<PersonalChallangeInput>) -> StatusCode {
     let user_id = match headers.get("user_id") {
         Some(u) => u,
         None => return StatusCode::UNAUTHORIZED
@@ -548,13 +548,15 @@ pub async fn pchallange_create(headers: HeaderMap, State(state): State<AppState>
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR
     };
 
-    let r = sqlx::query!("INSERT INTO personal_challanges (quest, user_id) VALUES($1, $2);", quest, user_id)
+    let r = sqlx::query!("INSERT INTO personal_challanges (category, description, name, priority, user_id) VALUES ($1, $2, $3, $4, $5)",
+        quest.category, quest.description, quest.name, quest.priority, user_id)
         .execute(&state.db_connection)
         .await;
 
     if r.is_ok() {
         StatusCode::OK
     } else {
+        eprintln!("{:?}", r);
         StatusCode::INTERNAL_SERVER_ERROR
     }
 }

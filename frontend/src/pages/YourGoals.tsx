@@ -70,10 +70,13 @@ export default function YourGoals() {
     try {
       const newGoal: PersonalGoal = await api.request('/api/goals', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // important
+        },
         body: JSON.stringify({
-          title: formData.title,
+          name: formData.title,
           description: formData.description,
-          target_value: targetVal,
+          priority: targetVal,
           category: formData.category,
         }),
       })
