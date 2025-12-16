@@ -77,3 +77,19 @@ pub struct PersonalChallangeInput {
     pub category: String,
     pub priority: i32,
 }
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct DiaryInput {
+    pub content: String,
+    pub mood: String,
+    pub date: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, sqlx::FromRow)]
+pub struct DiaryData {
+    pub id: Uuid,
+    pub content: String,
+    pub mood: String,
+    pub date: chrono::NaiveDate,
+    pub user_id: Uuid,
+}

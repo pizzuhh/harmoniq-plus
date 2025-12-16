@@ -81,7 +81,7 @@ export default function YourGoals() {
             date: entry.date || entry[1] || new Date().toISOString().split('T')[0],
             mood: entry.mood || entry[2] || 'happy',
             content: entry.content || entry[3] || '',
-            createdAt: entry.created_at || entry.createdAt || '',
+            createdAt: entry.created_at || entry.createdAt || entry.date ||'',
           }))
           // Sort by date descending (newest first)
           setDiaryEntries(mappedEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()))
@@ -186,6 +186,9 @@ export default function YourGoals() {
       const today = new Date().toISOString().split('T')[0]
       const newEntry: DiaryEntry = await api.request('/api/diary', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           date: today,
           mood: diaryFormData.mood,

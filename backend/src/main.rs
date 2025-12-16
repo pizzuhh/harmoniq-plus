@@ -43,6 +43,9 @@ async fn main() {
         .route("/streak", get(handlers::get_streak))
         .route("/goals", post(handlers::pchallange_create))
         .route("/goals", get(handlers::pchallange_get))
+        .route("/diary", post(handlers::diary_create))
+        .route("/diary", get(handlers::diary_get))
+        .route("/diary/{id}", delete(handlers::diary_delete))
         .route("/goals/{id}", delete(handlers::pchallange_delete))
         .route("/leaderboard", get(handlers::leaderboard));
     

@@ -43,6 +43,16 @@ CREATE TABLE personal_challanges (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE diary (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+    content VARCHAR(255) NOT NULL,
+    "date" date DEFAULT NOW() NOT NULL,
+    mood VARCHAR(10) NOT NULL,
+    user_id UUID NOT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 
 INSERT INTO users (id, name, mail, password_hash, is_admin, points) VALUES(gen_random_uuid(), 'admin', 'admin@example.com', '0', true, 10);
 

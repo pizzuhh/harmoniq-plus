@@ -9,7 +9,7 @@ use sha2::Digest;
 use sqlx::{query_as, query_scalar};
 use uuid::Uuid;
 
-use crate::data::{self, AppState, PersonalChallange, PersonalChallangeInput, Quest, User};
+use crate::data::{self, AppState, DiaryData, PersonalChallange, PersonalChallangeInput, Quest, User, DiaryInput};
 
 
 pub async fn request_challange(headers: HeaderMap, State(state): State<data::AppState>) -> Json<data::Quest> {
@@ -603,4 +603,69 @@ pub async fn pchallange_delete(headers: HeaderMap, State(state): State<AppState>
     } else {
         StatusCode::INTERNAL_SERVER_ERROR
     }
+}
+
+
+pub async fn diary_create(headers: HeaderMap, State(state): State<AppState>, Json(body): Json<DiaryInput>) -> StatusCode {
+    let user_id = match headers.get("user_id") {
+        Some(u) => u,
+        None => return StatusCode::UNAUTHORIZED
+    };
+    let user_id = match Uuid::from_str(user_id.to_str().unwrap()) {
+        Ok(u) => u,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR
+    };
+
+
+    let r = sqlx::query!("INSERT INTO diary (content, mood, user_id) VALUES($1, $2, $3);", body.content, body.mood, user_id)
+        .execute(&state.db_connection).await;
+
+    if r.is_ok() {
+        StatusCode::OK
+    } else {
+        StatusCode::INTERNAL_SERVER_ERROR
+    }
+
+
+}
+
+pub async fn diary_get(headers: HeaderMap, State(state): State<AppState>) -> Result<Json<Vec<DiaryData>>, StatusCode> {
+    let user_id = match headers.get("user_id") {
+        Some(u) => u,
+        None => return Err(StatusCode::UNAUTHORIZED)
+    };
+    let user_id = match Uuid::from_str(user_id.to_str().unwrap()) {
+        Ok(u) => u,
+        Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR)
+    };
+
+    let r = sqlx::query_as!(DiaryData, "SELECT * FROM diary WHERE user_id = $1;", user_id)
+        .fetch_all(&state.db_connection).await;
+    match r {
+        Ok(r) => Ok(Json(r)),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}
+
+
+pub async fn diary_delete(headers: HeaderMap, State(state): State<AppState>, Path(qid): Path<Uuid>) -> StatusCode {
+    let user_id = match headers.get("user_id") {
+        Some(u) => u,
+        None => return StatusCode::UNAUTHORIZED
+    };
+    let user_id = match Uuid::from_str(user_id.to_str().unwrap()) {
+        Ok(u) => u,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR
+    };
+
+    let r = sqlx::query!("DELETE FROM personal_challanges WHERE user_id = $1 AND id = $2;", user_id, qid)
+        .execute(&state.db_connection)
+        .await;
+
+    if r.is_ok() {
+        StatusCode::OK
+    } else {
+        StatusCode::INTERNAL_SERVER_ERROR
+    }
+    
 }
