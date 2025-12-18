@@ -6,7 +6,6 @@ type PersonalGoal = {
   id: string
   title: string
   description: string
-  targetValue: number
   category: string
   dueDate?: string
   createdAt?: string
@@ -27,7 +26,6 @@ export default function YourGoals() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    targetValue: '',
     category: 'Personal',
   })
 
@@ -49,7 +47,6 @@ export default function YourGoals() {
             id: goal.id || goal[0],
             title: goal.title || goal.name || goal[1] || 'Goal',
             description: goal.description || goal[2] || '',
-            targetValue: Number(goal.target_value ?? goal.targetValue ?? goal[3] ?? 100),
             category: goal.category || goal[6] || 'Personal',
             dueDate: goal.due_date || goal.dueDate || goal[7] || '',
             createdAt: goal.created_at || goal.createdAt || '',
@@ -94,15 +91,9 @@ export default function YourGoals() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const targetVal = parseInt(formData.targetValue)
     
     if (!formData.title.trim()) {
       alert('Моля, въведете название на целта')
-      return
-    }
-    
-    if (isNaN(targetVal) || targetVal <= 0) {
-      alert('Моля, въведете валидна целева стойност')
       return
     }
 
@@ -115,7 +106,6 @@ export default function YourGoals() {
         body: JSON.stringify({
           name: formData.title,
           description: formData.description,
-          priority: targetVal,
           category: formData.category,
         }),
       })
@@ -125,12 +115,11 @@ export default function YourGoals() {
           id: newGoal.id || Math.random().toString(),
           title: newGoal.title || formData.title,
           description: newGoal.description || formData.description,
-          targetValue: Number(newGoal.targetValue ?? targetVal ?? 100),
           category: newGoal.category || formData.category,
           dueDate: newGoal.dueDate || '',
         }
         setGoals([...goals, mappedGoal])
-        setFormData({ title: '', description: '', targetValue: '', category: 'Personal' })
+        setFormData({ title: '', description: '', category: 'Personal' })
         setShowForm(false)
       }
     } catch (e) {
@@ -292,19 +281,6 @@ export default function YourGoals() {
 
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
-                <label style={styles.label}>Целева стойност</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={formData.targetValue}
-                  onChange={(e) => setFormData({ ...formData, targetValue: e.target.value })}
-                  placeholder="100"
-                  style={styles.input}
-                  required
-                />
-              </div>
-
-              <div style={styles.formGroup}>
                 <label style={styles.label}>Категория</label>
                 <select
                   value={formData.category}
@@ -371,7 +347,7 @@ export default function YourGoals() {
                 {/* Description */}
                 <p style={styles.goalDescription}>{goal.description}</p>
 
-                <div style={styles.targetText}>Целева стойност: {goal.targetValue}</div>
+
 
                 {/* Due Date */}
                 {goal.dueDate && (
@@ -664,12 +640,6 @@ const styles = {
     fontSize: '14px',
     color: '#666',
     lineHeight: '1.5',
-  } as React.CSSProperties,
-  targetText: {
-    marginTop: '8px',
-    fontSize: '13px',
-    color: '#777',
-    fontWeight: '500',
   } as React.CSSProperties,
   dueDate: {
     marginTop: '12px',
