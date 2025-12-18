@@ -111,6 +111,8 @@ export default function YourGoals() {
         }),
       })
 
+      window.location.reload();
+
       if (newGoal) {
         const mappedGoal: PersonalGoal = {
           id: newGoal.id || Math.random().toString(),
