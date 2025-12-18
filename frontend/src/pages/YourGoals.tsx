@@ -168,6 +168,7 @@ export default function YourGoals() {
           content: diaryFormData.content,
         }),
       })
+      window.location.reload();
 
       if (newEntry) {
         const mappedEntry: DiaryEntry = {
