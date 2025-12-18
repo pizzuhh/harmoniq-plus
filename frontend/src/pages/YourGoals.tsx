@@ -107,6 +107,7 @@ export default function YourGoals() {
           name: formData.title,
           description: formData.description,
           category: formData.category,
+          priority: 0,
         }),
       })
 
