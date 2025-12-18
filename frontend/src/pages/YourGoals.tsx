@@ -7,8 +7,6 @@ type PersonalGoal = {
   title: string
   description: string
   targetValue: number
-  currentValue: number
-  progress: number
   category: string
   dueDate?: string
   createdAt?: string
@@ -52,8 +50,6 @@ export default function YourGoals() {
             title: goal.title || goal.name || goal[1] || 'Goal',
             description: goal.description || goal[2] || '',
             targetValue: Number(goal.target_value ?? goal.targetValue ?? goal[3] ?? 100),
-            currentValue: Number(goal.current_value ?? goal.currentValue ?? goal[4] ?? 0),
-            progress: Number(goal.progress ?? goal[5] ?? 0),
             category: goal.category || goal[6] || 'Personal',
             dueDate: goal.due_date || goal.dueDate || goal[7] || '',
             createdAt: goal.created_at || goal.createdAt || '',
@@ -113,10 +109,13 @@ export default function YourGoals() {
     try {
       const newGoal: PersonalGoal = await api.request('/api/goals', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          title: formData.title,
+          name: formData.title,
           description: formData.description,
-          target_value: targetVal,
+          priority: targetVal,
           category: formData.category,
         }),
       })
@@ -127,8 +126,6 @@ export default function YourGoals() {
           title: newGoal.title || formData.title,
           description: newGoal.description || formData.description,
           targetValue: Number(newGoal.targetValue ?? targetVal ?? 100),
-          currentValue: 0,
-          progress: 0,
           category: newGoal.category || formData.category,
           dueDate: newGoal.dueDate || '',
         }
@@ -155,23 +152,7 @@ export default function YourGoals() {
     }
   }
 
-  const handleUpdateProgress = async (goalId: string, newValue: number) => {
-    try {
-      await api.request(`/api/goals/${goalId}/progress`, {
-        method: 'PUT',
-        body: JSON.stringify({ current_value: newValue }),
-      })
-      setGoals(
-        goals.map((g) =>
-          g.id === goalId
-            ? { ...g, currentValue: newValue, progress: Math.min((newValue / g.targetValue) * 100, 100) }
-            : g
-        )
-      )
-    } catch (e) {
-      console.error('Failed to update progress', e)
-    }
-  }
+
 
   // Diary handlers
   const handleDiarySubmit = async (e: React.FormEvent) => {
@@ -261,13 +242,7 @@ export default function YourGoals() {
     return colors[category] || '#2196F3'
   }
 
-  const getProgressColor = (progress: number): string => {
-    if (progress >= 100) return '#4CAF50'
-    if (progress >= 75) return '#8BC34A'
-    if (progress >= 50) return '#FFC107'
-    if (progress >= 25) return '#FF9800'
-    return '#F44336'
-  }
+
 
   if (loading) {
     return <div style={styles.loadingContainer}>Зареждане...</div>
@@ -396,71 +371,12 @@ export default function YourGoals() {
                 {/* Description */}
                 <p style={styles.goalDescription}>{goal.description}</p>
 
-                {/* Progress Section */}
-                <div style={styles.progressSection}>
-                  <div style={styles.progressHeader}>
-                    <span style={styles.progressLabel}>Прогрес</span>
-                    <span style={{ ...styles.progressValue, color: getProgressColor(goal.progress) }}>
-                      {Math.round(goal.progress)}%
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div style={styles.progressBarContainer}>
-                    <div
-                      style={{
-                        ...styles.progressBar,
-                        width: `${Math.min(goal.progress, 100)}%`,
-                        backgroundColor: getProgressColor(goal.progress),
-                      }}
-                    />
-                  </div>
-
-                  {/* Progress Text */}
-                  <div style={styles.progressText}>
-                    <span>{goal.currentValue}</span>
-                    <span style={styles.separator}>/</span>
-                    <span>{goal.targetValue}</span>
-                  </div>
-                </div>
-
-                {/* Update Progress */}
-                <div style={styles.progressControls}>
-                  <input
-                    type="range"
-                    min="0"
-                    max={goal.targetValue}
-                    value={goal.currentValue}
-                    onChange={(e) => handleUpdateProgress(goal.id, Number(e.target.value))}
-                    style={styles.slider}
-                  />
-                  <div style={styles.sliderButtons}>
-                    <button
-                      style={styles.incrementBtn}
-                      onClick={() => handleUpdateProgress(goal.id, Math.min(goal.currentValue + 1, goal.targetValue))}
-                    >
-                      +
-                    </button>
-                    <button
-                      style={styles.decrementBtn}
-                      onClick={() => handleUpdateProgress(goal.id, Math.max(goal.currentValue - 1, 0))}
-                    >
-                      −
-                    </button>
-                  </div>
-                </div>
+                <div style={styles.targetText}>Целева стойност: {goal.targetValue}</div>
 
                 {/* Due Date */}
                 {goal.dueDate && (
                   <div style={styles.dueDate}>
                     📅 Краен срок: {new Date(goal.dueDate).toLocaleDateString('bg-BG')}
-                  </div>
-                )}
-
-                {/* Completion Badge */}
-                {goal.currentValue >= goal.targetValue && (
-                  <div style={styles.completedBadge}>
-                    ✅ Завършено!
                   </div>
                 )}
               </div>
@@ -749,88 +665,11 @@ const styles = {
     color: '#666',
     lineHeight: '1.5',
   } as React.CSSProperties,
-  progressSection: {
-    marginBottom: '16px',
-  } as React.CSSProperties,
-  progressHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '8px',
+  targetText: {
+    marginTop: '8px',
     fontSize: '13px',
-  } as React.CSSProperties,
-  progressLabel: {
-    color: '#666',
-    fontWeight: '600',
-  } as React.CSSProperties,
-  progressValue: {
-    fontWeight: 'bold',
-    fontSize: '14px',
-  } as React.CSSProperties,
-  progressBarContainer: {
-    width: '100%',
-    height: '12px',
-    backgroundColor: '#e0e0e0',
-    borderRadius: '10px',
-    overflow: 'hidden',
-    marginBottom: '8px',
-  } as React.CSSProperties,
-  progressBar: {
-    height: '100%',
-    borderRadius: '10px',
-    transition: 'all 0.4s ease',
-  } as React.CSSProperties,
-  progressText: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '6px',
-    fontSize: '12px',
-    color: '#999',
+    color: '#777',
     fontWeight: '500',
-  } as React.CSSProperties,
-  separator: {
-    margin: '0 2px',
-  } as React.CSSProperties,
-  progressControls: {
-    marginTop: '16px',
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'center',
-  } as React.CSSProperties,
-  slider: {
-    flex: 1,
-    height: '6px',
-    borderRadius: '10px',
-    outline: 'none',
-    cursor: 'pointer',
-    accentColor: '#4CAF50',
-  } as React.CSSProperties,
-  sliderButtons: {
-    display: 'flex',
-    gap: '6px',
-  } as React.CSSProperties,
-  incrementBtn: {
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    border: '1px solid #4CAF50',
-    backgroundColor: '#e8f5e9',
-    color: '#4CAF50',
-    fontWeight: 'bold',
-    fontSize: '16px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  } as React.CSSProperties,
-  decrementBtn: {
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    border: '1px solid #f44336',
-    backgroundColor: '#ffebee',
-    color: '#f44336',
-    fontWeight: 'bold',
-    fontSize: '16px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
   } as React.CSSProperties,
   dueDate: {
     marginTop: '12px',
