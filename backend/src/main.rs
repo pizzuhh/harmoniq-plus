@@ -48,6 +48,7 @@ async fn main() {
         .route("/diary/{id}", delete(handlers::diary_delete))
         .route("/goals/{id}", delete(handlers::pchallange_delete))
         .route("/leaderboard", get(handlers::leaderboard));
+
     
     let admin = Router::new()
         .route("/api/get_pending", get(handlers::get_pending_quest))

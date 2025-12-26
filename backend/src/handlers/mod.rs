@@ -251,7 +251,8 @@ async fn get_random_quest(target_pts: Option<i32>, state: &AppState) -> Quest {
 }
 
 pub async fn get_weekly_quest(State(state): State<data::AppState>) -> (StatusCode, Json<Quest>) {
-    let the_chosen_one = get_random_quest(None, &state).await;
+    // 50 points - probably weekly quests?
+    let the_chosen_one = get_random_quest(Some(50), &state).await;
     (StatusCode::OK, Json(the_chosen_one))
 }
 
@@ -499,7 +500,6 @@ async fn update_streak(state: &AppState, headers: &HeaderMap) -> Result<i32, Sta
     }
 }
 
-#[axum::debug_handler]
 pub async fn get_streak(headers: HeaderMap, State(state): State<AppState>) -> Result<Json<serde_json::Value>, StatusCode> {
     let user_id = match headers.get("user_id") {
         Some(u) => u,
