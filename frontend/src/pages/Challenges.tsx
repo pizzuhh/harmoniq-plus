@@ -176,7 +176,7 @@ const styles = {
     padding: '10px',
   } as React.CSSProperties,
   desktopNav: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#2a8a52',
     display: 'flex',
     flexWrap: 'wrap',
     padding: '10px',
@@ -185,7 +185,7 @@ const styles = {
   } as React.CSSProperties,
   navLinkDesktop: {
     backgroundColor: 'transparent',
-    color: '#000',
+    color: '#fff',
     border: 'none',
     padding: '10px 15px',
     cursor: 'pointer',
@@ -194,7 +194,7 @@ const styles = {
     transition: 'background-color 0.3s',
   } as React.CSSProperties,
   mobileMenu: {
-    backgroundColor: '#213a51ff',
+    backgroundColor: '#2a8a52',
     display: 'flex',
     flexDirection: 'column',
     padding: '10px',
@@ -203,7 +203,7 @@ const styles = {
   } as React.CSSProperties,
   navLink: {
     backgroundColor: 'transparent',
-    color: 'white',
+    color: '#fff',
     border: 'none',
     padding: '10px 15px',
     cursor: 'pointer',
