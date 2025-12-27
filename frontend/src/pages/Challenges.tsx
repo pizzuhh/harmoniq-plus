@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+// Temporarily remove framer-motion to avoid hook issues
+// We'll use plain SVG + CSS transform for rotation
+
 
 const API_BASE = "http://localhost:5174";
 
@@ -18,13 +21,16 @@ type HistoryItem = {
 
 const styles = {
   wheelFrame: {
-    width: "420px",
-    height: "420px",
-    aspectRatio: "1 / 1",             // ← prevents distortion
-    borderRadius: "50%",
-    background: "#fff",
-    boxShadow: "0 0 20px rgba(0,0,0,0.1)",
-    overflow: "hidden",               // ← keeps pointer clean
+    width: "360px",
+  height: "360px",
+  aspectRatio: "1 / 1",
+  borderRadius: "50%",
+  background: "#fff",
+  boxShadow: "0 0 20px rgba(0,0,0,0.1)",
+  overflow: "hidden",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",             // ← keeps pointer clean
   } as React.CSSProperties,
   appRoot: {
     fontFamily: "Inter, system-ui, sans-serif",
@@ -69,20 +75,24 @@ const styles = {
   } as React.CSSProperties,
   mainGrid: {
     display: "grid",
-    gridTemplateColumns: "1fr 340px",
-    gap: "20px",
+  gridTemplateColumns: "1fr 380px",
+  gap: "32px",
+  alignItems: "start",
   } as React.CSSProperties,
   wheelCard: {
     background: "#fff",
-    padding: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+  padding: "32px",
+  borderRadius: "12px",
+  boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+  display: "flex",
+  justifyContent: "center",
   } as React.CSSProperties,
   wheelStage: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    marginBottom: "20px",
+     display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "20px",
   } as React.CSSProperties,
   pointer: {
     position: "absolute",
@@ -156,6 +166,51 @@ const styles = {
     fontFamily: "inherit",
     fontSize: "13px",
   } as React.CSSProperties,
+  menuToggle: {
+    display: 'none',
+    backgroundColor: 'transparent',
+    color: 'inherit',
+    border: 'none',
+    fontSize: '18px',
+    cursor: 'pointer',
+    padding: '10px',
+  } as React.CSSProperties,
+  desktopNav: {
+    backgroundColor: '#2a8a52',
+    display: 'flex',
+    flexWrap: 'wrap',
+    padding: '10px',
+    gap: '5px',
+    marginBottom: '16px',
+  } as React.CSSProperties,
+  navLinkDesktop: {
+    backgroundColor: 'transparent',
+    color: 'white',
+    border: 'none',
+    padding: '10px 15px',
+    cursor: 'pointer',
+    fontSize: '1.05em',
+    borderRadius: '4px',
+    transition: 'background-color 0.3s',
+  } as React.CSSProperties,
+  mobileMenu: {
+    backgroundColor: '#213a51ff',
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '10px',
+    gap: '5px',
+    marginBottom: '10px',
+  } as React.CSSProperties,
+  navLink: {
+    backgroundColor: 'transparent',
+    color: 'white',
+    border: 'none',
+    padding: '10px 15px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    borderRadius: '4px',
+    textAlign: 'left',
+  } as React.CSSProperties,
   footer: {
     display: "flex",
     justifyContent: "space-between",
@@ -168,6 +223,8 @@ const styles = {
   } as React.CSSProperties,
 };
 
+
+
 export default function Challenges() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [prize, setPrize] = useState<Prize>(null);
@@ -176,6 +233,13 @@ export default function Challenges() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [completed, setCompleted] = useState<string[]>([]);
   const wheelRef = useRef<HTMLDivElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
 
   useEffect(() => {
     fetch(`${API_BASE}/challenges`)
@@ -296,10 +360,11 @@ export default function Challenges() {
     <div>
     <h1 style={styles.title}>Колелото на предизвикателствата</h1>
     <p style={styles.subtitle}>
-    Nature-minded, slightly daring — try one and share the impact.
+    Завърти колелото и поеми ново предизвикателство за устойчив начин на живот!
     </p>
     </div>
     <div style={styles.headerControls}>
+    <button style={styles.menuToggle} onClick={() => setMenuOpen(!menuOpen)}>☰ Menu</button>
     <button
     style={styles.ghostBtn}
     onClick={() => {
@@ -315,18 +380,37 @@ export default function Challenges() {
     </div>
     </header>
 
+    {menuOpen && (
+    <nav style={styles.mobileMenu}>
+      <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>Начална страница</button>
+      <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>Колело на предизвикателствата</button>
+      <button onClick={() => handleNavigation('/map')} style={styles.navLink}>Mindful Map</button>
+      <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросници</button>
+      <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>Лични цели</button>
+    </nav>
+    )}
+
+    <div style={styles.desktopNav}>
+      <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>Начална страница</button>
+      <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>Колело на предизвикателствата</button>
+      <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>Mindful Map</button>
+      <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросници</button>
+      <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>Лични цели</button>
+    </div>
+
     <main style={styles.mainGrid}>
     <section style={styles.wheelCard}>
     <div style={styles.wheelStage}>
     <div style={{ ...styles.wheelFrame, position: "relative" }} ref={wheelRef}>
-    <motion.svg
-    viewBox="0 0 200 200"
-    width="420"
-    height="420"
-    preserveAspectRatio="xMidYMid meet"   // ← KEY FIX
-    style={{ display: "block" }}          // ← prevents CSS resizing
-    animate={{ rotate: angle }}
-    transition={{ ease: "linear", duration: 0 }}
+     <svg
+  viewBox="0 0 200 200"
+  preserveAspectRatio="xMidYMid meet"
+  style={{
+    width: "100%",
+    height: "100%",
+    display: "block",
+    transform: `rotate(${angle}deg)`,
+  }}
     >
     <defs>
     <radialGradient id="rim" cx="50%" cy="50%" r="80%">
@@ -377,7 +461,7 @@ export default function Challenges() {
     ЗАВЪРТИ 
     </text>
     </g>
-    </motion.svg>
+    </svg>
 
     <div style={styles.pointer}>
     <svg width="44" height="44" viewBox="0 0 24 24">
@@ -394,6 +478,7 @@ export default function Challenges() {
     strokeWidth="0.6"
     />
     </svg>
+    </div>
     </div>
     </div>
 
@@ -430,45 +515,37 @@ export default function Challenges() {
     </div>
     </div>
     </div>
-    </div>
-    </section>
+    
 
-    <aside style={styles.panel}>
+    <div style={styles.panel}>
     <div style={styles.panelBlock}>
     <h3 style={{ margin: 0, marginBottom: 8 }}>Твоето предизвикателство</h3>
-    <AnimatePresence>
     {prize ? (
-      <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0 }}
-      style={styles.card}
-      >
-      <h4 style={{ margin: 0, marginBottom: 4 }}>{prize.title}</h4>
-      <p style={{ margin: 0, marginBottom: 8, color: "#4d6b56", fontSize: 13 }}>
-      {prize.description}
-      </p>
-      <div style={styles.cardActions}>
-      <button style={styles.tertiary} onClick={() => markDone(prize)}>
-      Маркирай като завършено
-      </button>
-      <button
-      style={{
-        ...styles.tertiary,
-        background: "transparent",
-        border: "1px solid rgba(6,48,24,0.06)",
+      <div style={{ ...styles.card, transition: 'opacity 200ms, transform 200ms', opacity: 1, transform: 'translateY(0px)'}}>
+        <h4 style={{ margin: 0, marginBottom: 4 }}>{prize.title}</h4>
+        <p style={{ margin: 0, marginBottom: 8, color: "#4d6b56", fontSize: 13 }}>
+          {prize.description}
+        </p>
+        <div style={styles.cardActions}>
+          <button style={styles.tertiary} onClick={() => markDone(prize)}>
+            Маркирай като завършено
+          </button>
+          <button
+            style={{
+              ...styles.tertiary,
+              background: "transparent",
+              border: "1px solid rgba(6,48,24,0.06)",
               color: "inherit",
-      }}
-      onClick={() => setPrize(null)}
-      >
-      Скрий
-      </button>
+            }}
+            onClick={() => setPrize(null)}
+          >
+            Скрий
+          </button>
+        </div>
       </div>
-      </motion.div>
     ) : (
       <div style={{ marginTop: 8, color: "#6b7b6b" }}>Завърти колелото!</div>
     )}
-    </AnimatePresence>
     </div>
 
     <div style={styles.panelBlock}>
@@ -514,7 +591,8 @@ export default function Challenges() {
     <div style={{ fontSize: 12, color: "#6b7b6b" }}>
    Съвет: адаптирайте всяко предизвикателство към вашия комфорт и местните правила.
     </div>
-    </aside>
+    </div>
+    </section>
     </main>
     </div>
     </div>
