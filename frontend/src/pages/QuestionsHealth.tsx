@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 type Badge = {
   id: number
@@ -14,6 +15,9 @@ export default function QuestionsHealth() {
   const [submitted, setSubmitted] = useState(false)
   const [badges, setBadges] = useState<Badge[]>([])
   const [userXp, setUserXp] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
+  const handleNavigation = (path: string) => { navigate(path); setMenuOpen(false) }
 
   // Load user XP and initialize badges on mount
   useEffect(() => {
@@ -416,9 +420,32 @@ export default function QuestionsHealth() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
+        {menuOpen && (
+          <nav style={styles.mobileMenu}>
+            <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>Начална страница</button>
+            <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>Колело на предизвикателствата</button>
+            <button onClick={() => handleNavigation('/map')} style={styles.navLink}>Mindful Map</button>
+            <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросници</button>
+            <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>Лични цели</button>
+          </nav>
+        )}
+
+        <div style={styles.desktopNav}>
+          <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>Начална страница</button>
+          <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>Колело на предизвикателствата</button>
+          <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>Mindful Map</button>
+          <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросници</button>
+          <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>Лични цели</button>
+        </div>
+
         <div style={styles.header}>
-          <h1 style={styles.title}> Дневен психологически въпросник</h1>
-          <p style={styles.subtitle}>Попълва се ежедневно — влияе директно върху днешните предизвикателства.</p>
+          <div style={styles.headerLeft}>
+            <h1 style={styles.title}> Дневен психологически въпросник</h1>
+            <p style={styles.subtitle}>Попълва се ежедневно — влияе директно върху днешните предизвикателства.</p>
+          </div>
+          <div style={styles.headerRight}>
+            <button style={styles.menuToggle} onClick={() => setMenuOpen(!menuOpen)}>☰ Menu</button>
+          </div>
         </div>
 
         {/* Badges Section */}
@@ -531,9 +558,19 @@ const styles = {
     width: '100%',
   } as React.CSSProperties,
   header: {
-    textAlign: 'center',
-    marginBottom: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '12px',
+    marginBottom: '16px',
   } as React.CSSProperties,
+  headerLeft: { textAlign: 'left' } as React.CSSProperties,
+  headerRight: { display: 'flex', alignItems: 'center', gap: '8px' } as React.CSSProperties,
+  menuToggle: { background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 18 } as React.CSSProperties,
+  mobileMenu: { backgroundColor: '#213a51ff', display: 'flex', flexDirection: 'column', padding: 10, gap: 6, marginBottom: 10 } as React.CSSProperties,
+  desktopNav: { display: 'flex', gap: 8, marginBottom: 12 } as React.CSSProperties,
+  navLink: { backgroundColor: 'transparent', color: '#000', border: 'none', padding: '8px 12px', cursor: 'pointer', textAlign: 'left' } as React.CSSProperties,
+  navLinkDesktop: { backgroundColor: 'transparent', color: '#000', border: '1px solid #e6e6e6', padding: '8px 12px', borderRadius: 6, cursor: 'pointer' } as React.CSSProperties,
   title: {
     margin: '0 0 10px 0',
     color: '#1a3a3a',

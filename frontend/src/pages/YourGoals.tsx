@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import React from 'react'
 
@@ -37,6 +38,11 @@ export default function YourGoals() {
     content: '',
   })
   const [loadingDiary, setLoadingDiary] = useState(true)
+
+  // Menu state (dashboard menu)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
+  const handleNavigation = (path: string) => { navigate(path); setMenuOpen(false) }
 
   useEffect(() => {
     const fetchGoals = async () => {
@@ -243,18 +249,38 @@ export default function YourGoals() {
 
   return (
     <div style={styles.container}>
+      {menuOpen && (
+        <nav style={styles.mobileMenu}>
+          <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>Начална страница</button>
+          <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>Колело на предизвикателствата</button>
+          <button onClick={() => handleNavigation('/map')} style={styles.navLink}>Mindful Map</button>
+          <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросници</button>
+          <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>Лични цели</button>
+        </nav>
+      )}
+
+      <div style={styles.desktopNav}>
+        <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>Начална страница</button>
+        <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>Колело на предизвикателствата</button>
+        <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>Mindful Map</button>
+        <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросници</button>
+        <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>Лични цели</button>
+      </div>
+
       <header style={styles.header}>
         <div style={styles.headerContent}>
           <h1 style={styles.title}>🎯 Моите цели</h1>
           <p style={styles.subtitle}>Следете своя прогрес и постигайте своите мечти</p>
         </div>
-        <button
-          style={styles.createBtn}
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm ? '✕ Отмени' : '+ Нова цел'}
-        </button>
-      </header>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button
+            style={styles.createBtn}
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm ? '✕ Отмени' : '+ Нова цел'}
+          </button>
+        </div>
+      </header> 
 
       {/* Create Goal Form */}
       {showForm && (
@@ -520,9 +546,13 @@ const styles = {
     fontSize: '14px',
     fontWeight: 'bold',
     cursor: 'pointer',
-    boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)',
     transition: 'all 0.3s ease',
   } as React.CSSProperties,
+  menuToggle: { background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 18 } as React.CSSProperties,
+  mobileMenu: { backgroundColor: '#213a51ff', display: 'flex', flexDirection: 'column', padding: 10, gap: 6, marginBottom: 10 } as React.CSSProperties,
+  desktopNav: { display: 'flex', gap: 8, marginBottom: 18 } as React.CSSProperties,
+  navLink: { backgroundColor: 'transparent', color: '#000', border: 'none', padding: '8px 12px', cursor: 'pointer', textAlign: 'left' } as React.CSSProperties,
+  navLinkDesktop: { backgroundColor: 'transparent', color: '#000', border: '1px solid #e6e6e6', padding: '8px 12px', borderRadius: 6, cursor: 'pointer' } as React.CSSProperties,
   formContainer: {
     maxWidth: '1200px',
     margin: '0 auto 40px',

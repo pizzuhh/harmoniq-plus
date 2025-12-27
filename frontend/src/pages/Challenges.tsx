@@ -176,7 +176,7 @@ const styles = {
     padding: '10px',
   } as React.CSSProperties,
   desktopNav: {
-    backgroundColor: '#2a8a52',
+    backgroundColor: 'transparent',
     display: 'flex',
     flexWrap: 'wrap',
     padding: '10px',
@@ -185,7 +185,7 @@ const styles = {
   } as React.CSSProperties,
   navLinkDesktop: {
     backgroundColor: 'transparent',
-    color: 'white',
+    color: '#000',
     border: 'none',
     padding: '10px 15px',
     cursor: 'pointer',
@@ -356,6 +356,25 @@ export default function Challenges() {
   return (
     <div style={styles.appRoot}>
     <div style={styles.container}>
+
+    {menuOpen && (
+    <nav style={styles.mobileMenu}>
+      <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>Начална страница</button>
+      <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>Колело на предизвикателствата</button>
+      <button onClick={() => handleNavigation('/map')} style={styles.navLink}>Mindful Map</button>
+      <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросници</button>
+      <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>Лични цели</button>
+    </nav>
+    )}
+
+    <div style={styles.desktopNav}>
+      <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>Начална страница</button>
+      <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>Колело на предизвикателствата</button>
+      <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>Mindful Map</button>
+      <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросници</button>
+      <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>Лични цели</button>
+    </div>
+
     <header style={styles.header}>
     <div>
     <h1 style={styles.title}>Колелото на предизвикателствата</h1>
@@ -379,24 +398,6 @@ export default function Challenges() {
     </button>
     </div>
     </header>
-
-    {menuOpen && (
-    <nav style={styles.mobileMenu}>
-      <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>Начална страница</button>
-      <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>Колело на предизвикателствата</button>
-      <button onClick={() => handleNavigation('/map')} style={styles.navLink}>Mindful Map</button>
-      <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросници</button>
-      <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>Лични цели</button>
-    </nav>
-    )}
-
-    <div style={styles.desktopNav}>
-      <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>Начална страница</button>
-      <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>Колело на предизвикателствата</button>
-      <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>Mindful Map</button>
-      <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросници</button>
-      <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>Лични цели</button>
-    </div>
 
     <main style={styles.mainGrid}>
     <section style={styles.wheelCard}>

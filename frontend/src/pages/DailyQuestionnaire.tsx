@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { generateDailyChallenges } from "../utils/generateDailyChallenges";
 
 type Answers = {
@@ -19,6 +20,17 @@ type Props = {
   onSubmit?: (payload: { answers: Answers; challenges: unknown }) => void;
 };
 
+const styles = {
+  container: { maxWidth: 900, margin: '0 auto', padding: 20 } as React.CSSProperties,
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as React.CSSProperties,
+  headerLeft: { display: 'flex', alignItems: 'center', gap: 12 } as React.CSSProperties,
+  menuToggle: { background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 18 } as React.CSSProperties,
+  mobileMenu: { backgroundColor: '#213a51ff', display: 'flex', flexDirection: 'column', padding: 10, gap: 6, marginBottom: 10 } as React.CSSProperties,
+  desktopNav: { display: 'flex', gap: 8, marginBottom: 12 } as React.CSSProperties,
+  navLink: { backgroundColor: 'transparent', color: 'white', border: 'none', padding: '8px 12px', cursor: 'pointer', textAlign: 'left' } as React.CSSProperties,
+  navLinkDesktop: { backgroundColor: 'transparent', border: '1px solid #e6e6e6', padding: '8px 12px', borderRadius: 6, cursor: 'pointer' } as React.CSSProperties,
+};
+
 export default function DailyQuestionnaire({ onSubmit }: Props) {
   const [answers, setAnswers] = useState<Answers>({
     mood: "",
@@ -33,6 +45,13 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
     difficultyPreference: "Среден",
     priority: "Подобряване на емоционалното състояние",
   });
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
 
   function handleChange<K extends keyof Answers>(k: K, v: Answers[K]) {
     setAnswers((prev) => ({ ...prev, [k]: v } as Answers));
@@ -56,24 +75,51 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/* Пример само за няколко полета — имплементирайте останалите по аналогия */}
-      <label>Как се чувстваш днес?</label>
-      <select
-        onChange={(e) => handleChange("mood", e.target.value)}
-        value={answers.mood}
-      >
-        <option value="">--</option>
-        <option value="Спокоен и уравновесен">Спокоен и уравновесен</option>
-        <option value="Леко напрегнат">Леко напрегнат</option>
-        <option value="Раздразнен/претоварен">Раздразнен/претоварен</option>
-        <option value="Тревожен">Тревожен</option>
-        <option value="Емоционално изтощен">Емоционално изтощен</option>
-      </select>
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <div style={styles.headerLeft}>
+          <h2>Въпросник</h2>
+          <button style={styles.menuToggle} onClick={() => setMenuOpen(!menuOpen)}>☰ Menu</button>
+        </div>
+      </header>
 
-      {/* ...всички останали полета... */}
+      {menuOpen && (
+        <nav style={styles.mobileMenu}>
+          <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>Начална страница</button>
+          <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>Колело на предизвикателствата</button>
+          <button onClick={() => handleNavigation('/map')} style={styles.navLink}>Mindful Map</button>
+          <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросници</button>
+          <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>Лични цели</button>
+        </nav>
+      )}
 
-      <button type="submit">Генерирай предизвикателства</button>
-    </form>
+      <div style={styles.desktopNav}>
+        <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>Начална страница</button>
+        <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>Колело на предизвикателствата</button>
+        <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>Mindful Map</button>
+        <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросници</button>
+        <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>Лични цели</button>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        {/* Пример само за няколко полета — имплементирайте останалите по аналогия */}
+        <label>Как се чувстваш днес?</label>
+        <select
+          onChange={(e) => handleChange("mood", e.target.value)}
+          value={answers.mood}
+        >
+          <option value="">--</option>
+          <option value="Спокоен и уравновесен">Спокоен и уравновесен</option>
+          <option value="Леко напрегнат">Леко напрегнат</option>
+          <option value="Раздразнен/претоварен">Раздразнен/претоварен</option>
+          <option value="Тревожен">Тревожен</option>
+          <option value="Емоционално изтощен">Емоционално изтощен</option>
+        </select>
+
+        {/* ...всички останали полета... */}
+
+        <button type="submit">Генерирай предизвикателства</button>
+      </form>
+    </div>
   );
 }
