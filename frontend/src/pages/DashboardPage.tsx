@@ -45,22 +45,28 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
       try {
         const raw: any = await api.request('/challange/receive')
         console.debug('loadChallenges raw:', raw)
-        setRawResponse(raw)
+
+        // Fetch weekly from the dedicated backend route
+        let weeklyRaw: any = null
+        try {
+          weeklyRaw = await api.request('/get_weekly')
+          console.debug('loadChallenges weeklyRaw:', weeklyRaw)
+        } catch (e) {
+          // not fatal — weekly might not exist
+          console.warn('Failed to fetch weekly challenges:', e)
+        }
+
+        setRawResponse({ daily: raw, weekly: weeklyRaw })
+
         const quest: any = Array.isArray(raw) && raw.length ? raw[0] : raw
         const emptyId = '00000000-0000-0000-0000-000000000000'
 
-        // Pull weekly candidates from common keys (if backend sends weekly data)
+        // Normalize weekly candidates from the weekly endpoint
         const weeklyCandidates: any[] = []
-        for (const key of ['weekly', 'weekly_challenges', 'weeklyChallenges', 'weekly_challenge']) {
-          if (raw?.[key]) {
-            if (Array.isArray(raw[key])) weeklyCandidates.push(...raw[key])
-            else if (raw[key]?.id) weeklyCandidates.push(raw[key])
-          }
-          // also accept weekly inside the first element if an array was returned
-          if (Array.isArray(raw) && raw[0]?.[key]) {
-            if (Array.isArray(raw[0][key])) weeklyCandidates.push(...raw[0][key])
-            else if (raw[0][key]?.id) weeklyCandidates.push(raw[0][key])
-          }
+        if (weeklyRaw) {
+          if (Array.isArray(weeklyRaw)) weeklyCandidates.push(...weeklyRaw)
+          else if (weeklyRaw?.challenges && Array.isArray(weeklyRaw.challenges)) weeklyCandidates.push(...weeklyRaw.challenges)
+          else if (weeklyRaw?.id) weeklyCandidates.push(weeklyRaw)
         }
 
         const mapToUserChallenge = (item: any): UserChallenge => ({
@@ -79,7 +85,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           status: item.status || 'pending',
         })
 
-        // If no valid daily quest found
+        // If no valid daily quest found, but weekly exists — show weekly
         if (!quest || !quest.id || quest.id === emptyId || !(quest.name || quest.title)) {
           if (weeklyCandidates.length) {
             setChallenges(null)
