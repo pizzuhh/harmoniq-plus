@@ -12,7 +12,7 @@ use uuid::Uuid;
 use crate::data::{self, AppState, DiaryData, PersonalChallange, PersonalChallangeInput, Quest, User, DiaryInput};
 
 
-pub async fn request_challange(headers: HeaderMap, State(state): State<data::AppState>) -> Json<data::Quest> {
+pub async fn request_challange(headers: HeaderMap, State(state): State<data::AppState>) -> Json<Vec<data::Quest>> {
 
     let token = headers.get("user_id").unwrap();
     let id: Uuid = token.to_str().unwrap().parse().unwrap();
@@ -31,10 +31,10 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
 
     // Select the best matching quest: the one with the highest required_points that is <= user's points
     // Exclude quests the user already has in user_quest (so completed/pending quests are not re-assigned)
-    let quest = query_as::<_, data::Quest>("SELECT * FROM quests WHERE points_received <= $1 AND id NOT IN (SELECT quest_id FROM user_quest WHERE user_id = $2) ORDER BY required_points DESC LIMIT 1")
+    let quest = query_as::<_, data::Quest>("SELECT * FROM quests WHERE points_received <= $1 AND id NOT IN (SELECT quest_id FROM user_quest WHERE user_id = $2) ORDER BY required_points DESC;")
         .bind(points)
         .bind(id)
-        .fetch_one(&state.db_connection)
+        .fetch_all(&state.db_connection)
         .await;
 
     match quest {
@@ -42,7 +42,7 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
             Json(quest)
         }
         Err(_) => {
-            Json(Quest { id: Uuid::nil(), name: "".to_string(), description: "".to_string(), required_points: 0, points_received:  0})
+            Json(vec![Quest { id: Uuid::nil(), name: "".to_string(), description: "".to_string(), required_points: 0, points_received:  0}])
         }
     }
 }
