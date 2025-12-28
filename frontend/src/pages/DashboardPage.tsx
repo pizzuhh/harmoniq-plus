@@ -49,7 +49,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         // Fetch weekly from the dedicated backend route
         let weeklyRaw: any = null
         try {
-          weeklyRaw = await api.request('/get_weekly')
+          weeklyRaw = await api.request('/api/get_weekly')
           console.debug('loadChallenges weeklyRaw:', weeklyRaw)
         } catch (e) {
           // not fatal — weekly might not exist
