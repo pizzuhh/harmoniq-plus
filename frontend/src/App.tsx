@@ -11,7 +11,6 @@ import YourGoals from './pages/YourGoals'
 // import DailyQuestionnaire from './pages/DailyQuestionnaire'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import Map from './pages/Map'
 
 function App() {
   const [user, setUser] = useState<User | null>(null)

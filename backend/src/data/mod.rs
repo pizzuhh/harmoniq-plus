@@ -20,7 +20,8 @@ pub struct User {
     pub points: i32,
     pub longest_streak: i32,
     pub current_streak: i32,
-    pub last_active: chrono::NaiveDate
+    pub last_active: chrono::NaiveDate,
+    pub completed_weekly: Option<chrono::NaiveDate>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, sqlx::Type, Debug)]
