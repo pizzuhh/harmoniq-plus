@@ -92,7 +92,7 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Потребителско име</label>
+            <label style={styles.label}>Имейл</label>
             <input
               style={styles.input}
               type="email"

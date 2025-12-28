@@ -11,7 +11,7 @@ import YourGoals from './pages/YourGoals'
 // import DailyQuestionnaire from './pages/DailyQuestionnaire'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import Map from './pages/Map'
+
 
 function App() {
   const [user, setUser] = useState<User | null>(null)
@@ -69,7 +69,6 @@ function App() {
         <Route path="/login" element={<LoginPage setUser={(u: User) => setUser(u)} />} />
         <Route path="/register" element={<RegisterPage setUser={(u: User) => setUser(u)} />} />
         <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
-         <Route path="/map" element={<Map src={"https://maps.google.com/maps?q=Pazardzhik,Bulgaria&z=12&output=embed"} />} />
          <Route path="/challenges" element={<Challenges />} />
       </Routes>
     </BrowserRouter>
