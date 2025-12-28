@@ -361,7 +361,7 @@ export default function Challenges() {
     <nav style={styles.mobileMenu}>
       <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>Начална страница</button>
       <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>Колело на предизвикателствата</button>
-      <button onClick={() => handleNavigation('/map')} style={styles.navLink}>Mindful Map</button>
+     
       <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросници</button>
       <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>Лични цели</button>
     </nav>
@@ -370,7 +370,6 @@ export default function Challenges() {
     <div style={styles.desktopNav}>
       <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>Начална страница</button>
       <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>Колело на предизвикателствата</button>
-      <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>Mindful Map</button>
       <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросници</button>
       <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>Лични цели</button>
     </div>

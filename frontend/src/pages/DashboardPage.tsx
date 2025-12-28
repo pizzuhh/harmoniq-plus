@@ -228,9 +228,6 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>
              Колело на предизвикателствата
           </button>
-          <button onClick={() => handleNavigation('/map')} style={styles.navLink}>
-             Mindful Map
-          </button>
           <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>
              Въпросници
           </button>
@@ -247,9 +244,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>
             Колело на предизвикателствата
         </button>
-        <button onClick={() => handleNavigation('/map')} style={styles.navLinkDesktop}>
-           Mindful Map
-        </button>
+
         <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>
             Въпросници
         </button>
