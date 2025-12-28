@@ -551,7 +551,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         </section>
         <footer style={styles.community}>
           <h3>Присъединете се към нашата Хармония+ общност</h3>
-          <a href="https://discord.gg/qMssPdrr" target="_blank" rel="noopener noreferrer">Присъединете се в Discord</a>
+          <a href="https://www.facebook.com/groups/1389511466204439/" target="_blank" rel="noopener noreferrer">Присъединете се във Фейсбук групата ни</a>
         </footer>
       </main>
     </div>
