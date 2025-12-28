@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { User, GeneratedChallenges } from '../types'
+import type { User, GeneratedChallenges, UserChallenge } from '../types'
 import api from '../services/api'
 import React from 'react'
 
@@ -24,6 +24,8 @@ interface DashboardPageProps {
 
 export default function DashboardPage({ user, setUser }: DashboardPageProps) {
   const [challenges, setChallenges] = useState<GeneratedChallenges | null>(null)
+  const [weeklyChallenge, setWeeklyChallenge] = useState<UserChallenge | null>(null)
+  const [rawResponse, setRawResponse] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [noMore, setNoMore] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -41,40 +43,84 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
       }
 
       try {
-        const quest: any = await api.request('/challange/receive')
+        const raw: any = await api.request('/challange/receive')
+        console.debug('loadChallenges raw:', raw)
+        setRawResponse(raw)
+        const quest: any = Array.isArray(raw) && raw.length ? raw[0] : raw
         const emptyId = '00000000-0000-0000-0000-000000000000'
-        if (!quest || !quest.id || quest.id === emptyId || !quest.name) {
+
+        // Pull weekly candidates from common keys (if backend sends weekly data)
+        const weeklyCandidates: any[] = []
+        for (const key of ['weekly', 'weekly_challenges', 'weeklyChallenges', 'weekly_challenge']) {
+          if (raw?.[key]) {
+            if (Array.isArray(raw[key])) weeklyCandidates.push(...raw[key])
+            else if (raw[key]?.id) weeklyCandidates.push(raw[key])
+          }
+          // also accept weekly inside the first element if an array was returned
+          if (Array.isArray(raw) && raw[0]?.[key]) {
+            if (Array.isArray(raw[0][key])) weeklyCandidates.push(...raw[0][key])
+            else if (raw[0][key]?.id) weeklyCandidates.push(raw[0][key])
+          }
+        }
+
+        const mapToUserChallenge = (item: any): UserChallenge => ({
+          id: item.id || `${item.challengeId || item.challenge?.id || Math.random()}`,
+          userId: user.id,
+          challengeId: item.challengeId || item.id || item.challenge?.id || '',
+          challenge: {
+            id: item.challenge?.id || item.id || item.challengeId || '',
+            title: item.name || item.title || item.challenge?.title || 'Challenge',
+            description: item.description || item.challenge?.description || '',
+            category: item.category || item.challenge?.category || 'mindfulness',
+            duration: item.duration || item.challenge?.duration || 10,
+            xpReward: item.points_received || item.xpReward || item.challenge?.xpReward || 0,
+            difficulty: item.difficulty || item.challenge?.difficulty || 'easy',
+          },
+          status: item.status || 'pending',
+        })
+
+        // If no valid daily quest found
+        if (!quest || !quest.id || quest.id === emptyId || !(quest.name || quest.title)) {
+          if (weeklyCandidates.length) {
+            setChallenges(null)
+            setWeeklyChallenge(mapToUserChallenge(weeklyCandidates[0]))
+            setNoMore(false)
+            setLoading(false)
+            return
+          }
+
           setChallenges(null)
+          setWeeklyChallenge(null)
           setNoMore(true)
           setLoading(false)
           return
         }
 
-        if (quest) {
-          const mapped: GeneratedChallenges = {
-            date: new Date().toISOString(),
-            challenges: [
-              {
+        // Map single daily quest (keep original behavior)
+        const mapped: GeneratedChallenges = {
+          date: new Date().toISOString(),
+          challenges: [
+            {
+              id: quest.id,
+              userId: user.id,
+              challengeId: quest.id,
+              challenge: {
                 id: quest.id,
-                userId: user.id,
-                challengeId: quest.id,
-                challenge: {
-                  id: quest.id,
-                  title: quest.name || quest.title || 'Challenge',
-                  description: quest.description || '',
-                  category: 'mindfulness',
-                  duration: 10,
-                  xpReward: quest.points_received || 0,
-                  difficulty: 'easy',
-                },
-                status: 'pending',
+                title: quest.name || quest.title || 'Challenge',
+                description: quest.description || '',
+                category: 'mindfulness',
+                duration: 10,
+                xpReward: quest.points_received || 0,
+                difficulty: 'easy',
               },
-            ],
-          }
-
-          setChallenges(mapped)
-          setNoMore(false)
+              status: 'pending',
+            },
+          ],
         }
+
+        setChallenges(mapped)
+        setWeeklyChallenge(weeklyCandidates.length ? mapToUserChallenge(weeklyCandidates[0]) : null)
+        setNoMore(false)
       } catch (error) {
         console.error('Failed to load challenges:', error)
       } finally {
@@ -357,7 +403,9 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
 
         <section style={styles.section}>
           <h2>Днешното предизвикателство</h2>
-          {challenges?.challenges && challenges.challenges.length > 0 ? (
+
+          {/* Daily (single) challenge - preserve original UI/behavior */}
+          {challenges?.challenges && challenges.challenges.length > 0 && (
             <div style={styles.challengesList}>
               {challenges.challenges.map((challenge) => (
                 <div key={challenge.id} style={styles.challengeCard}>
@@ -422,8 +470,83 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                 </div>
               ))}
             </div>
-          ) : (
-            <p>{noMore ? 'Няма повече предизвикателства за днес.' : 'Няма налични предизвикателства за днес.'}</p>
+          )}
+
+          {/* Weekly: show at most one weekly challenge inside the same box */}
+          {weeklyChallenge && (
+            <div style={{ marginTop: 16 }}>
+              <h3>Седмично предизвикателство</h3>
+              <div style={{ ...styles.challengeCard, border: '1px dashed #b3e5fc' }}>
+                <h3>{weeklyChallenge.challenge.title} <small style={{ fontSize: 12, color: '#0b7285' }}>(Седмично)</small></h3>
+                <p>{weeklyChallenge.challenge.description}</p>
+                <div style={styles.challengeMeta}>
+                  <span>⏱️ {weeklyChallenge.challenge.duration} mins</span>
+                  <span>⭐ +{weeklyChallenge.challenge.xpReward} XP</span>
+                </div>
+                <p style={styles.status}>Status: {weeklyChallenge.status}</p>
+                <div style={{ marginTop: 10, gap: 8 }}>
+                  <button
+                    style={styles.completeBtn}
+                    onClick={async () => {
+                      try {
+                        await api.request(`/api/complete_challenge/${weeklyChallenge.challenge.id}`, { method: 'POST' })
+                        setWeeklyChallenge(null)
+
+                        try {
+                          const me = await api.request('/api/me')
+                          if (me) {
+                            const backendUser: any = me
+                            const mapped: User = {
+                              id: backendUser.id,
+                              username: backendUser.name || user?.username || '',
+                              email: backendUser.mail || user?.email || '',
+                              totalXp: backendUser.points || 0,
+                              currentXp: (backendUser.points || 0) % 100,
+                              level: Math.floor((backendUser.points || 0) / 100) + 1,
+                              createdAt: backendUser.created_at || new Date().toISOString(),
+                            }
+                            if (setUser) setUser(mapped)
+                          }
+                        } catch (e) {
+                          // ignore
+                        }
+
+                        // Refresh streak
+                        try {
+                          const streakRes = await api.request('/api/streak')
+                          if (streakRes) {
+                            setStreak({
+                              currentStreak: streakRes.current_streak || 0,
+                              longestStreak: streakRes.longest_streak || 0,
+                              lastCompletedDate: streakRes.last_completed_date || '',
+                            })
+                          }
+                        } catch (e) {
+                          // ignore
+                        }
+                      } catch (e) {
+                        console.error('Failed to complete challenge', e)
+                      }
+                    }}
+                  >
+                    Complete
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Fallback message when neither daily nor weekly is present */}
+          {!(challenges?.challenges && challenges.challenges.length > 0) && !weeklyChallenge && (
+            <div>
+              <p>{noMore ? 'Няма повече предизвикателства за днес.' : 'Няма налични предизвикателства за днес.'}</p>
+              {rawResponse && (
+                <div style={{ marginTop: 12 }}>
+                  <strong style={{ fontSize: 13 }}>Backend payload (debug):</strong>
+                  <pre style={{ maxHeight: 200, overflow: 'auto', background: '#f4f4f4', padding: 8, borderRadius: 6 }}>{JSON.stringify(rawResponse, null, 2)}</pre>
+                </div>
+              )}
+            </div>
           )}
         </section>
         <footer style={styles.community}>
