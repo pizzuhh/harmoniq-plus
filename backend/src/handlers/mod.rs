@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use axum::{Json, extract::{Path, Request, State}, http::{HeaderMap, StatusCode}, middleware::Next, response::Response};
-use chrono::{Days, Duration, Utc};
+use chrono::{Datelike, Days, Duration, Utc};
 use rand::{Rng, rand_core::le};
 use serde::Serialize;
 use serde_json::json;
@@ -11,6 +11,7 @@ use uuid::Uuid;
 
 use crate::data::{self, AppState, DiaryData, PersonalChallange, PersonalChallangeInput, Quest, User, DiaryInput};
 
+const WEEKLY_POINTS: i32 = 50;
 
 pub async fn request_challange(headers: HeaderMap, State(state): State<data::AppState>) -> Json<Vec<data::Quest>> {
 
@@ -31,6 +32,7 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
 
     // Select the best matching quest: the one with the highest required_points that is <= user's points
     // Exclude quests the user already has in user_quest (so completed/pending quests are not re-assigned)
+    // Maybe change points_received <= $1 to points_received = $1 ?
     let quest = query_as::<_, data::Quest>("SELECT * FROM quests WHERE points_received <= $1 AND id NOT IN (SELECT quest_id FROM user_quest WHERE user_id = $2) ORDER BY required_points DESC;")
         .bind(points)
         .bind(id)
@@ -63,6 +65,7 @@ pub async fn send_challange(headers: HeaderMap, State(state): State<data::AppSta
     let mut file = File::create(&file_path).unwrap();
     file.write_all(&data).unwrap();
     */
+
     sqlx::query("INSERT INTO user_quest (user_id, quest_id, progress, proof_path) VALUES($1, $2, $3, $4)")
         .bind(id)
         .bind(quest_id)
@@ -202,6 +205,16 @@ pub async fn complete_challenge(State(state): State<data::AppState>, headers: He
         Err(_) => return StatusCode::UNAUTHORIZED,
     };
 
+    let quest = sqlx::query_as!(Quest, "SELECT * FROM quests WHERE id = $1;", qid)
+        .fetch_one(&state.db_connection)
+        .await.unwrap();
+
+    if quest.points_received == WEEKLY_POINTS {
+        sqlx::query!("UPDATE users SET completed_weekly = NOW() WHERE id = $1", uid)
+            .execute(&state.db_connection)
+            .await.unwrap();
+    }
+
     // Insert a verified user_quest row for this user and quest
     let inserted = sqlx::query("INSERT INTO user_quest (user_id, quest_id, progress, proof_path) VALUES ($1, $2, $3, $4) RETURNING id;")
         .bind(uid)
@@ -237,11 +250,11 @@ async fn get_random_quest(target_pts: Option<i32>, state: &AppState) -> Quest {
     if let Some(pts) = target_pts {
         quests = sqlx::query_as!(Quest, "SELECT * FROM quests WHERE points_received = $1;", pts)
             .fetch_all(&state.db_connection)
-            .await.unwrap();
+            .await.expect("a");
     } else {
         quests = sqlx::query_as!(Quest, "SELECT * FROM quests;")
             .fetch_all(&state.db_connection)
-            .await.unwrap();
+            .await.expect("a");
     }
     let mut rng = rand::rng();
     let idx = rng.random_range(0..quests.len());
@@ -250,10 +263,23 @@ async fn get_random_quest(target_pts: Option<i32>, state: &AppState) -> Quest {
     the_chosen_one.clone()
 }
 
-pub async fn get_weekly_quest(State(state): State<data::AppState>) -> (StatusCode, Json<Quest>) {
+pub async fn get_weekly_quest(headers: HeaderMap, State(state): State<data::AppState>) -> Result<Json<Quest>, StatusCode> {
+    let token = headers.get("user_id").unwrap();
+    let id: Uuid = token.to_str().unwrap().parse().unwrap();
+
+    let user = sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1;", id)
+        .fetch_one(&state.db_connection)
+        .await.unwrap();
+
+    if let Some(week) = user.completed_weekly {
+        if week.iso_week() == Utc::now().date_naive().iso_week() {
+            return Err(StatusCode::UNAVAILABLE_FOR_LEGAL_REASONS);
+        }
+    }
+
     // 50 points - probably weekly quests?
-    let the_chosen_one = get_random_quest(Some(50), &state).await;
-    (StatusCode::OK, Json(the_chosen_one))
+    let the_chosen_one = get_random_quest(Some(WEEKLY_POINTS), &state).await;
+    Ok(Json(the_chosen_one))
 }
 
 // Accepts number only
@@ -280,15 +306,6 @@ pub async fn admin_check(headers: HeaderMap, State(state): State<AppState>, req:
     } else {
         Ok(next.run(req).await)
     }
-}
-
-pub async fn get_weekly(State(state): State<data::AppState>) -> (StatusCode, Json<[Quest; 3]>) {
-    // TODO: Optimize this to use 1 query not 3..
-    let easy = get_random_quest(Some(5), &state);
-    let medium = get_random_quest(Some(15), &state);
-    let hard = get_random_quest(Some(30), &state);
-    
-    (StatusCode::OK, Json([easy.await, medium.await, hard.await]))
 }
 
 pub async fn leaderboard(State(state): State<AppState>) -> Result<Json<Vec<(String, i32, i64)>>, StatusCode> {

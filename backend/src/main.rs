@@ -37,7 +37,7 @@ async fn main() {
         .route("/me", get(handlers::me))
         .route("/get_random_question", get(handlers::get_weekly_quest))
         .route("/send_form_points", post(handlers::send_form_points))
-        .route("/get_weekly", get(handlers::get_weekly))
+        .route("/get_weekly", get(handlers::get_weekly_quest))
         .route("/wheel/challenges", get(handlers::get_wheel_challanges))
         .route("/wheel/spin", get(handlers::wheel_spin))
         .route("/streak", get(handlers::get_streak))
