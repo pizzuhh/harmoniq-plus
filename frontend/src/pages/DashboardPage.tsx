@@ -276,7 +276,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
       {showPopup && (
         <div ref={popupRef} tabIndex={-1} role="alert" aria-live="polite" style={{ position: 'fixed', top: 100, left: '50%', transform: 'translateX(-50%)', background: '#198754', color: 'white', padding: '16px 22px', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.28)', zIndex: 2147483647, border: '2px solid rgba(255,255,255,0.14)', maxWidth: 900, textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center' }}>
-            <div style={{ fontWeight: 700, fontSize: 16 }}>Благодаря ви, под статуса ви е вашето предизвикателството</div>
+            <div style={{ fontWeight: 700, fontSize: 16 }}>Благодарим Ви, под статуса Ви е вашето предизвикателството</div>
             <button aria-label="Close" onClick={() => setShowPopup(false)} style={{ marginLeft: 12, background: 'transparent', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: 18 }}>✕</button>
           </div>
         </div>
@@ -286,7 +286,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         <section style={{ ...styles.section, marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 260 }}>
-              <p>Здравейте! Ние сме Хармония+. Живеем в забързан и натоварен свят, в които сме подложени на мръсен въздух, стрес и лошо качество на живот. Доста хора искат да „избягат“ от стреса и емоционалното си състояние и намират утеха във безкрайното скролване. Доста често не обръщаме внимание на себе си и на менталното ни състояние – не си даваме почивка, не излизаме сред природата без да сме с телефон в ръка, дори се храним с телефон в ръка, вместо да общуваме едни с други.</p>
+              <p>Здравейте! Ние сме Хармония+. Нашата мисия е да се превърнем в едно продуктивно, щастливо, екологично и хармонично общество! Живеем в забързан и натоварен свят, в които сме подложени на мръсен въздух, стрес и лошо качество на живот. Доста хора искат да „избягат“ от стреса и емоционалното си състояние и намират утеха в безкрайното скролване. Доста често не обръщаме внимание на себе си и на менталното ни състояние – не си даваме почивка, не излизаме сред природата без да сме с телефон в ръка, дори се храним с телефон в ръка, вместо да общуваме едни с други. Нашата цел е да решим тези проблеми и да създадем един по - екологичен свят и по-щастливи хора.</p>
               <p><strong>Как се използва нашият сайт?</strong> Попълнете въпросника и спрямо него ще получите предизвикателство, което се намира под статуса ви. Покачвате нива когато изпълнявате предизвикателствата и с времето те стават по-сложни. Пожелаваме Ви приятно прекарване в сайта ни!</p>
             </div>
             <div style={{ width: 320, textAlign: 'right' }}>
