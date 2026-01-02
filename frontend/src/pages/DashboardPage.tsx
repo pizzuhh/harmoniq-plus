@@ -38,7 +38,6 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
   const location = useLocation()
   const [showPopup, setShowPopup] = useState(false)
   const popupRef = useRef<HTMLDivElement | null>(null)
-
   useEffect(() => {
     const loadChallenges = async () => {
       if (!user) {
@@ -49,14 +48,11 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
       try {
         const raw: any = await api.request('/challange/receive')
         console.debug('loadChallenges raw:', raw)
-
-        // Fetch weekly from the dedicated backend route
         let weeklyRaw: any = null
         try {
           weeklyRaw = await api.request('/api/get_weekly')
           console.debug('loadChallenges weeklyRaw:', weeklyRaw)
         } catch (e) {
-          // not fatal — weekly might not exist
           console.warn('Failed to fetch weekly challenges:', e)
         }
 
@@ -64,8 +60,6 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
 
         const quest: any = Array.isArray(raw) && raw.length ? raw[0] : raw
         const emptyId = '00000000-0000-0000-0000-000000000000'
-
-        // Normalize weekly candidates from the weekly endpoint
         const weeklyCandidates: any[] = []
         if (weeklyRaw) {
           if (Array.isArray(weeklyRaw)) weeklyCandidates.push(...weeklyRaw)
@@ -195,10 +189,8 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     if (fromState || fromSession) {
       console.debug('Showing challenge popup via', { fromState, fromSession })
       setShowPopup(true)
-      // move focus to popup for accessibility and visibility
       setTimeout(() => { try { popupRef.current?.focus() } catch(e) {} }, 60)
       const t = setTimeout(() => setShowPopup(false), 10000)
-      // Clear navigation/session so it doesn't show again unintentionally
       if (fromState) navigate(location.pathname, { replace: true, state: {} })
       if (fromSession) sessionStorage.removeItem('showChallengePopup')
       return () => clearTimeout(t)
