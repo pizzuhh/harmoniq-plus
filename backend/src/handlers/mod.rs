@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{ops::Deref, str::FromStr};
 
 use axum::{Json, extract::{Path, Request, State}, http::{HeaderMap, StatusCode}, middleware::Next, response::Response};
 use chrono::{Datelike, Days, Duration, Utc};
@@ -9,7 +9,7 @@ use sha2::Digest;
 use sqlx::{query_as, query_scalar};
 use uuid::Uuid;
 
-use crate::data::{self, AppState, DiaryData, PersonalChallange, PersonalChallangeInput, Quest, User, DiaryInput};
+use crate::data::{self, AppState, DiaryData, DiaryInput, PersonalChallange, PersonalChallangeInput, Quest, User};
 
 const WEEKLY_POINTS: i32 = 50;
 
@@ -50,21 +50,9 @@ pub async fn request_challange(headers: HeaderMap, State(state): State<data::App
 }
 
 pub async fn send_challange(headers: HeaderMap, State(state): State<data::AppState>, Path(quest_id): Path<Uuid>) {
+    
     let token = headers.get("user_id").unwrap();
     let id: Uuid = token.to_str().unwrap().parse().unwrap();
-
-    /*
-    let filed = multipart.next_field().await.unwrap().unwrap();
-
-    let name = filed.name().unwrap().to_string();
-    //let contnet_type = filed.content_type().unwrap_or("application/octet-stream").to_string();
-    let data = filed.bytes().await.unwrap();
-
-    let file_path = format!("./image-{}", name);
-    println!("{} {}", name, data.len());
-    let mut file = File::create(&file_path).unwrap();
-    file.write_all(&data).unwrap();
-    */
 
     sqlx::query("INSERT INTO user_quest (user_id, quest_id, progress, proof_path) VALUES($1, $2, $3, $4)")
         .bind(id)
@@ -82,6 +70,8 @@ pub async fn send_challange(headers: HeaderMap, State(state): State<data::AppSta
 // Needs name, email and password in json format
 
 pub async fn register(State(state): State<data::AppState>, Json(register): Json<data::RegisterUser>) -> (StatusCode, String) {
+
+
     let hash_raw = sha2::Sha256::digest(register.password);
     let hash_str = format!("{:x}", hash_raw);
 
@@ -102,6 +92,8 @@ pub async fn register(State(state): State<data::AppState>, Json(register): Json<
 
 // need email and passwrod in json format
 pub async fn login(State(state): State<data::AppState>, Json(register): Json<data::RegisterUser>) -> (StatusCode, String) {
+
+
     let hash_raw = sha2::Sha256::digest(register.password);
     let hash_str = format!("{:x}", hash_raw);
 
@@ -128,6 +120,7 @@ pub async fn login(State(state): State<data::AppState>, Json(register): Json<dat
 
 pub async fn get_pending_quest(headers: HeaderMap, State(state): State<data::AppState>) -> Result<Json<data::PendingRequest>, StatusCode> {
 
+
     let rq = sqlx::query_as!(data::PendingRequest, "SELECT proof_path, id FROM user_quest WHERE progress = 'pending';")
         .fetch_one(&state.db_connection)
         .await;
@@ -139,6 +132,8 @@ pub async fn get_pending_quest(headers: HeaderMap, State(state): State<data::App
 }
 
 pub async fn me(headers: HeaderMap, State(state): State<data::AppState>) -> (StatusCode, Json<Option<data::User>>) {
+
+
     let token = match headers.get("user_id") {
         Some(t) => t,
         None => return (StatusCode::UNAUTHORIZED, Json(None)),
@@ -166,6 +161,7 @@ pub async fn me(headers: HeaderMap, State(state): State<data::AppState>) -> (Sta
 }
 
 pub async fn verify_quest(State(state): State<data::AppState>, headers: HeaderMap,  Path(qid): Path<Uuid>, Json(body): Json<data::VerifyRequest>) -> StatusCode {
+
 
     let token = headers.get("user_id").unwrap();
     let id: Uuid = token.to_str().unwrap().parse().unwrap();
@@ -263,6 +259,26 @@ async fn get_random_quest(target_pts: Option<i32>, state: &AppState) -> Quest {
     the_chosen_one.clone()
 }
 
+async fn get_weekly(state: &AppState) -> Quest {
+
+    let mut last_week = {
+        state.last_week.lock().await
+    };
+    let mut weekly_challange = {
+        state.weekly_challange.lock().await
+    };
+
+    let now = Utc::now().date_naive().iso_week().week();
+    if last_week.is_none() {
+        *last_week = Some(now);
+    }
+    if weekly_challange.is_none() || last_week.unwrap() != now {
+        let quest = get_random_quest(Some(50), &state);
+        *weekly_challange = Some(quest.await);
+    }
+    weekly_challange.as_ref().unwrap().clone()
+}
+
 pub async fn get_weekly_quest(headers: HeaderMap, State(state): State<data::AppState>) -> Result<Json<Quest>, StatusCode> {
     let token = headers.get("user_id").unwrap();
     let id: Uuid = token.to_str().unwrap().parse().unwrap();
@@ -271,19 +287,18 @@ pub async fn get_weekly_quest(headers: HeaderMap, State(state): State<data::AppS
         .fetch_one(&state.db_connection)
         .await.unwrap();
 
-    if let Some(week) = user.completed_weekly {
-        if week.iso_week() == Utc::now().date_naive().iso_week() {
-            return Err(StatusCode::UNAVAILABLE_FOR_LEGAL_REASONS);
-        }
+    if let Some(week) = user.completed_weekly && week.iso_week().week() == Utc::now().date_naive().iso_week().week() {
+        return Err(StatusCode::UNAVAILABLE_FOR_LEGAL_REASONS);
     }
 
     // 50 points - probably weekly quests?
-    let the_chosen_one = get_random_quest(Some(WEEKLY_POINTS), &state).await;
+    let the_chosen_one = get_weekly(&state).await;
     Ok(Json(the_chosen_one))
 }
 
 // Accepts number only
 pub async fn send_form_points(State(state): State<data::AppState>, headers: HeaderMap, Json(pts): Json<i32>) -> StatusCode {
+
     let token = headers.get("user_id").unwrap();
     let id: Uuid = token.to_str().unwrap().parse().unwrap();
 
@@ -309,6 +324,7 @@ pub async fn admin_check(headers: HeaderMap, State(state): State<AppState>, req:
 }
 
 pub async fn leaderboard(State(state): State<AppState>) -> Result<Json<Vec<(String, i32, i64)>>, StatusCode> {
+
     // Change the limit or some shit.
     let users = sqlx::query!("SELECT name,points, RANK() OVER (ORDER BY points DESC) AS rank FROM users LIMIT 5;")
         .fetch_all(&state.db_connection)
@@ -518,6 +534,7 @@ async fn update_streak(state: &AppState, headers: &HeaderMap) -> Result<i32, Sta
 }
 
 pub async fn get_streak(headers: HeaderMap, State(state): State<AppState>) -> Result<Json<serde_json::Value>, StatusCode> {
+
     let user_id = match headers.get("user_id") {
         Some(u) => u,
         None => return Err(StatusCode::UNAUTHORIZED)
@@ -556,6 +573,7 @@ pub async fn get_streak(headers: HeaderMap, State(state): State<AppState>) -> Re
 
 
 pub async fn pchallange_create(headers: HeaderMap, State(state): State<AppState>, Json(quest): Json<PersonalChallangeInput>) -> StatusCode {
+
     let user_id = match headers.get("user_id") {
         Some(u) => u,
         None => return StatusCode::UNAUTHORIZED

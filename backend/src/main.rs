@@ -7,7 +7,8 @@ use axum::response::{Response, IntoResponse};
 use axum::middleware::Next;
 use axum::body::Body;
 use sqlx::{query_as, PgPool};
-
+use tokio::sync::Mutex;
+use std::sync::Arc;
 
 mod data;
 mod handlers;
@@ -22,11 +23,13 @@ async fn main() {
     let db_connection = PgPool::connect(url.as_str()).await.unwrap();
 
     let state = data::AppState {
-        db_connection: db_connection.clone()
+        db_connection: db_connection.clone(),
+        weekly_challange: Arc::new(Mutex::new(None)),
+        last_week: Arc::new(Mutex::new(None)),
     };
 
 
-    let t: data::User = query_as!(data::User, "SELECT * FROM users;").fetch_one(&db_connection).await.unwrap();
+    let t: data::User = query_as!(data::User, "SELECT * FROM users;").fetch_one(&state.db_connection).await.unwrap();
 
     println!("{:?}", t);
 

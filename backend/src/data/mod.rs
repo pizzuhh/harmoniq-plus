@@ -1,4 +1,7 @@
+use std::sync::Arc;
+
 use sqlx::types::chrono;
+use tokio::sync::Mutex;
 use uuid::Uuid;
 
 
@@ -6,9 +9,9 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub struct AppState {
     pub db_connection: sqlx::PgPool,
+    pub weekly_challange: Arc<Mutex<Option<Quest>>>,
+    pub last_week: Arc<Mutex<Option<u32>>>,
 }
-
-
 
 #[derive(serde::Serialize, serde::Deserialize, sqlx::FromRow, Debug)]
 pub struct User {
