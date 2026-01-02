@@ -315,12 +315,12 @@ export default function YourGoals() {
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   style={styles.select}
                 >
-                  <option>Personal</option>
-                  <option>Health</option>
-                  <option>Work</option>
-                  <option>Learning</option>
-                  <option>Fitness</option>
-                  <option>Mindfulness</option>
+                  <option>Лична цел</option>
+                  <option>Здраве</option>
+                  <option>Работа</option>
+                  <option>Учене</option>
+                  <option>Спортуване</option>
+                  <option>Осъзнатост</option>
                 </select>
               </div>
             </div>

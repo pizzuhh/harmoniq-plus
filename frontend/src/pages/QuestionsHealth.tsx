@@ -57,14 +57,14 @@ export default function QuestionsHealth() {
             '/src/assets/18.png',
           ]
 
-          // Initialize badges: one badge every 500 XP
-          const totalBadges = Math.ceil(currentXp / 500) + 3 // +3 for future badges to work towards
+                  // Initialize badges: one badge every 50 XP
+          const totalBadges = Math.ceil(currentXp / 50) + 3 // +3 for future badges to work towards
           const badgeList: Badge[] = Array.from({ length: totalBadges }, (_, i) => ({
             id: i,
             name: `Badge ${i + 1}`,
-            xpRequired: (i + 1) * 500,
+            xpRequired: (i + 1) * 50,
             imagePath: badgeImages[i % badgeImages.length], // cycle through all available badge images
-            unlocked: currentXp >= (i + 1) * 500,
+            unlocked: currentXp >= (i + 1) * 50,
           }))
 
           setBadges(badgeList)
@@ -450,7 +450,7 @@ export default function QuestionsHealth() {
         <div style={styles.badgesSection}>
           <h2 style={styles.badgesTitle}> Tвоите значки</h2>
           <p style={{ color: '#666', marginBottom: '16px' }}>
-            Отключете значка всеки 500 XP! Вие имате <strong>{userXp} XP</strong>
+            Отключете значка всеки 50 XP! Вие имате <strong>{userXp} XP</strong>
           </p>
           <div style={styles.badgesContainer}>
             {badges.map((badge) => (
@@ -472,7 +472,6 @@ export default function QuestionsHealth() {
                   }}
                 />
                 <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '12px' }}>
-                  <div style={{ fontWeight: 600, color: '#333' }}>Lvl {badge.id + 1}</div>
                   <div style={{ color: '#666' }}>{badge.xpRequired} XP</div>
                   {badge.unlocked ? (
                     <div style={{ color: '#4CAF50', fontWeight: 'bold' }}>✓ Отключено</div>

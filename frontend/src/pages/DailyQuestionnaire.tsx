@@ -72,6 +72,16 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
     const challenges = generateDailyChallenges(answers);
     if (onSubmit) onSubmit({ answers, challenges });
     else console.log("challenges", challenges);
+    // Request popup: set session flag and navigate with state (fallbacks handled in Dashboard)
+    try {
+      console.debug('DailyQuestionnaire: submitting, answers=', answers)
+      sessionStorage.setItem('showChallengePopup', '1')
+      console.debug('DailyQuestionnaire: sessionStorage set showChallengePopup')
+    } catch (e) {
+      console.warn('DailyQuestionnaire: sessionStorage set failed', e)
+    }
+    console.debug('DailyQuestionnaire: navigating to /dashboard with state')
+    navigate('/dashboard', { state: { showChallengePopup: true } });
   }
 
   return (

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom' 
 import type { User, GeneratedChallenges, UserChallenge } from '../types'
 import api from '../services/api'
+import heroImg from '../assets/12291047_Happy crowd greeting little winner of racing.jpg'
 import React from 'react'
 
 type LeaderboardEntry = {
@@ -34,6 +35,9 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
   const [streak, setStreak] = useState<StreakData>({ currentStreak: 0, longestStreak: 0, lastCompletedDate: '' })
   const [loadingStreak, setLoadingStreak] = useState(true)
   const navigate = useNavigate()
+  const location = useLocation()
+  const [showPopup, setShowPopup] = useState(false)
+  const popupRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const loadChallenges = async () => {
@@ -183,6 +187,26 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     fetchStreak()
   }, [])
 
+  // Show popup if navigated here from the questionnaire, or via query / session fallback
+  useEffect(() => {
+    const fromState = (location.state as any)?.showChallengePopup
+    const fromQuery = new URLSearchParams(location.search).get('showPopup') === '1'
+    const fromSession = typeof window !== 'undefined' && sessionStorage.getItem('showChallengePopup') === '1'
+
+    if (fromState || fromQuery || fromSession) {
+      console.debug('Showing challenge popup via', { fromState, fromQuery, fromSession })
+      setShowPopup(true)
+      // move focus to popup for accessibility and visibility
+      setTimeout(() => { try { popupRef.current?.focus() } catch(e) {} }, 60)
+      const t = setTimeout(() => setShowPopup(false), 10000)
+      // Clear navigation/query/session so it doesn't show again unintentionally
+      if (fromState) navigate(location.pathname, { replace: true, state: {} })
+      if (fromQuery) navigate(location.pathname, { replace: true })
+      if (fromSession) sessionStorage.removeItem('showChallengePopup')
+      return () => clearTimeout(t)
+    }
+  }, [location, navigate])
+
   const userRank = leaderboard.findIndex((entry) => entry.id === user?.id) + 1
 
   const handleLogout = () => {
@@ -194,6 +218,10 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     navigate(path)
     setMenuOpen(false)
   }
+
+  useEffect(() => {
+    if (showPopup) console.debug('Dashboard: popup visibility = true')
+  }, [showPopup])
 
   if (loading) {
     return <div style={styles.loading}>Loading...</div>
@@ -214,9 +242,12 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         <div style={styles.userInfo}>
           <span>Добре дошъл/а, {user?.username}!</span>
           <span>Ниво {user?.level}</span>
-          <button onClick={handleLogout} style={styles.logoutBtn}>
-            Излез от профила си
-          </button>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button onClick={() => { console.debug('Manual show popup clicked'); try { sessionStorage.setItem('showChallengePopup','1') } catch(e){}; setShowPopup(true); }} style={{ ...styles.logoutBtn, backgroundColor: '#ffd43b', color: '#000', padding: '8px 10px' }}>Покажи Popup</button>
+            <button onClick={handleLogout} style={styles.logoutBtn}>
+              Излез от профила си
+            </button>
+          </div>
         </div>
       </header>
 
@@ -253,7 +284,28 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         </button>
       </div>
 
+      {showPopup && (
+        <div ref={popupRef} tabIndex={-1} role="alert" aria-live="polite" style={{ position: 'fixed', top: 100, left: '50%', transform: 'translateX(-50%)', background: '#198754', color: 'white', padding: '16px 22px', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.28)', zIndex: 2147483647, border: '2px solid rgba(255,255,255,0.14)', maxWidth: 900, textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center' }}>
+            <div style={{ fontWeight: 700, fontSize: 16 }}>Благодаря ви, под статуса ви е вашето предизвикателството</div>
+            <button aria-label="Close" onClick={() => setShowPopup(false)} style={{ marginLeft: 12, background: 'transparent', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: 18 }}>✕</button>
+          </div>
+        </div>
+      )} 
+
       <main style={styles.main}>
+        <section style={{ ...styles.section, marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <p>Здравейте! Ние сме Хармония+. Живеем в забързан и натоварен свят, в които сме подложени на мръсен въздух, стрес и лошо качество на живот. Доста хора искат да „избягат“ от стреса и емоционалното си състояние и намират утеха във безкрайното скролване. Доста често не обръщаме внимание на себе си и на менталното ни състояние – не си даваме почивка, не излизаме сред природата без да сме с телефон в ръка, дори се храним с телефон в ръка, вместо да общуваме едни с други.</p>
+              <p><strong>Как се използва нашият сайт?</strong> Попълнете въпросника и спрямо него ще получите предизвикателство, което се намира под статуса ви. Покачвате нива когато изпълнявате предизвикателствата и с времето те стават по-сложни. Пожелаваме Ви приятно прекарване в сайта ни!</p>
+            </div>
+            <div style={{ width: 320, textAlign: 'right' }}>
+              <img src={heroImg} alt="Happy crowd greeting little winner" style={{ width: '100%', height: 'auto', borderRadius: 8, objectFit: 'cover' }} />
+            </div>
+          </div>
+        </section>
+
         {/* Streak Section */}
         {!loadingStreak && (
           <section style={styles.streakSection}>
@@ -541,7 +593,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           {!(challenges?.challenges && challenges.challenges.length > 0) && !weeklyChallenge && (
             <div>
               <p>{noMore ? 'Няма повече предизвикателства за днес.' : 'Няма налични предизвикателства за днес.'}</p>
-              {rawResponse && (
+              {rawResponse && ((rawResponse.daily && Array.isArray(rawResponse.daily) && rawResponse.daily.length > 0) || rawResponse.weekly) && (
                 <div style={{ marginTop: 12 }}>
                   <strong style={{ fontSize: 13 }}>Backend payload (debug):</strong>
                   <pre style={{ maxHeight: 200, overflow: 'auto', background: '#f4f4f4', padding: 8, borderRadius: 6 }}>{JSON.stringify(rawResponse, null, 2)}</pre>
