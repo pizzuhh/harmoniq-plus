@@ -187,21 +187,19 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     fetchStreak()
   }, [])
 
-  // Show popup if navigated here from the questionnaire, or via query / session fallback
+  // Show popup only if navigated here from the questionnaire (state) or via session fallback
   useEffect(() => {
     const fromState = (location.state as any)?.showChallengePopup
-    const fromQuery = new URLSearchParams(location.search).get('showPopup') === '1'
     const fromSession = typeof window !== 'undefined' && sessionStorage.getItem('showChallengePopup') === '1'
 
-    if (fromState || fromQuery || fromSession) {
-      console.debug('Showing challenge popup via', { fromState, fromQuery, fromSession })
+    if (fromState || fromSession) {
+      console.debug('Showing challenge popup via', { fromState, fromSession })
       setShowPopup(true)
       // move focus to popup for accessibility and visibility
       setTimeout(() => { try { popupRef.current?.focus() } catch(e) {} }, 60)
       const t = setTimeout(() => setShowPopup(false), 10000)
-      // Clear navigation/query/session so it doesn't show again unintentionally
+      // Clear navigation/session so it doesn't show again unintentionally
       if (fromState) navigate(location.pathname, { replace: true, state: {} })
-      if (fromQuery) navigate(location.pathname, { replace: true })
       if (fromSession) sessionStorage.removeItem('showChallengePopup')
       return () => clearTimeout(t)
     }
@@ -243,7 +241,6 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           <span>Добре дошъл/а, {user?.username}!</span>
           <span>Ниво {user?.level}</span>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button onClick={() => { console.debug('Manual show popup clicked'); try { sessionStorage.setItem('showChallengePopup','1') } catch(e){}; setShowPopup(true); }} style={{ ...styles.logoutBtn, backgroundColor: '#ffd43b', color: '#000', padding: '8px 10px' }}>Покажи Popup</button>
             <button onClick={handleLogout} style={styles.logoutBtn}>
               Излез от профила си
             </button>

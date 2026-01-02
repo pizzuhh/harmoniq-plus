@@ -391,11 +391,12 @@ export default function QuestionsHealth() {
         console.log('Assigned quest:', quest)
 
         setSubmitted(true)
+        try { sessionStorage.setItem('showChallengePopup', '1'); console.debug('QuestionsHealth: set showChallengePopup in sessionStorage') } catch (e) { }
         setTimeout(() => {
           setResponses({})
           setScreenTime(0)
           setSubmitted(false)
-          window.location.href = '/dashboard'
+          navigate('/dashboard', { state: { showChallengePopup: true } })
         }, 800)
       } else {
         console.error('Failed to retrieve challenge')
