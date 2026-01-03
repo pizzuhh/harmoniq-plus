@@ -525,7 +525,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                   <span>⏱️ {weeklyChallenge.challenge.duration} </span>
                   <span>⭐ +{weeklyChallenge.challenge.xpReward} XP</span>
                 </div>
-                <p style={styles.status}>Status: {weeklyChallenge.status}</p>
+                <p style={styles.status}>Статус: {weeklyChallenge.status}</p>
                 <div style={{ marginTop: 10, gap: 8 }}>
                   <button
                     style={styles.completeBtn}

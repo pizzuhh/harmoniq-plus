@@ -34,6 +34,7 @@ const styles = {
   navLinkDesktop: { backgroundColor: 'transparent', border: '1px solid #e6e6e6', padding: '8px 12px', borderRadius: 6, cursor: 'pointer' } as React.CSSProperties,
 };
 
+
 export default function DailyQuestionnaire({ onSubmit }: Props) {
   const [answers, setAnswers] = useState<Answers>({
     mood: "",
@@ -49,6 +50,18 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
     priority: "Подобряване на емоционалното състояние",
   });
 
+
+
+
+    const isFormComplete = React.useMemo(() => {
+  return Object.values(answers).every((value) => {
+    if (Array.isArray(value)) {
+      return value.length > 0; // за multi-select
+    }
+    return value !== ""; // за string полета
+  });
+}, [answers]);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const handleNavigation = (path: string) => {
@@ -61,6 +74,7 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
 
   }
 
+  
   // function toggleMulti(k: keyof Answers, v: string) {
   //   setAnswers((prev) => {
   //     const current = (prev[k] as unknown as string[]) || [];
@@ -88,14 +102,8 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
     navigate('/dashboard', { state: { showChallengePopup: true } });
   }
 
-  const isFormComplete = React.useMemo(() => {
-  return Object.values(answers).every((value) => {
-    if (Array.isArray(value)) {
-      return value.length > 0; // за multi-select
-    }
-    return value !== ""; // за string полета
-  });
-}, [answers]);
+  
+
 
   return (
     <div style={styles.container}>
@@ -141,30 +149,23 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
 
         {/* ...всички останали полета... */}
 
-        <button
-        type="submit"
-        disabled={!isFormComplete}
-        style={{
-        marginTop: 20,
-        padding: '10px 16px',
-        borderRadius: 8,
-        border: 'none',
-        cursor: isFormComplete ? 'pointer' : 'not-allowed',
-        backgroundColor: isFormComplete ? '#2563eb' : '#cbd5e1',
-        color: 'white',
-        fontWeight: 600,
-        opacity: isFormComplete ? 1 : 0.7,
-        transition: 'all 0.2s ease',
-        
-     }}
-      >
-        Генерирай предизвикателства
-      </button>
-    {!isFormComplete && (
-    <div style={{ marginTop: 8, fontSize: 13, color: '#64748b' }}>
-     Моля, попълнете всички въпроси, за да продължите
-  </div>
-  )}
+       <button
+  type="submit"
+  disabled={!isFormComplete}
+  style={{
+    marginTop: 20,
+    padding: '10px 16px',
+    borderRadius: 8,
+    border: 'none',
+    backgroundColor: isFormComplete ? '#2563eb' : '#cbd5e1',
+    color: 'white',
+    fontWeight: 600,
+    cursor: isFormComplete ? 'pointer' : 'not-allowed',
+    opacity: isFormComplete ? 1 : 0.6,
+  }}
+>
+  Генерирай предизвикателства
+</button>
       </form>
     </div>
   );
