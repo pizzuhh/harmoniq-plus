@@ -267,7 +267,7 @@ export default function YourGoals() {
 
       <header style={styles.header}>
         <div style={styles.headerContent}>
-          <h1 style={styles.title}>🎯 Моите цели</h1>
+          <h1 style={styles.title}> Моите цели</h1>
           <p style={styles.subtitle}>Следете своя прогрес и постигайте своите мечти</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -391,7 +391,7 @@ export default function YourGoals() {
         {/* Personal Diary Section */}
         <section style={styles.diarySection}>
           <div style={styles.diaryHeader}>
-            <h2 style={styles.diaryTitle}>📔 Моят личен дневник</h2>
+            <h2 style={styles.diaryTitle}> Моят личен дневник</h2>
             <p style={styles.diarySubtitle}>За твоите мисли, усещания и преживяния</p>
           </div>
 

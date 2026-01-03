@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { generateDailyChallenges } from "../utils/generateDailyChallenges";
 
+
+
 type Answers = {
   mood: string;
   headState: string;
@@ -19,6 +21,7 @@ type Answers = {
 type Props = {
   onSubmit?: (payload: { answers: Answers; challenges: unknown }) => void;
 };
+
 
 const styles = {
   container: { maxWidth: 900, margin: '0 auto', padding: 20 } as React.CSSProperties,
@@ -54,7 +57,8 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
   };
 
   function handleChange<K extends keyof Answers>(k: K, v: Answers[K]) {
-    setAnswers((prev) => ({ ...prev, [k]: v } as Answers));
+    setAnswers((prev) => ({ ...prev, [k]: v } as Answers)); if (!isFormComplete) return;
+
   }
 
   // function toggleMulti(k: keyof Answers, v: string) {
@@ -83,6 +87,15 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
     console.debug('DailyQuestionnaire: navigating to /dashboard with state')
     navigate('/dashboard', { state: { showChallengePopup: true } });
   }
+
+  const isFormComplete = React.useMemo(() => {
+  return Object.values(answers).every((value) => {
+    if (Array.isArray(value)) {
+      return value.length > 0; // за multi-select
+    }
+    return value !== ""; // за string полета
+  });
+}, [answers]);
 
   return (
     <div style={styles.container}>
@@ -116,6 +129,7 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
         <select
           onChange={(e) => handleChange("mood", e.target.value)}
           value={answers.mood}
+          
         >
           <option value="">--</option>
           <option value="Спокоен и уравновесен">Спокоен и уравновесен</option>
@@ -127,7 +141,30 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
 
         {/* ...всички останали полета... */}
 
-        <button type="submit">Генерирай предизвикателства</button>
+        <button
+        type="submit"
+        disabled={!isFormComplete}
+        style={{
+        marginTop: 20,
+        padding: '10px 16px',
+        borderRadius: 8,
+        border: 'none',
+        cursor: isFormComplete ? 'pointer' : 'not-allowed',
+        backgroundColor: isFormComplete ? '#2563eb' : '#cbd5e1',
+        color: 'white',
+        fontWeight: 600,
+        opacity: isFormComplete ? 1 : 0.7,
+        transition: 'all 0.2s ease',
+        
+     }}
+      >
+        Генерирай предизвикателства
+      </button>
+    {!isFormComplete && (
+    <div style={{ marginTop: 8, fontSize: 13, color: '#64748b' }}>
+     Моля, попълнете всички въпроси, за да продължите
+  </div>
+  )}
       </form>
     </div>
   );

@@ -76,11 +76,11 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
             title: item.name || item.title || item.challenge?.title || 'Challenge',
             description: item.description || item.challenge?.description || '',
             category: item.category || item.challenge?.category || 'mindfulness',
-            duration: item.duration || item.challenge?.duration || 10,
+            duration: item.duration || item.challenge?.duration || '1 седмица',
             xpReward: item.points_received || item.xpReward || item.challenge?.xpReward || 0,
             difficulty: item.difficulty || item.challenge?.difficulty || 'easy',
           },
-          status: item.status || 'pending',
+          status: item.status || 'Не е изпълнено',
         })
 
         // If no valid daily quest found, but weekly exists — show weekly
@@ -117,7 +117,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                 xpReward: quest.points_received || 0,
                 difficulty: 'easy',
               },
-              status: 'pending',
+              status: quest.status || 'Не е изпълнено',
             },
           ],
         }
@@ -454,10 +454,10 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                   <h3>{challenge.challenge.title}</h3>
                   <p>{challenge.challenge.description}</p>
                   <div style={styles.challengeMeta}>
-                    <span>⏱️ {challenge.challenge.duration} mins</span>
+                    {/*<span>⏱️ {challenge.challenge.duration} минути</span>*/}
                     <span>⭐ +{challenge.challenge.xpReward} XP</span>
                   </div>
-                  <p style={styles.status}>Status: {challenge.status}</p>
+                  <p style={styles.status}>Статус: {challenge.status}</p>
                   <div style={{ marginTop: 10, gap: 8 }}>
                     <button
                       style={styles.completeBtn}
@@ -506,7 +506,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                         }
                       }}
                     >
-                      Complete
+                      Готово
                     </button>
                   </div>
                 </div>
@@ -522,7 +522,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                 <h3>{weeklyChallenge.challenge.title} <small style={{ fontSize: 12, color: '#0b7285' }}>(Седмично)</small></h3>
                 <p>{weeklyChallenge.challenge.description}</p>
                 <div style={styles.challengeMeta}>
-                  <span>⏱️ {weeklyChallenge.challenge.duration} mins</span>
+                  <span>⏱️ {weeklyChallenge.challenge.duration} </span>
                   <span>⭐ +{weeklyChallenge.challenge.xpReward} XP</span>
                 </div>
                 <p style={styles.status}>Status: {weeklyChallenge.status}</p>
@@ -571,7 +571,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                       }
                     }}
                   >
-                    Complete
+                    Готово
                   </button>
                 </div>
               </div>
