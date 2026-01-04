@@ -3,6 +3,7 @@ use std::{ops::Deref, str::FromStr};
 use axum::{Json, extract::{Path, Request, State}, http::{HeaderMap, StatusCode}, middleware::Next, response::Response};
 use chrono::{Datelike, Days, Duration, Utc};
 use rand::{Rng, rand_core::le};
+use regex::Regex;
 use serde::Serialize;
 use serde_json::json;
 use sha2::Digest;
@@ -69,8 +70,37 @@ pub async fn send_challange(headers: HeaderMap, State(state): State<data::AppSta
 
 // Needs name, email and password in json format
 
+// Verefies email in 2 steps.
+// 1. Use regex to check if the syntax is valid
+// 2. Use DNS query to check if the domain has MX records
+async fn verify_email(email: &String) -> bool {
+    let re = Regex::new(r"^([A-Za-z0-9._/%-+]+)@([A-Za-z0-9_-]+)\.([A-Za-z0-9]{2,})$").unwrap();
+
+    // Match regex
+    let captures = re.captures(email);
+
+    if let Some(captures) = captures {
+        let domain = format!("{}.{}", captures[2].trim(), captures[3].trim());
+
+        // Lookup MX record
+        let resolver = hickory_resolver::Resolver::builder_tokio().unwrap().build();
+        match resolver.mx_lookup(domain).await {
+            Ok(_mx) => true,
+            Err(_e) => false,
+        }
+    } else {
+        false
+    }
+}
+
+
+
 pub async fn register(State(state): State<data::AppState>, Json(register): Json<data::RegisterUser>) -> (StatusCode, String) {
 
+    let valid = verify_email(&register.email).await;
+    if !valid {
+        return (StatusCode::UNAUTHORIZED, "Invalid email!".into());
+    }
 
     let hash_raw = sha2::Sha256::digest(register.password);
     let hash_str = format!("{:x}", hash_raw);
@@ -85,7 +115,12 @@ pub async fn register(State(state): State<data::AppState>, Json(register): Json<
             (StatusCode::OK, id.id.to_string())
         }
         Err(e) => {
-            (StatusCode::INTERNAL_SERVER_ERROR, format!("{:?}", e))
+            if e.as_database_error().unwrap().is_unique_violation() {
+                (StatusCode::FOUND, "User already exists. Consider logging in".into())
+            } else {
+                println!("{:?}", e);
+                (StatusCode::INTERNAL_SERVER_ERROR, "".into())
+            }
         }
     }
 }
@@ -93,6 +128,10 @@ pub async fn register(State(state): State<data::AppState>, Json(register): Json<
 // need email and passwrod in json format
 pub async fn login(State(state): State<data::AppState>, Json(register): Json<data::RegisterUser>) -> (StatusCode, String) {
 
+    let valid = verify_email(&register.email).await;
+    if !valid {
+        return (StatusCode::UNAUTHORIZED, "Invalid email!".into());
+    }
 
     let hash_raw = sha2::Sha256::digest(register.password);
     let hash_str = format!("{:x}", hash_raw);
