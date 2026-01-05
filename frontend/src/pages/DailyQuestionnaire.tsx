@@ -22,7 +22,6 @@ type Props = {
   onSubmit?: (payload: { answers: Answers; challenges: unknown }) => void;
 };
 
-
 const styles = {
   container: { maxWidth: 900, margin: '0 auto', padding: 20 } as React.CSSProperties,
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as React.CSSProperties,
@@ -110,7 +109,7 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
       <header style={{ ...styles.header, position: 'sticky', top: 0, zIndex: 1000, flexDirection: 'column', alignItems: 'flex-start', gap: 12, padding: '16px', backgroundColor: '#ffffff', borderRadius: 10, boxShadow: '0 6px 20px rgba(0,0,0,0.08)', marginBottom: 24 }}>
         <div style={styles.headerLeft}>
           <h2>Въпросник</h2>
-          <button style={styles.menuToggle} onClick={() => setMenuOpen(!menuOpen)}>☰ Menu</button>
+         {/* <button style={styles.menuToggle} onClick={() => setMenuOpen(!menuOpen)}>☰ Menu</button> */}
         </div>
 
         {/* Desktop navigation visually separated above the questionnaire */}

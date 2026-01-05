@@ -9,6 +9,14 @@ type Badge = {
   unlocked: boolean
 }
 
+const getScreenTimePoints = (hours: number) => {
+  if (hours <= 1) return 10
+  if (hours <= 3) return 8
+  if (hours <= 5) return 5
+  if (hours <= 7) return 2
+  return 0
+}
+
 export default function QuestionsHealth() {
   const [responses, setResponses] = useState<Record<number, string>>({})
   const [screenTime, setScreenTime] = useState<number>(0)
@@ -364,6 +372,10 @@ export default function QuestionsHealth() {
         if (idx >= 0) totalPoints += (idx + 1)
       }
 
+      // Screen time points
+      const screenTimePoints = getScreenTimePoints(screenTime)
+      totalPoints += screenTimePoints
+
       const apiBase = import.meta.env.VITE_API_URL || ''
       const userId = localStorage.getItem('authToken') || ''
 
@@ -411,7 +423,6 @@ export default function QuestionsHealth() {
       <div style={styles.container}>
         <div style={styles.successCard}>
           <div style={styles.successIcon}>✅</div>
-          <h2>Благодаря!</h2>
           <p>Твоят дневен преглед е записан. Твоите персонализирани предизвикателства са готови!</p>
         </div>
       </div>

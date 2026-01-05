@@ -276,7 +276,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
       {showPopup && (
         <div ref={popupRef} tabIndex={-1} role="alert" aria-live="polite" style={{ position: 'fixed', top: 100, left: '50%', transform: 'translateX(-50%)', background: '#198754', color: 'white', padding: '16px 22px', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.28)', zIndex: 2147483647, border: '2px solid rgba(255,255,255,0.14)', maxWidth: 900, textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center' }}>
-            <div style={{ fontWeight: 700, fontSize: 16 }}>Благодарим Ви, под статуса Ви е вашето предизвикателството</div>
+            <div style={{ fontWeight: 700, fontSize: 16 }}>Благодарим! Вашият дневен преглед е записан. Предизвикателства са готови! Можете да ги намерите под статуса си!</div>
             <button aria-label="Close" onClick={() => setShowPopup(false)} style={{ marginLeft: 12, background: 'transparent', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: 18 }}>✕</button>
           </div>
         </div>
@@ -525,7 +525,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                   <span>⏱️ {weeklyChallenge.challenge.duration} </span>
                   <span>⭐ +{weeklyChallenge.challenge.xpReward} XP</span>
                 </div>
-                <p style={styles.status}>Статус: {weeklyChallenge.status}</p>
+                <p style={styles.status}>: {weeklyChallenge.status}</p>
                 <div style={{ marginTop: 10, gap: 8 }}>
                   <button
                     style={styles.completeBtn}
