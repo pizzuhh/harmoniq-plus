@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 type Badge = {
@@ -361,8 +361,18 @@ export default function QuestionsHealth() {
     }))
   }
 
+   const allQuestionsAnswered = useMemo(() => {
+    return dailyQuestions.every(
+      (q) => responses[q.id] !== undefined && responses[q.id] !== ''
+    )
+  }, [responses, dailyQuestions])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+     if (!allQuestionsAnswered) {
+      alert('Моля, отговори на всички въпроси')
+      return
+    }
     try {
       let totalPoints = 0
       for (const q of dailyQuestions) {
@@ -540,9 +550,21 @@ export default function QuestionsHealth() {
           </fieldset>
 
           {/* Submit Button */}
-          <button type="submit" style={styles.submitBtn}>
-             Получи моите предизвикателства
-          </button>
+           <button
+          type="submit"
+          disabled={!allQuestionsAnswered}
+          style={{
+            marginTop: 20,
+            padding: '12px 20px',
+            backgroundColor: allQuestionsAnswered ? '#4CAF50' : '#cbd5e1',
+            cursor: allQuestionsAnswered ? 'pointer' : 'not-allowed',
+            color: 'white',
+            border: 'none',
+            borderRadius: 6,
+          }}
+        >
+          Получи моите предизвикателства
+        </button>
         </form>
       </div>
     </div>

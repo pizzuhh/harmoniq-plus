@@ -69,7 +69,7 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
   };
 
   function handleChange<K extends keyof Answers>(k: K, v: Answers[K]) {
-    setAnswers((prev) => ({ ...prev, [k]: v } as Answers)); if (!isFormComplete) return;
+    setAnswers((prev) => ({ ...prev, [k]: v } as Answers)); 
 
   }
 
@@ -161,10 +161,17 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
     fontWeight: 600,
     cursor: isFormComplete ? 'pointer' : 'not-allowed',
     opacity: isFormComplete ? 1 : 0.6,
-  }}
->
-  Генерирай предизвикателства
+    }}
+    >
+    Генерирай предизвикателства
 </button>
+
+  {!isFormComplete && (
+  <p style={{ marginTop: 8, color: '#64748b' }}>
+    Моля, отговори на всички въпроси
+  </p>
+  )}
+
       </form>
     </div>
   );
