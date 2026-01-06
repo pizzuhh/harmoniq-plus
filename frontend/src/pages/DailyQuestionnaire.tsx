@@ -116,7 +116,7 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
         <div style={{ ...styles.desktopNav, width: '100%', display: 'flex', justifyContent: 'flex-start', backgroundColor: '#f8fafc', padding: '10px 12px', borderRadius: 8, border: '1px solid #e6eef2', gap: 12 }}>
           <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>Начална страница</button>
           <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>Колело на предизвикателствата</button>
-          <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросници</button>
+          <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросник</button>
           <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>Лични цели</button>
         </div>
       </header>
@@ -125,7 +125,7 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
         <nav style={styles.mobileMenu}>
           <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>Начална страница</button>
           <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>Колело на предизвикателствата</button>
-          <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросници</button>
+          <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросник</button>
           <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>Лични цели</button>
         </nav>
       )}
@@ -163,7 +163,7 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
     opacity: isFormComplete ? 1 : 0.6,
     }}
     >
-    Генерирай предизвикателства
+    Получи моите предизвикателства
 </button>
 
   {!isFormComplete && (

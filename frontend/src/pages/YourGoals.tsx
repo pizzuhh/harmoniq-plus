@@ -253,7 +253,7 @@ export default function YourGoals() {
         <nav style={styles.mobileMenu}>
           <button onClick={() => handleNavigation('/dashboard')} style={styles.navLink}>Начална страница</button>
           <button onClick={() => handleNavigation('/challenges')} style={styles.navLink}>Колело на предизвикателствата</button>
-          <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросници</button>
+          <button onClick={() => handleNavigation('/health-check')} style={styles.navLink}>Въпросник</button>
           <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>Лични цели</button>
         </nav>
       )}
@@ -261,7 +261,7 @@ export default function YourGoals() {
       <div style={styles.desktopNav}>
         <button onClick={() => handleNavigation('/dashboard')} style={styles.navLinkDesktop}>Начална страница</button>
         <button onClick={() => handleNavigation('/challenges')} style={styles.navLinkDesktop}>Колело на предизвикателствата</button>
-        <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросници</button>
+        <button onClick={() => handleNavigation('/health-check')} style={styles.navLinkDesktop}>Въпросник</button>
         <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>Лични цели</button>
       </div>
 
