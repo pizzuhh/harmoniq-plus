@@ -11,7 +11,8 @@ import YourGoals from './pages/YourGoals'
 // import DailyQuestionnaire from './pages/DailyQuestionnaire'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-
+import AdminPanel from './pages/AdminPanel'
+import AdminRoute from './routes/AdminRoute'
 function App() {
   const [user, setUser] = useState<User | null>(null)
   const [restoring, setRestoring] = useState(true)
@@ -46,6 +47,9 @@ function App() {
     tryRestore().finally(() => setRestoring(false))
   }, [])
 
+ 
+
+
   return (
     <BrowserRouter>
       <Routes>
@@ -69,8 +73,12 @@ function App() {
         <Route path="/register" element={<RegisterPage setUser={(u: User) => setUser(u)} />} />
         <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
          <Route path="/challenges" element={<Challenges />} />
-      </Routes>
-    </BrowserRouter>
+         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin"
+    element={ <AdminRoute> <AdminPanel /> </AdminRoute>}
+  />
+</Routes>
+</BrowserRouter>
   )
 }
 

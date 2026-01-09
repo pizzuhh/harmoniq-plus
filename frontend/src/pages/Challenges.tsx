@@ -504,7 +504,7 @@ export default function Challenges() {
     <div
     style={{
       ...styles.dot,
-      background: "linear-gradient(180deg, #efe6dd, #d9cbb7)",
+      
     }}
     />{" "}
     <span>Дигитален детокс</span>
@@ -513,7 +513,7 @@ export default function Challenges() {
     <div
     style={{
       ...styles.dot,
-      background: "linear-gradient(180deg, #dff7f0, #bfeee1)",
+      
     }}
     />{" "}
     <span>Социални</span>

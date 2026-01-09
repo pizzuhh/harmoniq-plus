@@ -4,6 +4,8 @@ import type { User, GeneratedChallenges, UserChallenge } from '../types'
 import api from '../services/api'
 import heroImg from '../assets/12291047_Happy crowd greeting little winner of racing.jpg'
 import React from 'react'
+import { useAuth } from "../pages/AuthContext";
+
 
 type LeaderboardEntry = {
   id: string
@@ -23,7 +25,9 @@ interface DashboardPageProps {
   setUser?: (user: User) => void
 }
 
-export default function DashboardPage({ user, setUser }: DashboardPageProps) {
+
+
+export default function DashboardPage({ user, setUser }: DashboardPageProps) { 
   const [challenges, setChallenges] = useState<GeneratedChallenges | null>(null)
   const [weeklyChallenge, setWeeklyChallenge] = useState<UserChallenge | null>(null)
   const [rawResponse, setRawResponse] = useState<any | null>(null)
@@ -38,12 +42,16 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
   const location = useLocation()
   const [showPopup, setShowPopup] = useState(false)
   const popupRef = useRef<HTMLDivElement | null>(null)
+   const { user: authUser } = useAuth(); // ✅ INSIDE COMPONENT
+
   useEffect(() => {
     const loadChallenges = async () => {
       if (!user) {
         setLoading(false)
         return
       }
+
+      
 
       try {
         const raw: any = await api.request('/challange/receive')
@@ -99,6 +107,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           setLoading(false)
           return
         }
+        
 
         // Map single daily quest (keep original behavior)
         const mapped: GeneratedChallenges = {
@@ -135,6 +144,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     loadChallenges()
   }, [user])
 
+  
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
@@ -254,6 +264,14 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>
              Лични цели
           </button>
+          {authUser?.role === "admin" && (
+  <button onClick={() => navigate("/admin")}>
+    🛠 Admin Panel
+  </button>
+)}
+
+  
+
         </nav>
       )}
 
@@ -271,7 +289,13 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
          <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>
             Лични цели
         </button>
-      </div>
+        {authUser?.role === "admin" && (
+  <button onClick={() => navigate("/admin")}>
+    🛠 Admin Panel
+  </button>
+)}
+        </div>
+        
 
       {showPopup && (
         <div ref={popupRef} tabIndex={-1} role="alert" aria-live="polite" style={{ position: 'fixed', top: 100, left: '50%', transform: 'translateX(-50%)', background: '#198754', color: 'white', padding: '16px 22px', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.28)', zIndex: 2147483647, border: '2px solid rgba(255,255,255,0.14)', maxWidth: 900, textAlign: 'center' }}>
