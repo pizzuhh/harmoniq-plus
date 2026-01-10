@@ -18,7 +18,10 @@ pub struct User {
     pub id: Uuid,
     pub name: String,
     pub mail: String,
+
+    #[sqlx(default)]
     pub password_hash: String,
+
     pub is_admin: bool,
     pub points: i32,
     pub longest_streak: i32,

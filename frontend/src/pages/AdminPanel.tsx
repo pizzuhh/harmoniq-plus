@@ -5,9 +5,9 @@ import { color } from "framer-motion";
 // ---------------- TYPES ----------------
 type AdminUser = {
   id?: string;
-  username: string;
-  email: string;
-  totalXp: number;
+  name: string;
+  mail: string;
+  xp: number;
   level: number;
   role?: "admin" | "user";
   banned?: boolean;
@@ -49,9 +49,9 @@ export default function AdminPanel() {
     setLoading(true);
     try {
       const [u, c, comp] = await Promise.all([
-        api.request("/api/admin/users"),
-        api.request("/api/admin/challenges"),
-        api.request("/api/admin/completions"),
+        api.request("/admin/api/users"),
+        api.request("/admin/api/challenges"),
+        api.request("/admin/api/completions"),
       ]);
       setUsers(u || []);
       setChallenges(c || []);
@@ -66,13 +66,13 @@ export default function AdminPanel() {
     totalUsers: users.length,
     totalChallenges: challenges.length,
     totalCompletions: completions.length,
-    totalXp: users.reduce((a, u) => a + (u.totalXp || 0), 0),
+    totalXp: users.reduce((a, u) => a + (u.xp || 0), 0),
   }), [users, challenges, completions]);
 
   // ---------------- FILTERS ----------------
   const filteredUsers = users.filter(u =>
-    u.username.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
+    u.name.toLowerCase().includes(search.toLowerCase()) ||
+    u.mail.toLowerCase().includes(search.toLowerCase())
   );
 
   const filteredChallenges = challenges.filter(c =>
@@ -83,7 +83,7 @@ export default function AdminPanel() {
   const saveUser = async () => {
     if (!editingUser) return;
     const method = editingUser.id ? "PUT" : "POST";
-    const url = editingUser.id ? `/api/admin/users/${editingUser.id}` : "/api/admin/users";
+    const url = editingUser.id ? `/admin/api/users/${editingUser.id}` : "/admin/api/users";
     await api.request(url, { method, body: editingUser });
     setEditingUser(null);
     fetchAll();
@@ -91,12 +91,12 @@ export default function AdminPanel() {
 
   const deleteUser = async (id?: string) => {
     if (!id || !confirm("Delete user?")) return;
-    await api.request(`/api/admin/users/${id}`, { method: "DELETE" });
+    await api.request(`/admin/api/users/${id}`, { method: "DELETE" });
     fetchAll();
   };
 
   const toggleBan = async (user: AdminUser) => {
-    await api.request(`/api/admin/users/${user.id}/ban`, { method: "POST" });
+    await api.request(`/admin/api/users/${user.id}/ban`, { method: "POST" });
     fetchAll();
   };
 
@@ -104,7 +104,7 @@ export default function AdminPanel() {
   const saveChallenge = async () => {
     if (!editingChallenge) return;
     const method = editingChallenge.id ? "PUT" : "POST";
-    const url = editingChallenge.id ? `/api/admin/challenges/${editingChallenge.id}` : "/api/admin/challenges";
+    const url = editingChallenge.id ? `/admin/api/challenges/${editingChallenge.id}` : "/admin/api/challenges";
     await api.request(url, { method, body: editingChallenge });
     setEditingChallenge(null);
     fetchAll();
@@ -112,12 +112,12 @@ export default function AdminPanel() {
 
   const deleteChallenge = async (id?: string) => {
     if (!id || !confirm("Delete challenge?")) return;
-    await api.request(`/api/admin/challenges/${id}`, { method: "DELETE" });
+    await api.request(`/admin/api/challenges/${id}`, { method: "DELETE" });
     fetchAll();
   };
 
   const assignChallenge = async (userId: string, challengeId: string) => {
-    await api.request("/api/admin/assign", { method: "POST", body: { userId, challengeId } });
+    await api.request("/admin/api/assign", { method: "POST", body: { userId, challengeId } });
     alert("Challenge assigned");
   };
 

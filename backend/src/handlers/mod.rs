@@ -1,13 +1,13 @@
-use std::{ops::Deref, str::FromStr};
+use std::str::FromStr;
 
 use axum::{Json, extract::{Path, Request, State}, http::{HeaderMap, StatusCode}, middleware::Next, response::Response};
-use chrono::{Datelike, Days, Duration, Utc};
-use rand::{Rng, rand_core::le};
+use chrono::{Datelike, Days, Utc};
+use rand::Rng;
 use regex::Regex;
 use serde::Serialize;
 use serde_json::json;
 use sha2::Digest;
-use sqlx::{query_as, query_scalar};
+use sqlx::{prelude::FromRow, query_as, query_scalar};
 use uuid::Uuid;
 
 use crate::data::{self, AppState, DiaryData, DiaryInput, PersonalChallange, PersonalChallangeInput, Quest, User};
@@ -73,7 +73,7 @@ pub async fn send_challange(headers: HeaderMap, State(state): State<data::AppSta
 // Verefies email in 2 steps.
 // 1. Use regex to check if the syntax is valid
 // 2. Use DNS query to check if the domain has MX records
-async fn verify_email(email: &String) -> bool {
+async fn verify_email(email: &str) -> bool {
     let re = Regex::new(r"^([A-Za-z0-9._/%-+]+)@([A-Za-z0-9_-]+)\.([A-Za-z0-9]{2,})$").unwrap();
 
     // Match regex
@@ -92,8 +92,6 @@ async fn verify_email(email: &String) -> bool {
         false
     }
 }
-
-
 
 pub async fn register(State(state): State<data::AppState>, Json(register): Json<data::RegisterUser>) -> (StatusCode, String) {
 
@@ -157,7 +155,7 @@ pub async fn login(State(state): State<data::AppState>, Json(register): Json<dat
     }
 }
 
-pub async fn get_pending_quest(headers: HeaderMap, State(state): State<data::AppState>) -> Result<Json<data::PendingRequest>, StatusCode> {
+pub async fn get_pending_quest(_headers: HeaderMap, State(state): State<data::AppState>) -> Result<Json<data::PendingRequest>, StatusCode> {
 
 
     let rq = sqlx::query_as!(data::PendingRequest, "SELECT proof_path, id FROM user_quest WHERE progress = 'pending';")
@@ -721,7 +719,6 @@ pub async fn diary_get(headers: HeaderMap, State(state): State<AppState>) -> Res
     }
 }
 
-
 pub async fn diary_delete(headers: HeaderMap, State(state): State<AppState>, Path(qid): Path<Uuid>) -> StatusCode {
     let user_id = match headers.get("user_id") {
         Some(u) => u,
@@ -742,4 +739,79 @@ pub async fn diary_delete(headers: HeaderMap, State(state): State<AppState>, Pat
         StatusCode::INTERNAL_SERVER_ERROR
     }
     
+}
+
+pub async fn admin_users(_headers: HeaderMap, State(state): State<AppState>) -> Result<Json<Vec<User>>, StatusCode> {
+    
+    let res = sqlx::query_as::<_, User>("SELECT id, name, mail, is_admin, points, longest_streak, current_streak, last_active, completed_weekly FROM users")
+        .fetch_all(&state.db_connection).await;
+
+    match res {
+        Ok(r) => {
+            Ok(Json(r))
+        }
+        Err(e) => {
+            println!("dbg: {:?}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
+}
+
+// Taken from the frontend..
+#[derive(Serialize)]
+pub struct AdminChallenge {
+    id: String,
+    title: String,
+    description: String,
+    xp: i32,
+    difficulty: String,
+    category: String
+}
+
+pub async fn admin_challanges(_headers: HeaderMap, State(state): State<AppState>) -> Result<Json<Vec<AdminChallenge>>, StatusCode> {
+    let challanges = sqlx::query_as!(Quest, "SELECT * FROM quests;")
+        .fetch_all(&state.db_connection).await;
+    match challanges {
+        Ok(c) => {
+            let mut ac = Vec::<AdminChallenge>::new();
+            for challange in c {
+                let tmp_ac = AdminChallenge {
+                    id: challange.id.to_string(),
+                    title: challange.name,
+                    description: challange.description,
+                    xp: challange.points_received,
+                    difficulty: if challange.points_received <= 10 {"easy".into()} else if challange.points_received <= 15 {"medium".into()} else {"hard".into()},
+                    category: if challange.points_received == 50 {"weekly".into()} else {"normal".into()}
+                };
+                ac.push(tmp_ac);
+            }
+            Ok(Json(ac))
+        }
+        Err(e) => {
+            eprintln!("{:?}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
+}
+
+#[derive(Serialize, FromRow)]
+pub struct Completion {
+  id: Option<String>,
+  username: Option<String>,
+  challenge_title: Option<String>,
+  completed_at: Option<String>
+}
+
+pub async fn admin_completions(_headers: HeaderMap, State(state): State<AppState>) -> Result<Json<Vec<Completion>>, StatusCode> {
+    let completion_query = sqlx::query_as!(Completion, "SELECT uq.id::text AS id, u.name AS username, q.name AS challenge_title, uq.completed_at::text AS completed_at FROM user_quest uq JOIN users u ON u.id = uq.user_id JOIN quests q ON q.id = uq.quest_id;")
+        .fetch_all(&state.db_connection).await;
+    match completion_query {
+        Ok(cq) => {
+            Ok(Json(cq))
+        }
+        Err(e) => {
+            eprintln!("{:?}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
 }
