@@ -7,9 +7,9 @@ type AdminUser = {
   id?: string;
   name: string;
   mail: string;
-  xp: number;
+  points: number;
   level: number;
-  role?: "admin" | "user";
+  is_admin: boolean;
   banned?: boolean;
 };
 
@@ -17,7 +17,7 @@ type AdminChallenge = {
   id?: string;
   title: string;
   description: string;
-  xpReward: number;
+  xp: number;
   difficulty: string;
   category: string;
 };
@@ -25,8 +25,8 @@ type AdminChallenge = {
 type Completion = {
   id: string;
   username: string;
-  challengeTitle: string;
-  completedAt: string;
+  challange_title: string;
+  completed_at: string;
 };
 
 export default function AdminPanel() {
@@ -151,10 +151,10 @@ export default function AdminPanel() {
           <section style={styles.section}>
             <h2>Users</h2>
             <input style={styles.search} placeholder="Search users" value={search} onChange={e=>setSearch(e.target.value)} />
-            <button onClick={()=>setEditingUser({ username:'', email:'', totalXp:0, level:1 })}>+ Add User</button>
+            <button onClick={()=>setEditingUser({ name:'', mail:'', points:0, level:1 })}>+ Add User</button>
             <table style={styles.table}><thead><tr><th>Name</th><th>Email</th><th>XP</th><th>Role</th><th>Actions</th></tr></thead><tbody>
               {filteredUsers.map(u=> (
-                <tr key={u.id}><td>{u.username}</td><td>{u.email}</td><td>{u.totalXp}</td><td>{u.role}</td>
+                <tr key={u.id}><td>{u.name}</td><td>{u.mail}</td><td>{u.points}</td><td>{u.is_admin ? "admin" : "user"}</td>
                   <td>
                     <button onClick={()=>setEditingUser(u)}>Edit</button>
                     <button onClick={()=>toggleBan(u)}>{u.banned ? 'Unban' : 'Ban'}</button>
@@ -169,10 +169,10 @@ export default function AdminPanel() {
           <section style={styles.section}>
             <h2>Challenges</h2>
             <input style={styles.search} placeholder="Search challenges" value={search} onChange={e=>setSearch(e.target.value)} />
-            <button onClick={()=>setEditingChallenge({ title:'', description:'', xpReward:0, difficulty:'easy', category:'mindfulness' })}>+ Add Challenge</button>
+            <button onClick={()=>setEditingChallenge({ title:'', description:'', xp:0, difficulty:'easy', category:'mindfulness' })}>+ Add Challenge</button>
             <table style={styles.table}><thead><tr><th>Title</th><th>XP</th><th>Actions</th></tr></thead><tbody>
               {filteredChallenges.map(c=> (
-                <tr key={c.id}><td>{c.title}</td><td>{c.xpReward}</td>
+                <tr key={c.id}><td>{c.title}</td><td>{c.xp}</td>
                   <td>
                     <button onClick={()=>setEditingChallenge(c)}>Edit</button>
                     <button onClick={()=>deleteChallenge(c.id)}>Delete</button>
@@ -187,7 +187,7 @@ export default function AdminPanel() {
             <h2>Completions</h2>
             <table style={styles.table}><thead><tr><th>User</th><th>Challenge</th><th>Date</th></tr></thead><tbody>
               {completions.map(c=> (
-                <tr key={c.id}><td>{c.username}</td><td>{c.challengeTitle}</td><td>{c.completedAt}</td></tr>
+                <tr key={c.id}><td>{c.username}</td><td>{c.challenge_title}</td><td>{c.completed_at}</td></tr>
               ))}
             </tbody></table>
           </section>
@@ -198,8 +198,8 @@ export default function AdminPanel() {
             <h3>Editor</h3>
             {editingUser && (
               <>
-                <input placeholder="Username" value={editingUser.username} onChange={e=>setEditingUser({ ...editingUser, username:e.target.value })} />
-                <input placeholder="Email" value={editingUser.email} onChange={e=>setEditingUser({ ...editingUser, email:e.target.value })} />
+                <input placeholder="Username" value={editingUser.name} onChange={e=>setEditingUser({ ...editingUser, name:e.target.value })} />
+                <input placeholder="Email" value={editingUser.mail} onChange={e=>setEditingUser({ ...editingUser, mail:e.target.value })} />
                 <select value={editingUser.role} onChange={e=>setEditingUser({ ...editingUser, role:e.target.value as any })}>
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
