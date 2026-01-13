@@ -1,4 +1,4 @@
-use std::{alloc::handle_alloc_error, env};
+use std::env;
 
 use axum::{Router, middleware, routing::{delete, get, options, post}};
 use dotenv::dotenv;
@@ -56,6 +56,9 @@ async fn main() {
     let admin = Router::new()
         .route("/api/get_pending", get(handlers::get_pending_quest))
         .route("/api/verify_quest/{qid}", post(handlers::verify_quest))
+        .route("/api/users", get(handlers::admin_users))
+        .route("/api/challenges", get(handlers::admin_challanges))
+        .route("/api/completions", get(handlers::admin_completions))
         .route_layer(middleware::from_fn_with_state(state.clone(), handlers::admin_check));
 
 

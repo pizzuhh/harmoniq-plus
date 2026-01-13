@@ -25,8 +25,9 @@ CREATE TABLE user_quest (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
     quest_id UUID NOT NULL,
     user_id UUID NOT NULL,
+    completed_at date DEFAULT NOW(),
+    proof_path TEXT,
     progress quest_state,
-    proof_path VARCHAR(255),
 
 
     FOREIGN KEY (user_id) REFERENCES users(id),
