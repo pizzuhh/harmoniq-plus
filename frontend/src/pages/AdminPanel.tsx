@@ -13,6 +13,8 @@ type AdminUser = {
   banned?: boolean;
 };
 
+
+
 type AdminChallenge = {
   id?: string;
   title: string;
