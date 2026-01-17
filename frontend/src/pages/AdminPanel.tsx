@@ -199,8 +199,6 @@ export default function AdminPanel() {
             <h3>Editor</h3>
             {editingUser && (
               <>
-                <input placeholder="Username" value={editingUser.name} onChange={e=>setEditingUser({ ...editingUser, name:e.target.value })} />
-                <input placeholder="Email" value={editingUser.mail} onChange={e=>setEditingUser({ ...editingUser, mail:e.target.value })} />
                 <select value={editingUser.role} onChange={e=>setEditingUser({ ...editingUser, role:e.target.value as any })}>
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
