@@ -86,7 +86,11 @@ export default function AdminPanel() {
     if (!editingUser) return;
     const method = editingUser.id ? "PUT" : "POST";
     const url = editingUser.id ? `/admin/api/users/${editingUser.id}` : "/admin/api/users";
-    await api.request(url, { method, body: editingUser });
+    await api.request(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editingUser),
+    });
     setEditingUser(null);
     fetchAll();
   };
@@ -104,10 +108,16 @@ export default function AdminPanel() {
 
   // ---------------- CRUD CHALLENGES ----------------
   const saveChallenge = async () => {
-    if (!editingChallenge) return;
+  if (!editingChallenge) return;
     const method = editingChallenge.id ? "PUT" : "POST";
-    const url = editingChallenge.id ? `/admin/api/challenges/${editingChallenge.id}` : "/admin/api/challenges";
-    await api.request(url, { method, body: editingChallenge });
+    const url = editingChallenge.id
+    ? `/admin/api/challenges/${editingChallenge.id}`
+    : "/admin/api/challenges";
+    await api.request(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editingChallenge),
+    });
     setEditingChallenge(null);
     fetchAll();
   };
@@ -116,11 +126,6 @@ export default function AdminPanel() {
     if (!id || !confirm("Delete challenge?")) return;
     await api.request(`/admin/api/challenges/${id}`, { method: "DELETE" });
     fetchAll();
-  };
-
-  const assignChallenge = async (userId: string, challengeId: string) => {
-    await api.request("/admin/api/assign", { method: "POST", body: { userId, challengeId } });
-    alert("Challenge assigned");
   };
 
   // ---------------- UI ----------------
