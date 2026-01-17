@@ -1,9 +1,11 @@
 import type { AuthResponse, User } from '../types'
 
+
+
 // Base URL can be set with VITE_API_URL, otherwise requests go to the same origin.
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:7564'
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+/*async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('authToken')
 
   // Don't override Content-Type when body is FormData
@@ -65,6 +67,47 @@ export async function login(email: string, password: string): Promise<AuthRespon
   }
 
   return { token: id, user }
+}
+*/
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = localStorage.getItem('authToken')
+
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string> | undefined),
+  }
+
+  // Backend expects a header named `user_id`
+  if (token) headers['user_id'] = token
+
+  let body = options.body
+
+  // ✅ AUTO-JSON stringify for plain objects
+  if (body && typeof body === 'object' && !(body instanceof FormData)) {
+    body = JSON.stringify(body)
+    headers['Content-Type'] ??= 'application/json'
+  }
+
+  const url = `${API_BASE}${path}`
+  const res = await fetch(url, {
+    ...options,
+    headers,
+    body,
+  })
+
+  if (!res.ok) {
+    try {
+      const body = await res.json()
+      throw new Error(body?.message || res.statusText)
+    } catch {
+      const text = await res.text()
+      throw new Error(text || res.statusText)
+    }
+  }
+
+  const ct = res.headers.get('content-type') || ''
+  if (ct.includes('application/json')) return res.json()
+  // @ts-ignore
+  return res.text()
 }
 
 export async function register(username: string, email: string, password: string): Promise<AuthResponse> {

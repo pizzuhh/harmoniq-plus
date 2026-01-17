@@ -153,7 +153,6 @@ export default function AdminPanel() {
           <section style={styles.section}>
             <h2>Users</h2>
             <input style={styles.search} placeholder="Search users" value={search} onChange={e=>setSearch(e.target.value)} />
-            <button onClick={()=>setEditingUser({ name:'', mail:'', points:0, level:1 })}>+ Add User</button>
             <table style={styles.table}><thead><tr><th>Name</th><th>Email</th><th>XP</th><th>Role</th><th>Actions</th></tr></thead><tbody>
               {filteredUsers.map(u=> (
                 <tr key={u.id}><td>{u.name}</td><td>{u.mail}</td><td>{u.points}</td><td>{u.is_admin ? "admin" : "user"}</td>
