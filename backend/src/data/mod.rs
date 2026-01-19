@@ -28,6 +28,7 @@ pub struct User {
     pub current_streak: i32,
     pub last_active: chrono::NaiveDate,
     pub completed_weekly: Option<chrono::NaiveDate>,
+    pub banned: Option<bool>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, sqlx::Type, Debug)]

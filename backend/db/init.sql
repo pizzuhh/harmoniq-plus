@@ -10,7 +10,8 @@ CREATE TABLE users (
     last_active date DEFAULT NOW() NOT NULL,
     longest_streak integer DEFAULT 0 NOT NULL,
     current_streak integer DEFAULT 0 NOT NULL,
-    completed_weekly date DEFAULT NULL
+    completed_weekly date DEFAULT NULL,
+    banned boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE quests (
@@ -56,7 +57,7 @@ CREATE TABLE diary (
 );
 
 
-INSERT INTO users (id, name, mail, password_hash, is_admin, points) VALUES(gen_random_uuid(), 'admin', 'admin@example.com', '0', true, 10);
+INSERT INTO users (id, name, mail, password_hash, is_admin, points) VALUES(gen_random_uuid(), 'admin', 'admin@example.com', '2a1fdae2b62853fc2e2764085ce4ba5234d4288f5a4451d731ec14b9bc630d4c', true, 10);
 
 INSERT INTO quests (name, description, required_points, points_received) VALUES
 ('Заземяване „Ресет“', '3-минутно заземяване: бавно дишане + назови 5 неща, които виждаш около себе си. Минимално усилие, подходящо при ниска енергия.', 9, 9);

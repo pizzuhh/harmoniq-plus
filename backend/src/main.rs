@@ -1,6 +1,6 @@
 use std::env;
 
-use axum::{Router, middleware, routing::{delete, get, options, post}};
+use axum::{Router, middleware, routing::{delete, get, options, post, put}};
 use dotenv::dotenv;
 use axum::http::{Request, HeaderValue, Method, StatusCode, HeaderMap};
 use axum::response::{Response, IntoResponse};
@@ -59,6 +59,9 @@ async fn main() {
         .route("/api/users", get(handlers::admin_users))
         .route("/api/challenges", get(handlers::admin_challanges))
         .route("/api/completions", get(handlers::admin_completions))
+        .route("/api/users/{id}/ban", post(handlers::admin_ban_user))
+        .route("/api/users/{id}", delete(handlers::admin_delete_user))
+        .route("/api/users/{id}", put(handlers::admin_edit_user))
         .route_layer(middleware::from_fn_with_state(state.clone(), handlers::admin_check));
 
 

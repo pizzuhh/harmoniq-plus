@@ -5,7 +5,7 @@ use chrono::{Datelike, Days, Utc};
 use rand::Rng;
 use regex::Regex;
 use serde::Serialize;
-use serde_json::json;
+use serde_json::{Value, json};
 use sha2::Digest;
 use sqlx::{prelude::FromRow, query_as, query_scalar};
 use uuid::Uuid;
@@ -141,6 +141,9 @@ pub async fn login(State(state): State<data::AppState>, Json(register): Json<dat
     match user {
         Ok(u) => {
             if u.password_hash == hash_str {
+                if u.banned == Some(true) {
+                    return (StatusCode::UNAUTHORIZED, "Достъпа до сайта е забранен >:(".to_string())
+                }
                 (StatusCode::OK, u.id.to_string())
             } else {
                 (StatusCode::UNAUTHORIZED, "".to_string())
@@ -743,7 +746,7 @@ pub async fn diary_delete(headers: HeaderMap, State(state): State<AppState>, Pat
 
 pub async fn admin_users(_headers: HeaderMap, State(state): State<AppState>) -> Result<Json<Vec<User>>, StatusCode> {
     
-    let res = sqlx::query_as::<_, User>("SELECT id, name, mail, is_admin, points, longest_streak, current_streak, last_active, completed_weekly FROM users")
+    let res = sqlx::query_as::<_, User>("SELECT id, name, mail, is_admin, points, longest_streak, current_streak, last_active, completed_weekly, banned FROM users")
         .fetch_all(&state.db_connection).await;
 
     match res {
@@ -812,6 +815,43 @@ pub async fn admin_completions(_headers: HeaderMap, State(state): State<AppState
         Err(e) => {
             eprintln!("{:?}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
+}
+
+
+
+pub async fn admin_ban_user(Path(id): Path<Uuid>, State(state): State<AppState>) -> StatusCode {
+    let res = sqlx::query!("UPDATE users SET banned = NOT banned WHERE id = $1;", id)
+        .execute(&state.db_connection).await;
+    match res {
+        Ok(_) => StatusCode::OK,
+        Err(e) => {
+            eprintln!("ban: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
+}
+pub async fn admin_delete_user(Path(id): Path<Uuid>, State(state): State<AppState>) -> StatusCode {
+    let res = sqlx::query!("DELETE FROM users WHERE id = $1;", id)
+        .execute(&state.db_connection).await;
+    match res {
+        Ok(_) => StatusCode::OK,
+        Err(e) => {
+            eprintln!("ban: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
+}
+pub async fn admin_edit_user(Path(id): Path<Uuid>, State(state): State<AppState>, Json(bodu): Json<Value>) -> StatusCode {
+    // Set only the uhh tvato admin deto e
+    let res = sqlx::query!("UPDATE users SET is_admin = $2 WHERE id = $1;", id, if bodu["role"] == "admin" {true} else {false})
+        .execute(&state.db_connection).await;
+    match res {
+        Ok(_) => StatusCode::OK,
+        Err(e) => {
+            eprintln!("ban: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
         }
     }
 }
