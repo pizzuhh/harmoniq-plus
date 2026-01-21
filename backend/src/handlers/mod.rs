@@ -855,3 +855,47 @@ pub async fn admin_edit_user(Path(id): Path<Uuid>, State(state): State<AppState>
         }
     }
 }
+
+pub async fn admin_add_challange(State(state): State<AppState>, Json(body): Json<Value>) -> StatusCode {
+    let title = body["title"].as_str();
+    let description = body["description"].as_str();
+    let xp = (body["xpReward"].as_i64().unwrap()) as i32;
+
+    let res = sqlx::query!("INSERT INTO quests (name, description, points_received, required_points) VALUES ($1, $2, $3, $3);", title, description, xp)
+        .execute(&state.db_connection).await;
+    match res {
+        Ok(_) => StatusCode::OK,
+        Err(e) => {
+            eprintln!("ban: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
+}
+
+pub async fn admin_edit_challange(Path(id): Path<Uuid>, State(state): State<AppState>, Json(body): Json<Value>) -> StatusCode {
+    let title = body["title"].as_str();
+    let description = body["description"].as_str();
+    let xp = (body["xpReward"].as_i64().unwrap()) as i32;
+
+    let res = sqlx::query!("UPDATE quests SET name = $1, description = $2, points_received = $3, required_points = $3 WHERE id = $4;", title, description, xp, id)
+        .execute(&state.db_connection).await;
+    match res {
+        Ok(_) => StatusCode::OK,
+        Err(e) => {
+            eprintln!("ban: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
+}
+
+pub async fn admin_delete_challange(Path(id): Path<Uuid>, State(state): State<AppState>) -> StatusCode {
+    let res = sqlx::query!("DELETE FROM quests WHERE id = $1;", id)
+        .execute(&state.db_connection).await;
+    match res {
+        Ok(_) => StatusCode::OK,
+        Err(e) => {
+            eprintln!("ban: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
+}

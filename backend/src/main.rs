@@ -62,6 +62,9 @@ async fn main() {
         .route("/api/users/{id}/ban", post(handlers::admin_ban_user))
         .route("/api/users/{id}", delete(handlers::admin_delete_user))
         .route("/api/users/{id}", put(handlers::admin_edit_user))
+        .route("/api/challenges", post(handlers::admin_add_challange))
+        .route("/api/challenges/{id}", put(handlers::admin_edit_challange))
+        .route("/api/challenges/{id}", delete(handlers::admin_delete_challange))
         .route_layer(middleware::from_fn_with_state(state.clone(), handlers::admin_check));
 
 
