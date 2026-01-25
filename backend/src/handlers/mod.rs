@@ -801,12 +801,12 @@ pub async fn admin_challanges(_headers: HeaderMap, State(state): State<AppState>
 pub struct Completion {
   id: Option<String>,
   username: Option<String>,
-  challenge_title: Option<String>,
+  challange_title: Option<String>,
   completed_at: Option<String>
 }
 
 pub async fn admin_completions(_headers: HeaderMap, State(state): State<AppState>) -> Result<Json<Vec<Completion>>, StatusCode> {
-    let completion_query = sqlx::query_as!(Completion, "SELECT uq.id::text AS id, u.name AS username, q.name AS challenge_title, uq.completed_at::text AS completed_at FROM user_quest uq JOIN users u ON u.id = uq.user_id JOIN quests q ON q.id = uq.quest_id;")
+    let completion_query = sqlx::query_as!(Completion, "SELECT uq.id::text AS id, u.name AS username, q.name AS challange_title, uq.completed_at::text AS completed_at FROM user_quest uq JOIN users u ON u.id = uq.user_id JOIN quests q ON q.id = uq.quest_id;")
         .fetch_all(&state.db_connection).await;
     match completion_query {
         Ok(cq) => {
@@ -843,8 +843,13 @@ pub async fn admin_delete_user(Path(id): Path<Uuid>, State(state): State<AppStat
         }
     }
 }
-pub async fn admin_edit_user(Path(id): Path<Uuid>, State(state): State<AppState>, Json(bodu): Json<Value>) -> StatusCode {
+pub async fn admin_edit_user(headers: HeaderMap, Path(id): Path<Uuid>, State(state): State<AppState>, Json(bodu): Json<Value>) -> StatusCode {
     // Set only the uhh tvato admin deto e
+    
+    if let Some(pid) = headers.get("user_id") && let Ok(pid) = Uuid::from_str(pid.to_str().unwrap()) && pid == id {
+        return StatusCode::CONFLICT;
+    }
+
     let res = sqlx::query!("UPDATE users SET is_admin = $2 WHERE id = $1;", id, if bodu["role"] == "admin" {true} else {false})
         .execute(&state.db_connection).await;
     match res {
