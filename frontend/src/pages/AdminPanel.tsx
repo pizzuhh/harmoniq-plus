@@ -47,6 +47,10 @@ export default function AdminPanel() {
     fetchAll();
   }, []);
 
+  useEffect(() => {
+    console.log("Completions state updated:", completions);
+  }, [completions]);
+
   const fetchAll = async () => {
     setLoading(true);
     try {
@@ -55,9 +59,20 @@ export default function AdminPanel() {
         api.request("/admin/api/challenges"),
         api.request("/admin/api/completions"),
       ]);
-      setUsers(u || []);
-      setChallenges(c || []);
-      setCompletions(comp || []);
+      console.log("Users from API:", u);
+      console.log("Challenges from API:", c);
+      console.log("Completions from API:", comp);
+      console.log("Completions is array:", Array.isArray(comp));
+      
+      // Handle different response formats
+      let completionArray = Array.isArray(comp) ? comp : (comp?.data || comp?.completions || []);
+      console.log("Processed completions:", completionArray);
+      
+      setUsers(Array.isArray(u) ? u : (u?.data || u?.users || []));
+      setChallenges(Array.isArray(c) ? c : (c?.data || c?.challenges || []));
+      setCompletions(Array.isArray(completionArray) ? completionArray : []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }

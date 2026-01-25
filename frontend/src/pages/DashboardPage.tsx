@@ -266,7 +266,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           </button>
           {authUser?.is_admin && (
   <button onClick={() => navigate("/admin")} style={styles.navLink}>
-    🛠 Администраторски панел
+     Администраторски панел
   </button>
 )}
 
@@ -291,7 +291,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
         </button>
         {authUser?.is_admin && (
   <button onClick={() => navigate("/admin")} style={styles.navLinkDesktop}>
-    🛠 Администраторски панел
+     Администраторски панел
   </button>
 )}
         </div>
@@ -306,17 +306,6 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
       )} 
 
       <main style={styles.main}>
-        <section style={{ ...styles.section, marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: 260 }}>
-              <p>Здравейте! Ние сме Хармония+. Нашата мисия е да се превърнем в едно продуктивно, щастливо, екологично и хармонично общество! Живеем в забързан и натоварен свят, в които сме подложени на мръсен въздух, стрес и лошо качество на живот. Доста хора искат да „избягат“ от стреса и емоционалното си състояние и намират утеха в безкрайното скролване. Доста често не обръщаме внимание на себе си и на менталното ни състояние – не си даваме почивка, не излизаме сред природата без да сме с телефон в ръка, дори се храним с телефон в ръка, вместо да общуваме едни с други. Нашата цел е да решим тези проблеми и да създадем един по-екологичен свят и по-щастливи хора.</p>
-              <p><strong>Как се използва нашият сайт?</strong> Попълнете <a href="/health-check">въпросника</a> и спрямо него ще получите предизвикателство, което се намира под статуса Ви. Покачвате нива когато изпълнявате предизвикателствата и с времето те стават по-сложни. Пожелаваме Ви приятно прекарване в сайта ни!</p>
-            </div>
-            <div style={{ width: 320, textAlign: 'right' }}>
-              <img src={heroImg} alt="Happy crowd greeting little winner" style={{ width: '100%', height: 'auto', borderRadius: 8, objectFit: 'cover' }} />
-            </div>
-          </div>
-        </section>
 
         {/* Streak Section */}
         {!loadingStreak && (
@@ -548,7 +537,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                   <span>⏱️ {weeklyChallenge.challenge.duration} </span>
                   <span>⭐ +{weeklyChallenge.challenge.xpReward} XP</span>
                 </div>
-                <p style={styles.status}>: {weeklyChallenge.status}</p>
+                <p style={styles.status}>Статус: {weeklyChallenge.status}</p>
                 <div style={{ marginTop: 10, gap: 8 }}>
                   <button
                     style={styles.completeBtn}
