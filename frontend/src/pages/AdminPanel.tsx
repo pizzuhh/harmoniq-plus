@@ -133,93 +133,119 @@ export default function AdminPanel() {
     <div style={styles.container}>
       <header style={styles.header}><h1>Администрация</h1></header>
 
-      <div style={styles.nav}>
-        {['overview','users','challenges','completions'].map(t => (
-          <button key={t} style={styles.navBtn} onClick={() => setTab(t as any)}>{t}</button>
-        ))}
-      </div>
+      <nav style={styles.nav}>
+        {['overview','users','challenges','completions'].map(t => {
+          const labels: Record<string, string> = { overview: 'Преглед', users: 'Потребители', challenges: 'Предизвикателства', completions: 'Завършени' };
+          return <button key={t} style={{...styles.navBtn, ...(tab === t ? styles.navBtnActive : {})}} onClick={() => setTab(t as any)}>{labels[t]}</button>;
+        })}
+      </nav>
 
       <main style={styles.main}>
-        {loading && <p>Loading...</p>}
+        {loading && <div style={styles.loading}>Зареждане...</div>}
 
         {tab === "overview" && (
           <section style={styles.section}>
-            <h2>Статистика</h2>
+            <h2 style={styles.sectionTitle}>Статистика на системата</h2>
             <div style={styles.statsGrid}>
-              <div style={styles.statBox}>Потребители<br/><strong>{stats.totalUsers}</strong></div>
-              <div style={styles.statBox}>Предизвикателства<br/><strong>{stats.totalChallenges}</strong></div>
-              <div style={styles.statBox}>Завършени<br/><strong>{stats.totalCompletions}</strong></div>
-              <div style={styles.statBox}>Общо XP<br/><strong>{stats.totalXp}</strong></div>
+              <div style={styles.statBox}><div style={styles.statLabel}>Потребители</div><div style={styles.statValue}>{stats.totalUsers}</div></div>
+              <div style={styles.statBox}><div style={styles.statLabel}>Предизвикателства</div><div style={styles.statValue}>{stats.totalChallenges}</div></div>
+              <div style={styles.statBox}><div style={styles.statLabel}>Завършени</div><div style={styles.statValue}>{stats.totalCompletions}</div></div>
+              <div style={styles.statBox}><div style={styles.statLabel}>Общо XP</div><div style={styles.statValue}>{stats.totalXp}</div></div>
             </div>
           </section>
         )}
 
         {tab === "users" && (
           <section style={styles.section}>
-            <h2>Потребители</h2>
-            <input style={styles.search} placeholder="Търсене на потребители" value={search} onChange={e=>setSearch(e.target.value)} />
-            <table style={styles.table}><thead><tr><th>Име</th><th>Имейл</th><th>XP</th><th>Роля</th><th>Действия</th></tr></thead><tbody>
-              {filteredUsers.map(u=> (
-                <tr key={u.id}><td>{u.name}</td><td>{u.mail}</td><td>{u.points}</td><td>{u.is_admin ? "admin" : "user"}</td>
-                  <td>
-                    <button onClick={()=>setEditingUser(u)}>Променяне</button>
-                    <button onClick={()=>toggleBan(u)}>{u.banned ? 'Unban' : 'Ban'}</button>
-                    <button onClick={()=>deleteUser(u.id)}>Изтрий</button>
-                  </td></tr>
-              ))}
-            </tbody></table>
+            <h2 style={styles.sectionTitle}>Управление на потребители</h2>
+            <input style={styles.search} placeholder="Търсете по име или имейл..." value={search} onChange={e=>setSearch(e.target.value)} />
+            <div style={styles.tableWrapper}>
+              <table style={styles.table}><thead><tr style={styles.tableHeader}><th style={styles.tableCell}>Име</th><th style={styles.tableCell}>Имейл</th><th style={styles.tableCell}>XP</th><th style={styles.tableCell}>Роля</th><th style={styles.tableCell}>Действия</th></tr></thead><tbody>
+                {filteredUsers.map(u=> (
+                  <tr key={u.id} style={styles.tableRow}><td style={styles.tableCell}>{u.name}</td><td style={styles.tableCell}>{u.mail}</td><td style={styles.tableCell}><strong>{u.points}</strong></td><td style={styles.tableCell}>{u.is_admin ? 'Администратор' : 'Потребител'}</td>
+                    <td style={styles.tableCell}>
+                      <button onClick={()=>setEditingUser(u)} style={styles.actionBtn}>Промени</button>
+                      <button onClick={()=>toggleBan(u)} style={{...styles.actionBtn, background: u.banned ? '#ff6b6b' : '#ffa500'}}>{u.banned ? 'Разблокирай' : 'Блокирай'}</button>
+                      <button onClick={()=>deleteUser(u.id)} style={{...styles.actionBtn, background: '#dc3545'}}>Изтрий</button>
+                    </td></tr>
+                ))}
+              </tbody></table>
+            </div>
           </section>
         )}
 
         {tab === "challenges" && (
           <section style={styles.section}>
-            <h2>Предизвикателства</h2>
-            <input style={styles.search} placeholder="Search challenges" value={search} onChange={e=>setSearch(e.target.value)} />
-            <button onClick={()=>setEditingChallenge({ title:'', description:'', xp:0, difficulty:'easy', category:'mindfulness' })}>+ Добави предизвикателство</button>
-            <table style={styles.table}><thead><tr><th>Заглавие</th><th>XP</th><th>Действия</th></tr></thead><tbody>
-              {filteredChallenges.map(c=> (
-                <tr key={c.id}><td>{c.title}</td><td>{c.xp}</td>
-                  <td>
-                    <button onClick={()=>setEditingChallenge(c)}>Промени</button>
-                    <button onClick={()=>deleteChallenge(c.id)}>Изтрий</button>
-                  </td></tr>
-              ))}
-            </tbody></table>
+            <h2 style={styles.sectionTitle}>Управление на предизвикателства</h2>
+            <div style={{display: 'flex', gap: 10, marginBottom: 15}}>
+              <input style={{...styles.search, marginBottom: 0, flex: 1}} placeholder="Търсете предизвикателства..." value={search} onChange={e=>setSearch(e.target.value)} />
+              <button onClick={()=>setEditingChallenge({ title:'', description:'', xp:0, difficulty:'easy', category:'mindfulness' })} style={styles.addBtn}>Добави</button>
+            </div>
+            <div style={styles.tableWrapper}>
+              <table style={styles.table}><thead><tr style={styles.tableHeader}><th style={styles.tableCell}>Заглавие</th><th style={styles.tableCell}>XP</th><th style={styles.tableCell}>Действия</th></tr></thead><tbody>
+                {filteredChallenges.map(c=> (
+                  <tr key={c.id} style={styles.tableRow}><td style={styles.tableCell}><strong>{c.title}</strong></td><td style={styles.tableCell}>{c.xp}</td>
+                    <td style={styles.tableCell}>
+                      <button onClick={()=>setEditingChallenge(c)} style={styles.actionBtn}>Промени</button>
+                      <button onClick={()=>deleteChallenge(c.id)} style={{...styles.actionBtn, background: '#dc3545'}}>Изтрий</button>
+                    </td></tr>
+                ))}
+              </tbody></table>
+            </div>
           </section>
         )}
 
         {tab === "completions" && (
           <section style={styles.section}>
-            <h2>Завършени Предизвикателства</h2>
-            <table style={styles.table}><thead><tr><th>Потребител</th><th>Предизвикателство</th><th>Дата</th></tr></thead><tbody>
-              {completions.map(c=> (
-                <tr key={c.id}><td>{c.username}</td><td>{c.challenge_title}</td><td>{c.completed_at}</td></tr>
-              ))}
-            </tbody></table>
+            <h2 style={styles.sectionTitle}>Завършени предизвикателства</h2>
+            <div style={styles.tableWrapper}>
+              <table style={styles.table}><thead><tr style={styles.tableHeader}><th style={styles.tableCell}>Потребител</th><th style={styles.tableCell}>Предизвикателство</th><th style={styles.tableCell}>Дата</th></tr></thead><tbody>
+                {completions.map(c=> (
+                  <tr key={c.id} style={styles.tableRow}><td style={styles.tableCell}><strong>{c.username}</strong></td><td style={styles.tableCell}>{c.challange_title}</td><td style={styles.tableCell}>{new Date(c.completed_at).toLocaleDateString('bg-BG')}</td></tr>
+                ))}
+              </tbody></table>
+            </div>
           </section>
         )}
 
         {(editingUser || editingChallenge) && (
           <section style={styles.section}>
-            <h3>Редактор</h3>
+            <h3 style={styles.sectionTitle}>Редактор</h3>
             {editingUser && (
-              <>
-                <select value={editingUser.role} onChange={e=>setEditingUser({ ...editingUser, role:e.target.value as any })}>
-                  <option value="user">Потребител</option>
-                  <option value="admin">Администратор</option>
-                </select>
-                <button onClick={saveUser}>Запази</button>
-              </>
+              <div style={styles.editorForm}>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Роля на потребител:</label>
+                  <select value={editingUser.is_admin ? 'admin' : 'user'} onChange={e=>setEditingUser({ ...editingUser, is_admin: e.target.value === 'admin' })} style={styles.select}>
+                    <option value="user">Потребител</option>
+                    <option value="admin">Администратор</option>
+                  </select>
+                </div>
+                <div style={styles.buttonGroup}>
+                  <button onClick={saveUser} style={styles.saveBtn}>Запази</button>
+                  <button onClick={()=>setEditingUser(null)} style={styles.cancelBtn}>Отказ</button>
+                </div>
+              </div>
             )}
             {editingChallenge && (
-              <>
-                <input placeholder="Title" value={editingChallenge.title} onChange={e=>setEditingChallenge({ ...editingChallenge, title:e.target.value })} />
-                <textarea placeholder="Description" value={editingChallenge.description} onChange={e=>setEditingChallenge({ ...editingChallenge, description:e.target.value })} />
-                <input type="number" value={editingChallenge.xpReward} onChange={e=>setEditingChallenge({ ...editingChallenge, xpReward:Number(e.target.value) })} />
-                <button onClick={saveChallenge}>Запази</button>
-              </>
+              <div style={styles.editorForm}>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Заглавие:</label>
+                  <input placeholder="Име на предизвикателство..." value={editingChallenge.title} onChange={e=>setEditingChallenge({ ...editingChallenge, title:e.target.value })} style={styles.input} />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Описание:</label>
+                  <textarea placeholder="Описание..." value={editingChallenge.description} onChange={e=>setEditingChallenge({ ...editingChallenge, description:e.target.value })} style={styles.textarea} />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>XP награда:</label>
+                  <input type="number" value={editingChallenge.xp} onChange={e=>setEditingChallenge({ ...editingChallenge, xp:Number(e.target.value) })} style={styles.input} />
+                </div>
+                <div style={styles.buttonGroup}>
+                  <button onClick={saveChallenge} style={styles.saveBtn}>Запази</button>
+                  <button onClick={()=>setEditingChallenge(null)} style={styles.cancelBtn}>Отказ</button>
+                </div>
+              </div>
             )}
-            <button onClick={()=>{setEditingUser(null); setEditingChallenge(null);}}>Отказ</button>
           </section>
         )}
       </main>
@@ -228,14 +254,34 @@ export default function AdminPanel() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  container: { minHeight: '100vh', background: '#ffffffff' },
-  header: { background: '#32b879', color: 'white', padding: 20 },
-  nav: { background: '#20c96c', display: 'flex', gap: 10, padding: 10 },
-  navBtn: { background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', fontSize: 16 },
-  main: { padding: 20, color: '#333' },
-  section: { background: 'white', padding: 20, borderRadius: 10, boxShadow: '0 2px 5px rgba(0,0,0,0.1)', marginBottom: 20, color: '#333' },
-  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 20, color: '#333' },
-  statBox: { background: '#f9f9f9', padding: 20, borderRadius: 8, textAlign: 'center', color: '#333' },
-  search: { padding: 8, marginBottom: 10, width: '100%', color: '#000', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: 4 },
-  table: { width: '100%', borderCollapse: 'collapse' },
+  container: { minHeight: '100vh', background: '#f5f5f5' },
+  header: { background: '#32b879', color: 'white', padding: '20px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' },
+  nav: { background: '#20c96c', display: 'flex', gap: '12px', padding: '12px', flexWrap: 'wrap', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
+  navBtn: { background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: '600', padding: '8px 14px', borderRadius: '6px', transition: 'all 0.3s ease' },
+  navBtnActive: { background: 'rgba(255,255,255,0.3)', borderRadius: '6px' },
+  main: { padding: '24px', color: '#333', maxWidth: '1200px', margin: '0 auto' },
+  section: { background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px', color: '#333' },
+  sectionTitle: { fontSize: '20px', fontWeight: 'bold', color: '#333', marginTop: 0, marginBottom: '16px', paddingBottom: '12px', borderBottom: '2px solid #32b879' },
+  loading: { padding: '40px', textAlign: 'center', fontSize: '16px', color: '#666' },
+  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '16px', color: '#333' },
+  statBox: { background: 'linear-gradient(135deg, #f0f9f6, #e8f5e9)', padding: '24px', borderRadius: '10px', textAlign: 'center', color: '#333', border: '1px solid #d0f0e8', boxShadow: '0 2px 4px rgba(50,184,121,0.1)' },
+  statLabel: { fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '8px' },
+  statValue: { fontSize: '28px', fontWeight: 'bold', color: '#32b879' },
+  search: { padding: '10px 12px', marginBottom: '16px', width: '100%', color: '#000', backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px' },
+  tableWrapper: { overflowX: 'auto', borderRadius: '8px', border: '1px solid #e0e0e0' },
+  table: { width: '100%', borderCollapse: 'collapse', fontSize: '14px' },
+  tableHeader: { background: '#32b879', color: 'white' },
+  tableCell: { padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0' },
+  tableRow: { background: 'white', transition: 'background 0.2s ease' },
+  actionBtn: { padding: '6px 10px', margin: '2px', fontSize: '12px', border: 'none', borderRadius: '4px', cursor: 'pointer', background: '#32b879', color: 'white', fontWeight: '600', transition: 'all 0.2s ease' },
+  addBtn: { padding: '10px 14px', background: '#32b879', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap' },
+  editorForm: { display: 'flex', flexDirection: 'column', gap: '16px' },
+  formGroup: { display: 'flex', flexDirection: 'column', gap: '8px' },
+  label: { fontWeight: '600', fontSize: '14px', color: '#333' },
+  input: { padding: '10px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', fontFamily: 'inherit' },
+  textarea: { padding: '10px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', fontFamily: 'inherit', minHeight: '80px', resize: 'vertical' },
+  select: { padding: '10px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', fontFamily: 'inherit', background: 'white', color: '#000' },
+  buttonGroup: { display: 'flex', gap: '12px', justifyContent: 'flex-start' },
+  saveBtn: { padding: '10px 16px', background: '#32b879', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '14px' },
+  cancelBtn: { padding: '10px 16px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '14px' },
 };
