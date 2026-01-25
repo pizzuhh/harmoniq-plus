@@ -264,9 +264,9 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
           <button onClick={() => handleNavigation('/your-goals')} style={styles.navLink}>
              Лични цели
           </button>
-          {authUser?.role === "admin" && (
-  <button onClick={() => navigate("/admin")}>
-    🛠 Admin Panel
+          {authUser?.is_admin && (
+  <button onClick={() => navigate("/admin")} style={styles.navLink}>
+    🛠 Администраторски панел
   </button>
 )}
 
@@ -289,13 +289,12 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
          <button onClick={() => handleNavigation('/your-goals')} style={styles.navLinkDesktop}>
             Лични цели
         </button>
-        {authUser?.role === "admin" && (
-  <button onClick={() => navigate("/admin")}>
-    🛠 Admin Panel
+        {authUser?.is_admin && (
+  <button onClick={() => navigate("/admin")} style={styles.navLinkDesktop}>
+    🛠 Администраторски панел
   </button>
 )}
         </div>
-        
 
       {showPopup && (
         <div ref={popupRef} tabIndex={-1} role="alert" aria-live="polite" style={{ position: 'fixed', top: 100, left: '50%', transform: 'translateX(-50%)', background: '#198754', color: 'white', padding: '16px 22px', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.28)', zIndex: 2147483647, border: '2px solid rgba(255,255,255,0.14)', maxWidth: 900, textAlign: 'center' }}>

@@ -13,6 +13,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import AdminPanel from './pages/AdminPanel'
 import AdminRoute from './routes/AdminRoute'
+import WelcomePage from './pages/WelcomePage'
 function App() {
   const [user, setUser] = useState<User | null>(null)
   const [restoring, setRestoring] = useState(true)
@@ -54,6 +55,18 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route
+          path="/"
+          element={
+            restoring ? (
+              <div style={{ padding: 40, textAlign: 'center' }}>Restoring session...</div>
+            ) : user ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <WelcomePage />
+            )
+          }
+        />
+        <Route
           path="/dashboard"
           element={
             restoring ? (
@@ -61,24 +74,19 @@ function App() {
             ) : user ? (
               <DashboardPage user={user} setUser={(u: User) => setUser(u)} />
             ) : (
-              <Navigate to="/login" replace />
+              <Navigate to="/" replace />
             )
           }
         />
         <Route path="/health-check" element={<QuestionsHealth />} />
         <Route path="/your-goals" element={<YourGoals />} />
         {/* <Route path="/challenge" element={<DailyQuestionnaire />} /> */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/login" element={<LoginPage setUser={(u: User) => setUser(u)} />} />
         <Route path="/register" element={<RegisterPage setUser={(u: User) => setUser(u)} />} />
-        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
-         <Route path="/challenges" element={<Challenges />} />
-         <Route path="/admin" element={<AdminPanel />} />
-        <Route path="/admin"
-    element={ <AdminRoute> <AdminPanel /> </AdminRoute>}
-  />
-</Routes>
-</BrowserRouter>
+        <Route path="/challenges" element={<Challenges />} />
+        <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
