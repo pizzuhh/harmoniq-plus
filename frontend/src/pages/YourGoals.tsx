@@ -151,8 +151,6 @@ export default function YourGoals() {
   }
 
 
-
-  // Diary handlers
   const handleDiarySubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 

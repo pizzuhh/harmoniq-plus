@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// Temporarily remove framer-motion to avoid hook issues
-// We'll use plain SVG + CSS transform for rotation
 
 
 const API_BASE = "http://localhost:5174";

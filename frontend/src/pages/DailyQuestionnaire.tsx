@@ -9,7 +9,7 @@ type Answers = {
   headState: string;
   energy: string;
   screenTime: string;
-  phoneFeeling: string[]; // множествен избор
+  phoneFeeling: string[]; 
   phoneImpulse: string;
   lastNature: string;
   natureConnection: string;
@@ -55,9 +55,9 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
     const isFormComplete = React.useMemo(() => {
   return Object.values(answers).every((value) => {
     if (Array.isArray(value)) {
-      return value.length > 0; // за multi-select
+      return value.length > 0; 
     }
-    return value !== ""; // за string полета
+    return value !== ""; 
   });
 }, [answers]);
 
@@ -89,7 +89,6 @@ export default function DailyQuestionnaire({ onSubmit }: Props) {
     const challenges = generateDailyChallenges(answers);
     if (onSubmit) onSubmit({ answers, challenges });
     else console.log("challenges", challenges);
-    // Request popup: set session flag and navigate with state (fallbacks handled in Dashboard)
     try {
       console.debug('DailyQuestionnaire: submitting, answers=', answers)
       sessionStorage.setItem('showChallengePopup', '1')

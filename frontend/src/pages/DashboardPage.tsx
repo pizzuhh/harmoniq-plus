@@ -191,7 +191,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
     fetchStreak()
   }, [])
 
-  // Show popup only if navigated here from the questionnaire (state) or via session fallback
+  
   useEffect(() => {
     const fromState = (location.state as any)?.showChallengePopup
     const fromSession = typeof window !== 'undefined' && sessionStorage.getItem('showChallengePopup') === '1'

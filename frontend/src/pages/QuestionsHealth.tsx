@@ -65,13 +65,13 @@ export default function QuestionsHealth() {
             '/src/assets/18.png',
           ]
 
-                  // Initialize badges: one badge every 50 XP
-          const totalBadges = Math.ceil(currentXp / 50) + 3 // +3 for future badges to work towards
+                  
+          const totalBadges = Math.ceil(currentXp / 50) + 3 
           const badgeList: Badge[] = Array.from({ length: totalBadges }, (_, i) => ({
             id: i,
             name: `Badge ${i + 1}`,
             xpRequired: (i + 1) * 50,
-            imagePath: badgeImages[i % badgeImages.length], // cycle through all available badge images
+            imagePath: badgeImages[i % badgeImages.length], 
             unlocked: currentXp >= (i + 1) * 50,
           }))
 
@@ -339,7 +339,7 @@ export default function QuestionsHealth() {
   }
 ]
 
-  // Select a rotating set of questions each day (10 per day)
+  
   const QUESTIONS_PER_DAY = 10
   const getDailyQuestions = () => {
     const days = Math.floor(Date.now() / 86400000)
@@ -382,7 +382,7 @@ export default function QuestionsHealth() {
         if (idx >= 0) totalPoints += (idx + 1)
       }
 
-      // Screen time points
+    
       const screenTimePoints = getScreenTimePoints(screenTime)
       totalPoints += screenTimePoints
 
