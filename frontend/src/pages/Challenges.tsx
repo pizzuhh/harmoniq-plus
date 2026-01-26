@@ -496,28 +496,15 @@ export default function Challenges() {
     {isSpinning ? "Въртене..." : "Завърти колелото"}
     </button>
 
-    <div style={styles.legend}>
+   
     <div style={styles.legendItem}>
-    <div style={styles.dot} /> <span>Екологични</span>
+     <span>Екологични</span>
     </div>
     <div style={styles.legendItem}>
-    <div
-    style={{
-      ...styles.dot,
-      
-    }}
-    />{" "}
     <span>Дигитален детокс</span>
     </div>
     <div style={styles.legendItem}>
-    <div
-    style={{
-      ...styles.dot,
-      
-    }}
-    />{" "}
     <span>Социални</span>
-    </div>
     </div>
     </div>
     
