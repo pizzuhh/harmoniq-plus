@@ -843,14 +843,15 @@ pub async fn admin_delete_user(Path(id): Path<Uuid>, State(state): State<AppStat
         }
     }
 }
-pub async fn admin_edit_user(headers: HeaderMap, Path(id): Path<Uuid>, State(state): State<AppState>, Json(bodu): Json<Value>) -> StatusCode {
+pub async fn admin_edit_user(headers: HeaderMap, Path(id): Path<Uuid>, State(state): State<AppState>, Json(body): Json<Value>) -> StatusCode {
     // Set only the uhh tvato admin deto e
     
     if let Some(pid) = headers.get("user_id") && let Ok(pid) = Uuid::from_str(pid.to_str().unwrap()) && pid == id {
+        println!("{} {}", pid, id);
         return StatusCode::CONFLICT;
     }
 
-    let res = sqlx::query!("UPDATE users SET is_admin = $2 WHERE id = $1;", id, if bodu["role"] == "admin" {true} else {false})
+    let res = sqlx::query!("UPDATE users SET is_admin = $2 WHERE id = $1;", id, body["is_admin"].as_bool().unwrap())
         .execute(&state.db_connection).await;
     match res {
         Ok(_) => StatusCode::OK,
