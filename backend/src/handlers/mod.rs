@@ -881,7 +881,7 @@ pub async fn admin_add_challange(State(state): State<AppState>, Json(body): Json
 pub async fn admin_edit_challange(Path(id): Path<Uuid>, State(state): State<AppState>, Json(body): Json<Value>) -> StatusCode {
     let title = body["title"].as_str();
     let description = body["description"].as_str();
-    let xp = (body["xpReward"].as_i64().unwrap()) as i32;
+    let xp = (body["xp"].as_i64().unwrap()) as i32;
 
     let res = sqlx::query!("UPDATE quests SET name = $1, description = $2, points_received = $3, required_points = $3 WHERE id = $4;", title, description, xp, id)
         .execute(&state.db_connection).await;
