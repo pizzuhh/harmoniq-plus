@@ -6,6 +6,7 @@ export interface User {
   totalXp: number
   currentXp: number
   createdAt: string
+  is_admin?: boolean
 }
 
 export interface AuthResponse {

@@ -49,6 +49,7 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
               currentXp: (backendUser.points || 0) % 100,
               level: Math.floor((backendUser.points || 0) / 100) + 1,
               createdAt: backendUser.created_at || new Date().toISOString(),
+              is_admin: backendUser.is_admin || false,
             }
 
             realUser = mapped
