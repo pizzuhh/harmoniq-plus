@@ -31,8 +31,17 @@ CREATE TABLE user_quest (
     progress quest_state,
 
 
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (quest_id) REFERENCES quests(id)
+    CONSTRAINT user_quest_user_id_fkey
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE RESTRICT,
+    
+    CONSTRAINT user_quest_quest_id_fkey
+        FOREIGN KEY (quest_id)
+        REFERENCES quests(id)
+        ON DELETE CASCADE
+        ON UPDATE RESTRICT
 );
 
 CREATE TABLE personal_challanges (
@@ -43,7 +52,11 @@ CREATE TABLE personal_challanges (
     priority INT NOT NULL,
     category VARCHAR(40) NOT NULL,
 
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    CONSTRAINT user_quest_user_id_fkey
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE RESTRICT
 );
 
 CREATE TABLE diary (
@@ -53,7 +66,11 @@ CREATE TABLE diary (
     mood VARCHAR(10) NOT NULL,
     user_id UUID NOT NULL,
 
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    CONSTRAINT user_quest_user_id_fkey
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE RESTRICT
 );
 
 

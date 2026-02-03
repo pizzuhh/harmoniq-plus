@@ -838,7 +838,7 @@ pub async fn admin_delete_user(Path(id): Path<Uuid>, State(state): State<AppStat
     match res {
         Ok(_) => StatusCode::OK,
         Err(e) => {
-            eprintln!("ban: {:?}", e);
+            eprintln!("del: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
