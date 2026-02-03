@@ -22,12 +22,11 @@ type StreakData = {
 
 interface DashboardPageProps {
   user: User | null
-  setUser?: (user: User) => void
 }
 
 
 
-export default function DashboardPage({ user, setUser }: DashboardPageProps) { 
+export default function DashboardPage({ user }: DashboardPageProps) { 
   const [challenges, setChallenges] = useState<GeneratedChallenges | null>(null)
   const [weeklyChallenge, setWeeklyChallenge] = useState<UserChallenge | null>(null)
   const [rawResponse, setRawResponse] = useState<any | null>(null)
@@ -42,7 +41,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
   const location = useLocation()
   const [showPopup, setShowPopup] = useState(false)
   const popupRef = useRef<HTMLDivElement | null>(null)
-   const { user: authUser } = useAuth(); // ✅ INSIDE COMPONENT
+   const { user: authUser, login } = useAuth(); // ✅ INSIDE COMPONENT
 
   useEffect(() => {
     const loadChallenges = async () => {
@@ -494,7 +493,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                                 level: Math.floor((backendUser.points || 0) / 100) + 1,
                                 createdAt: backendUser.created_at || new Date().toISOString(),
                               }
-                              if (setUser) setUser(mapped)
+                              login(mapped)
                             }
                           } catch (e) {
                             // ignore
@@ -559,7 +558,7 @@ export default function DashboardPage({ user, setUser }: DashboardPageProps) {
                               level: Math.floor((backendUser.points || 0) / 100) + 1,
                               createdAt: backendUser.created_at || new Date().toISOString(),
                             }
-                            if (setUser) setUser(mapped)
+                            login(mapped)
                           }
                         } catch (e) {
                           // ignore

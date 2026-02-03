@@ -14,8 +14,9 @@ import RegisterPage from './pages/RegisterPage'
 import AdminPanel from './pages/AdminPanel'
 import AdminRoute from './routes/AdminRoute'
 import WelcomePage from './pages/WelcomePage'
+import { useAuth } from './pages/AuthContext'
 function App() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, login } = useAuth()
   const [restoring, setRestoring] = useState(true)
 
   useEffect(() => {
@@ -38,7 +39,7 @@ function App() {
             createdAt: backendUser.created_at || new Date().toISOString(),
             is_admin: backendUser.is_admin || false,
           }
-          setUser(mapped)
+          login(mapped)
         }
       } catch (e) {
         // token invalid or backend unreachable — leave user null
@@ -47,7 +48,7 @@ function App() {
     }
 
     tryRestore().finally(() => setRestoring(false))
-  }, [])
+  }, [login])
 
  
 
@@ -73,7 +74,7 @@ function App() {
             restoring ? (
               <div style={{ padding: 40, textAlign: 'center' }}>Restoring session...</div>
             ) : user ? (
-              <DashboardPage user={user} setUser={(u: User) => setUser(u)} />
+              <DashboardPage user={user} />
             ) : (
               <Navigate to="/" replace />
             )
@@ -82,8 +83,8 @@ function App() {
         <Route path="/health-check" element={<QuestionsHealth />} />
         <Route path="/your-goals" element={<YourGoals />} />
         {/* <Route path="/challenge" element={<DailyQuestionnaire />} /> */}
-        <Route path="/login" element={<LoginPage setUser={(u: User) => setUser(u)} />} />
-        <Route path="/register" element={<RegisterPage setUser={(u: User) => setUser(u)} />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/challenges" element={<Challenges />} />
         <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
       </Routes>

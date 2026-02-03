@@ -2,17 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import type { User } from '../types'
+import { useAuth } from './AuthContext'
 
-interface LoginPageProps {
-  setUser: (user: User) => void
-}
-
-export default function LoginPage({ setUser }: LoginPageProps) {
+export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,7 +49,7 @@ export default function LoginPage({ setUser }: LoginPageProps) {
               // ignore and fallback to synthetic user
             }
 
-            setUser(realUser)
+            login(realUser)
             navigate('/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')

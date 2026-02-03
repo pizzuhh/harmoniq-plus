@@ -1,11 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import api from "../services/api";
-
-type User = {
-  id: string;
-  username: string;
-  is_admin: boolean;
-};
+import type { User } from "../types";
 
 type AuthContextType = {
   user: User | null;
@@ -27,11 +22,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const me: any = await api.request('/api/me');
         if (me) {
-          setUser({
+          const mapped: User = {
             id: me.id,
             username: me.name || me.username || '',
+            email: me.mail || '',
+            totalXp: me.points || 0,
+            currentXp: (me.points || 0) % 100,
+            level: Math.floor((me.points || 0) / 100) + 1,
+            createdAt: me.created_at || new Date().toISOString(),
             is_admin: me.is_admin || false,
-          });
+          };
+          setUser(mapped);
         }
       } catch (e) {
         console.warn('Failed to restore auth from token', e);

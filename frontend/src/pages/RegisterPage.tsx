@@ -2,12 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import type { User } from '../types'
+import { useAuth } from './AuthContext'
 
-interface RegisterPageProps {
-  setUser: (user: User) => void
-}
-
-export default function RegisterPage({ setUser }: RegisterPageProps) {
+export default function RegisterPage() {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -15,6 +12,7 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,7 +56,7 @@ export default function RegisterPage({ setUser }: RegisterPageProps) {
           // ignore and fallback to synthetic user
         }
 
-        setUser(realUser)
+        login(realUser)
         navigate('/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed')
