@@ -865,7 +865,7 @@ pub async fn admin_edit_user(headers: HeaderMap, Path(id): Path<Uuid>, State(sta
 pub async fn admin_add_challange(State(state): State<AppState>, Json(body): Json<Value>) -> StatusCode {
     let title = body["title"].as_str();
     let description = body["description"].as_str();
-    let xp = (body["xpReward"].as_i64().unwrap()) as i32;
+    let xp = (body["xp"].as_i64().unwrap()) as i32;
 
     let res = sqlx::query!("INSERT INTO quests (name, description, points_received, required_points) VALUES ($1, $2, $3, $3);", title, description, xp)
         .execute(&state.db_connection).await;
