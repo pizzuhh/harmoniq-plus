@@ -732,7 +732,7 @@ pub async fn diary_delete(headers: HeaderMap, State(state): State<AppState>, Pat
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR
     };
 
-    let r = sqlx::query!("DELETE FROM personal_challanges WHERE user_id = $1 AND id = $2;", user_id, qid)
+    let r = sqlx::query!("DELETE FROM diary WHERE user_id = $1 AND id = $2;", user_id, qid)
         .execute(&state.db_connection)
         .await;
 
